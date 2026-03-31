@@ -4,552 +4,817 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carousel AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,700&family=Space+Grotesk:wght@400;600;700&family=Montserrat:wght@700;900&family=Raleway:wght@700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-:root {
-  --bg: #0e0e0e; --surface: #161616; --surface2: #1e1e1e; --surface3: #252525;
-  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
-  --text: #f0ede8; --muted: #666; --accent: #d4f55c; --blue: #4a7fd4;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f7f6f3;
+  color: #1a1a18;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 300; min-height: 100vh; display: flex; flex-direction: column; }
 
-.header { padding: 16px 28px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.logo { font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-.logo-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-.nav { display: flex; gap: 4px; }
-.nav-btn { padding: 6px 14px; font-size: 12px; border: 0.5px solid transparent; border-radius: 6px; cursor: pointer; background: transparent; color: var(--muted); font-family: 'Inter', sans-serif; transition: all .15s; }
-.nav-btn:hover { color: var(--text); }
-.nav-btn.active { background: var(--surface2); border-color: var(--border2); color: var(--text); }
+/* HEADER */
+.header {
+  background: #fff;
+  border-bottom: 1px solid #e8e6e0;
+  padding: 0 40px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a18;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-dot {
+  width: 8px; height: 8px;
+  background: #1a1a18;
+  border-radius: 50%;
+  animation: pulse 3s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.7)} }
 
-.app { display: grid; grid-template-columns: 400px 1fr; flex: 1; min-height: 0; }
+.nav { display: flex; gap: 2px; }
+.nav-btn {
+  padding: 6px 16px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+  color: #888;
+  transition: all .15s;
+}
+.nav-btn:hover { background: #f0ede8; color: #1a1a18; }
+.nav-btn.active { background: #1a1a18; color: #fff; }
 
-.left { border-right: 0.5px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
-.left-section { padding: 20px 24px; border-bottom: 0.5px solid var(--border); }
-.section-label { font-size: 10px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+/* LAYOUT */
+.layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  flex: 1;
+  min-height: 0;
+}
 
-textarea { width: 100%; height: 160px; background: var(--surface2); border: 0.5px solid var(--border2); border-radius: 8px; padding: 12px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 300; line-height: 1.65; resize: none; }
-textarea:focus { outline: none; border-color: var(--accent); }
-textarea::placeholder { color: #3a3a3a; }
+/* SIDEBAR */
+.sidebar {
+  background: #fff;
+  border-right: 1px solid #e8e6e0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
 
-.styles { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; }
-.style-opt { border: 0.5px solid var(--border2); border-radius: 8px; padding: 8px; cursor: pointer; transition: all .15s; }
-.style-opt:hover { border-color: rgba(212,245,92,.4); }
-.style-opt.active { border-color: var(--accent); background: rgba(212,245,92,.05); }
-.style-prev { height: 34px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-family: 'Unbounded',sans-serif; font-size: 8px; font-weight: 700; margin-bottom: 5px; }
-.style-name { font-size: 10px; color: var(--muted); text-align: center; }
+.sidebar-block {
+  padding: 24px 28px;
+  border-bottom: 1px solid #f0ede8;
+}
 
-.count-row { display: flex; align-items: center; gap: 8px; }
-.count-btn { width: 26px; height: 26px; border: 0.5px solid var(--border2); background: var(--surface2); color: var(--text); border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.count-btn:hover { border-color: var(--accent); color: var(--accent); }
-.count-num { font-family: 'Unbounded', sans-serif; font-size: 18px; font-weight: 700; padding: 0 10px; }
+.sidebar-block:last-child { border-bottom: none; }
 
-.gen-btn { width: 100%; padding: 13px; background: var(--accent); color: #111; font-family: 'Unbounded', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .05em; border: none; border-radius: 8px; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.gen-btn:hover:not(:disabled) { opacity: .87; transform: translateY(-1px); }
+.block-title {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 12px;
+}
+
+/* Textarea */
+textarea {
+  width: 100%;
+  height: 140px;
+  border: 1.5px solid #e8e6e0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: #1a1a18;
+  background: #faf9f7;
+  resize: none;
+  transition: border-color .2s;
+}
+textarea:focus { outline: none; border-color: #1a1a18; background: #fff; }
+textarea::placeholder { color: #bbb; }
+
+/* Themes grid */
+.themes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.theme-card {
+  border: 1.5px solid #e8e6e0;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all .15s;
+}
+.theme-card:hover { border-color: #ccc; transform: translateY(-1px); }
+.theme-card.active { border-color: #1a1a18; }
+.theme-preview {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.theme-preview span {
+  font-size: 11px;
+  font-weight: 700;
+}
+.theme-name {
+  padding: 5px 0 6px;
+  font-size: 10px;
+  color: #999;
+  text-align: center;
+  background: #fff;
+}
+
+/* Count */
+.count-row { display: flex; align-items: center; gap: 0; }
+.count-btn {
+  width: 32px; height: 32px;
+  border: 1.5px solid #e8e6e0;
+  background: #fff;
+  color: #1a1a18;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  font-weight: 300;
+}
+.count-btn:hover { border-color: #1a1a18; }
+.count-num {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  width: 48px;
+  text-align: center;
+}
+.count-label { font-size: 12px; color: #aaa; margin-left: 8px; }
+
+/* Generate button */
+.gen-btn {
+  width: 100%;
+  padding: 13px;
+  background: #1a1a18;
+  color: #fff;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.gen-btn:hover:not(:disabled) { background: #333; transform: translateY(-1px); }
 .gen-btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
-.spin { width: 14px; height: 14px; border: 2px solid rgba(0,0,0,.2); border-top-color: #111; border-radius: 50%; animation: spin .7s linear infinite; }
+
+.spin {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
-.error-msg { font-size: 12px; color: #ff7070; padding: 10px 12px; background: rgba(255,80,80,.08); border-radius: 6px; border: 0.5px solid rgba(255,80,80,.2); }
 
+.error-msg {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #c0392b;
+  padding: 10px 12px;
+  background: #fdf0ef;
+  border-radius: 8px;
+  border: 1px solid #f5c6c2;
+  line-height: 1.5;
+}
+
+/* Stats */
 .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
-.stat-card { background: var(--surface2); border-radius: 8px; padding: 12px; text-align: center; }
-.stat-num { font-family: 'Unbounded', sans-serif; font-size: 22px; font-weight: 700; color: var(--text); }
-.stat-label { font-size: 10px; color: var(--muted); margin-top: 3px; }
+.stat-card {
+  background: #faf9f7;
+  border: 1px solid #f0ede8;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+.stat-num {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a18;
+}
+.stat-label { font-size: 10px; color: #bbb; margin-top: 2px; }
 
-.right { display: flex; flex-direction: column; overflow: hidden; }
-.right-header { padding: 16px 24px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.right-title { font-family: 'Unbounded', sans-serif; font-size: 10px; font-weight: 700; color: var(--muted); }
-.dl-btn { padding: 7px 16px; background: var(--surface2); border: 0.5px solid var(--border2); color: var(--text); font-size: 12px; border-radius: 7px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all .15s; display: flex; align-items: center; gap: 6px; }
-.dl-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+/* MAIN CONTENT */
+.main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f7f6f3;
+}
+
+.main-header {
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f7f6f3;
+  border-bottom: 1px solid #e8e6e0;
+}
+.main-title {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #aaa;
+}
+.dl-btn {
+  padding: 8px 18px;
+  background: #fff;
+  border: 1.5px solid #e8e6e0;
+  color: #1a1a18;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
+}
+.dl-btn:hover:not(:disabled) { border-color: #1a1a18; }
 .dl-btn:disabled { opacity: .3; cursor: not-allowed; }
 
-.content-area { flex: 1; overflow-y: auto; }
-.slides-area { padding: 24px; display: flex; flex-direction: column; gap: 12px; }
-.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; gap: 8px; color: var(--muted); text-align: center; }
-.empty-state p { font-size: 13px; }
-.empty-state p:last-child { font-size: 11px; opacity: .6; }
+.scroll-area { flex: 1; overflow-y: auto; padding: 32px; }
 
-.progress-wrap { padding: 60px 24px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.progress-bar-bg { width: 200px; height: 2px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
-.progress-bar { height: 100%; background: var(--accent); width: 0%; transition: width .4s ease; }
-.progress-text { font-size: 12px; color: var(--muted); }
+/* Empty */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 32px;
+  gap: 8px;
+  color: #ccc;
+  text-align: center;
+}
+.empty p { font-size: 14px; }
+.empty p + p { font-size: 12px; opacity: .7; }
 
-.slide-wrap { display: flex; gap: 10px; align-items: flex-start; animation: fadeUp .3s ease both; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-.slide-meta { min-width: 22px; padding-top: 4px; }
-.slide-meta-num { font-family: 'Unbounded', sans-serif; font-size: 9px; font-weight: 700; color: var(--muted); }
-.slide-preview-card { flex: 1; max-width: 380px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 16px rgba(0,0,0,.5); }
+/* Progress */
+.progress-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 32px;
+  gap: 16px;
+}
+.progress-track {
+  width: 220px; height: 2px;
+  background: #e8e6e0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: #1a1a18;
+  width: 0%;
+  transition: width .4s ease;
+  border-radius: 2px;
+}
+.progress-label { font-size: 12px; color: #aaa; }
 
-/* ===================== SLIDE LAYOUTS ===================== */
-/* Базовые стили слайда */
-.sl {
-  width: 100%; aspect-ratio: 1/1;
-  display: flex; flex-direction: column;
-  position: relative; overflow: hidden;
-  font-family: 'Inter', sans-serif;
+/* Slide list */
+.slides-list { display: flex; flex-direction: column; gap: 16px; }
+
+.slide-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  animation: fadeUp .3s ease both;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.slide-index {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ccc;
+  padding-top: 8px;
+  min-width: 24px;
 }
 
-/* Сетка */
-.sl::before {
-  content: ''; position: absolute; inset: 0; z-index: 0;
-  background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
-  background-size: 36px 36px;
+.slide-card {
+  flex: 1;
+  max-width: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.06);
 }
-.sl > * { position: relative; z-index: 1; }
 
-/* === LAYOUT A: Hero — огромный заголовок на весь слайд === */
-.sl-hero { padding: 10% 9%; justify-content: space-between; }
-.sl-hero .sl-num { font-family:'Unbounded',sans-serif; font-size:2.5%; font-weight:700; opacity:.3; margin-bottom: auto; }
-.sl-hero .sl-headline { font-family:'Unbounded',sans-serif; font-weight:900; text-transform:uppercase; line-height:1.05; flex:1; display:flex; align-items:center; font-size:13%; }
-.sl-hero .sl-foot { font-size:3.8%; line-height:1.55; opacity:.55; font-weight:300; padding-top:5%; border-top:0.5px solid rgba(128,128,128,.25); margin-top:auto; }
-
-/* === LAYOUT B: Split — заголовок сверху + блоки снизу === */
-.sl-split { padding: 9% 9% 8%; justify-content: flex-start; }
-.sl-split .sl-num { font-family:'Unbounded',sans-serif; font-size:2.2%; font-weight:700; opacity:.25; margin-bottom:4%; }
-.sl-split .sl-headline { font-family:'Unbounded',sans-serif; font-weight:900; text-transform:uppercase; line-height:1.1; font-size:9%; margin-bottom:4%; }
-.sl-split .sl-divider { width:8%; height:0.5%; margin-bottom:6%; border-radius:1px; }
-.sl-split .sl-blocks { display:flex; flex-direction:column; gap:4%; flex:1; justify-content:flex-start; }
-.sl-split .sl-block-title { font-size:4%; font-weight:600; line-height:1.3; margin-bottom:1.5%; }
-.sl-split .sl-block-body { font-size:3.5%; line-height:1.6; font-weight:300; opacity:.7; }
-
-/* === LAYOUT C: Statement — одна большая мысль по центру === */
-.sl-statement { padding: 10% 9%; justify-content: center; gap: 5%; }
-.sl-statement .sl-num { font-family:'Unbounded',sans-serif; font-size:2.2%; font-weight:700; opacity:.2; position:absolute; top:9%; left:9%; }
-.sl-statement .sl-quote { font-family:'Unbounded',sans-serif; font-size:10.5%; font-weight:900; text-transform:uppercase; line-height:1.1; text-align:center; }
-.sl-statement .sl-body { font-size:4%; line-height:1.65; font-weight:300; text-align:center; opacity:.65; max-width:85%; align-self:center; }
-
-/* === LAYOUT D: List — нумерованный список === */
-.sl-list { padding: 9%; justify-content: flex-start; }
-.sl-list .sl-num { font-family:'Unbounded',sans-serif; font-size:2.2%; font-weight:700; opacity:.25; margin-bottom:3%; }
-.sl-list .sl-headline { font-family:'Unbounded',sans-serif; font-weight:900; text-transform:uppercase; line-height:1.1; font-size:8.5%; margin-bottom:6%; }
-.sl-list .sl-items { display:flex; flex-direction:column; gap:3.5%; flex:1; }
-.sl-list .sl-item { display:flex; gap:3%; align-items:flex-start; }
-.sl-list .sl-item-n { font-family:'Unbounded',sans-serif; font-size:3%; font-weight:900; opacity:.3; min-width:5%; padding-top:.5%; }
-.sl-list .sl-item-text { flex:1; }
-.sl-list .sl-item-title { font-size:4%; font-weight:600; line-height:1.3; margin-bottom:1%; }
-.sl-list .sl-item-body { font-size:3.3%; line-height:1.55; font-weight:300; opacity:.65; }
-
-/* ===================== ЦВЕТА ===================== */
-/* Minimal */
-.c-min { background: #f5f3ee; color: #1a1a1a; }
-.c-min .sl-divider { background: #1a1a1a; }
-.c-min::before { background-image: linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.04) 1px, transparent 1px); }
-
-/* Dark */
-.c-dark { background: #0d0d0d; color: #f0ede8; }
-.c-dark .sl-divider { background: #4a7fd4; }
-.c-dark .sl-accent-bar { position:absolute; top:0; right:0; width:1.2%; height:100%; background:#4a7fd4; z-index:2; }
-
-/* Bold */
-.c-bold { color: #fff; }
-.c-bold .sl-divider { background: rgba(255,255,255,.5); }
-
-/* history */
-.history-area { padding: 24px; display: flex; flex-direction: column; gap: 10px; }
-.history-card { background: var(--surface); border: 0.5px solid var(--border2); border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: border-color .15s; }
-.history-card:hover { border-color: rgba(212,245,92,.3); }
+/* History */
+.history-list { display: flex; flex-direction: column; gap: 10px; }
+.history-item {
+  background: #fff;
+  border: 1px solid #e8e6e0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+.history-item:hover { border-color: #1a1a18; }
 .history-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-.history-date { font-size: 11px; color: var(--muted); }
-.history-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: var(--surface3); color: var(--muted); }
-.history-text { font-size: 13px; color: var(--text); line-height: 1.4; opacity: .8; }
-.history-empty { font-size: 13px; color: var(--muted); padding: 40px 0; text-align: center; }
+.history-date { font-size: 11px; color: #aaa; }
+.history-pill {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #f0ede8;
+  color: #888;
+}
+.history-text { font-size: 13px; color: #555; line-height: 1.4; }
+.history-empty { font-size: 13px; color: #bbb; padding: 40px 0; text-align: center; }
 
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
 
-/* Export area */
-#render-area { position: fixed; left: -9999px; top: 0; }
-.export-slide { width: 1080px; height: 1080px; }
+#render-area { position: fixed; left: -9999px; top: 0; pointer-events: none; }
 </style>
 </head>
 <body>
 
 <header class="header">
-  <div class="logo"><div class="logo-dot"></div>Carousel AI</div>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Carousel AI
+  </div>
   <nav class="nav">
     <button class="nav-btn active" onclick="switchTab('generate', this)">Генератор</button>
     <button class="nav-btn" onclick="switchTab('history', this)">История</button>
   </nav>
 </header>
 
-<div class="app">
-  <div class="left">
-    <div class="left-section">
-      <div class="section-label">Текст</div>
-      <textarea id="txt" placeholder="Вставьте любой текст — анонс, статья, описание функции..."></textarea>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-block">
+      <div class="block-title">Текст</div>
+      <textarea id="txt" placeholder="Вставьте любой текст — анонс события, статью, описание продукта..."></textarea>
     </div>
-    <div class="left-section">
-      <div class="section-label">Стиль</div>
-      <div class="styles">
-        <div class="style-opt active" data-style="minimal" onclick="setStyle(this)">
-          <div class="style-prev" style="background:#f5f3ee;color:#111;font-family:'Unbounded',sans-serif;">Aa</div>
-          <div class="style-name">Минимал</div>
-        </div>
-        <div class="style-opt" data-style="dark" onclick="setStyle(this)">
-          <div class="style-prev" style="background:#0d0d0d;color:#4a7fd4;font-family:'Unbounded',sans-serif;">Aa</div>
-          <div class="style-name">Тёмный</div>
-        </div>
-        <div class="style-opt" data-style="bold" onclick="setStyle(this)">
-          <div class="style-prev" style="background:linear-gradient(135deg,#1a1a2e,#e94560);color:#fff;font-family:'Unbounded',sans-serif;">Aa</div>
-          <div class="style-name">Яркий</div>
-        </div>
-      </div>
+
+    <div class="sidebar-block">
+      <div class="block-title">Тема</div>
+      <div class="themes-grid" id="themes-grid"></div>
     </div>
-    <div class="left-section">
-      <div class="section-label">Количество слайдов</div>
+
+    <div class="sidebar-block">
+      <div class="block-title">Слайдов</div>
       <div class="count-row">
         <button class="count-btn" onclick="chCnt(-1)">−</button>
-        <div class="count-num" id="cnt-display">5</div>
+        <div class="count-num" id="cnt">5</div>
         <button class="count-btn" onclick="chCnt(1)">+</button>
-        <span style="font-size:12px;color:var(--muted);margin-left:4px">слайдов</span>
+        <span class="count-label">слайдов</span>
       </div>
     </div>
-    <div class="left-section">
+
+    <div class="sidebar-block">
       <button class="gen-btn" id="gen-btn" onclick="generate()">
         <span id="gen-label">Сгенерировать</span>
       </button>
-      <div id="gen-error" style="margin-top:10px;display:none" class="error-msg"></div>
+      <div id="gen-error" style="display:none" class="error-msg"></div>
     </div>
-    <div class="left-section">
-      <div class="section-label">Статистика</div>
+
+    <div class="sidebar-block">
+      <div class="block-title">Статистика</div>
       <div class="stats-row">
         <div class="stat-card"><div class="stat-num" id="stat-total">—</div><div class="stat-label">всего</div></div>
         <div class="stat-card"><div class="stat-num" id="stat-today">—</div><div class="stat-label">сегодня</div></div>
         <div class="stat-card"><div class="stat-num" id="stat-week">—</div><div class="stat-label">за неделю</div></div>
       </div>
     </div>
-  </div>
 
-  <div class="right">
-    <div class="right-header">
-      <div class="right-title" id="right-title">ПРЕДПРОСМОТР</div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="main-header">
+      <div class="main-title" id="main-title">Предпросмотр</div>
       <button class="dl-btn" id="dl-btn" onclick="downloadZip()" disabled>
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg>
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg>
         Скачать ZIP
       </button>
     </div>
-    <div class="content-area" id="content-area">
+
+    <div class="scroll-area" id="scroll-area">
       <div id="tab-generate">
-        <div id="empty-state" class="empty-state">
-          <p>Вставьте текст и нажмите «Сгенерировать»</p>
-          <p>Генерация занимает ~5 секунд</p>
+        <div id="empty-state" class="empty">
+          <p>Выберите тему и нажмите «Сгенерировать»</p>
+          <p>Каждая генерация уникальна — layout меняется случайно</p>
         </div>
         <div id="progress-state" class="progress-wrap" style="display:none">
-          <div class="progress-bar-bg"><div class="progress-bar" id="progress-bar"></div></div>
-          <div class="progress-text" id="progress-text">Генерирую...</div>
+          <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+          <div class="progress-label" id="progress-label">Генерирую...</div>
         </div>
-        <div class="slides-area" id="slides-area" style="display:none"></div>
+        <div class="slides-list" id="slides-list" style="display:none"></div>
       </div>
+
       <div id="tab-history" style="display:none">
-        <div class="history-area" id="history-area"><div class="history-empty">Загружаю...</div></div>
+        <div class="history-list" id="history-list">
+          <div class="history-empty">Загружаю...</div>
+        </div>
       </div>
     </div>
-  </div>
+  </main>
+
 </div>
 
 <div id="render-area"></div>
 
 <script>
-const BOLD_BGS = [
-  'linear-gradient(135deg,#1a1a2e,#e94560)',
-  'linear-gradient(135deg,#0f3460,#533483)',
-  'linear-gradient(135deg,#1b1b2f,#e43f5a)',
-  'linear-gradient(135deg,#16213e,#533483)',
-  'linear-gradient(135deg,#2c003e,#e94560)',
-  'linear-gradient(135deg,#0d0d0d,#1a472a)',
-  'linear-gradient(135deg,#200122,#6f0000)',
-  'linear-gradient(135deg,#0d2137,#1a6b5a)',
-];
-
-const SESSION_ID = localStorage.getItem('sid') || (() => {
-  const id = 'sess_' + Math.random().toString(36).slice(2);
-  localStorage.setItem('sid', id);
-  return id;
-})();
-
-let currentStyle = 'minimal', slideCount = 5, currentSlides = [], progressTimer;
-
-function setStyle(el) {
-  document.querySelectorAll('.style-opt').forEach(o => o.classList.remove('active'));
-  el.classList.add('active');
-  currentStyle = el.dataset.style;
-  if (currentSlides.length) renderPreviews(currentSlides);
-}
-
-function chCnt(d) {
-  slideCount = Math.max(3, Math.min(8, slideCount + d));
-  document.getElementById('cnt-display').textContent = slideCount;
-}
-
-function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
-
-function switchTab(tab, btn) {
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-generate').style.display = tab === 'generate' ? 'block' : 'none';
-  document.getElementById('tab-history').style.display = tab === 'history' ? 'block' : 'none';
-  document.getElementById('right-title').textContent = tab === 'generate' ? 'ПРЕДПРОСМОТР' : 'ИСТОРИЯ';
-  document.getElementById('dl-btn').style.display = tab === 'generate' ? 'flex' : 'none';
-  if (tab === 'history') loadHistory();
-}
-
-function setLoading(on) {
-  const btn = document.getElementById('gen-btn');
-  btn.disabled = on;
-  btn.innerHTML = on ? '<div class="spin"></div><span>Генерирую...</span>' : '<span id="gen-label">Сгенерировать</span>';
-}
-
-function startProgress() {
-  document.getElementById('empty-state').style.display = 'none';
-  document.getElementById('slides-area').style.display = 'none';
-  document.getElementById('progress-state').style.display = 'flex';
-  const bar = document.getElementById('progress-bar');
-  const txt = document.getElementById('progress-text');
-  const msgs = ['Анализирую текст...', 'Выделяю ключевые мысли...', 'Формирую слайды...', 'Почти готово...'];
-  let p = 0, mi = 0;
-  bar.style.width = '0%';
-  progressTimer = setInterval(() => {
-    p = Math.min(p + Math.random() * 6 + 2, 88);
-    bar.style.width = p + '%';
-    if (mi < msgs.length - 1 && p > (mi + 1) * 22) { mi++; txt.textContent = msgs[mi]; }
-  }, 350);
-}
-
-function stopProgress() {
-  clearInterval(progressTimer);
-  document.getElementById('progress-bar').style.width = '100%';
-  setTimeout(() => { document.getElementById('progress-state').style.display = 'none'; }, 300);
-}
-
-async function generate() {
-  const text = document.getElementById('txt').value.trim();
-  const errEl = document.getElementById('gen-error');
-  errEl.style.display = 'none';
-  if (text.length < 10) { errEl.textContent = 'Введите текст.'; errEl.style.display = 'block'; return; }
-
-  setLoading(true);
-  startProgress();
-
-  try {
-    const res = await fetch('/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, style: currentStyle, slideCount, sessionId: SESSION_ID })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Ошибка сервера');
-
-    stopProgress();
-    currentSlides = data.slides;
-    renderPreviews(currentSlides);
-    document.getElementById('dl-btn').disabled = false;
-    loadStats();
-  } catch (e) {
-    stopProgress();
-    document.getElementById('empty-state').style.display = 'flex';
-    errEl.textContent = 'Ошибка: ' + e.message;
-    errEl.style.display = 'block';
-  } finally {
-    setLoading(false);
+// ── ТЕМЫ ──────────────────────────────────────────────────────
+const THEMES = {
+  noir: {
+    label: 'Noir',
+    bg:'#0d0d0d', text:'#f0ede8', accent:'#d4f55c', muted:'rgba(240,237,232,0.5)',
+    font:"'Unbounded',sans-serif", bodyFont:"'Inter',sans-serif",
+    grid:'rgba(255,255,255,0.03)',
+    prev: { bg:'#0d0d0d', color:'#d4f55c', text:'NOIR' }
+  },
+  slate: {
+    label: 'Slate',
+    bg:'#1a1f2e', text:'#e8eaf0', accent:'#5b8cff', muted:'rgba(232,234,240,0.5)',
+    font:"'Space Grotesk',sans-serif", bodyFont:"'Inter',sans-serif",
+    grid:'rgba(91,140,255,0.05)',
+    prev: { bg:'#1a1f2e', color:'#5b8cff', text:'SLATE' }
+  },
+  cream: {
+    label: 'Cream',
+    bg:'#f5f0e8', text:'#1a1714', accent:'#c0392b', muted:'rgba(26,23,20,0.45)',
+    font:"'Playfair Display',serif", bodyFont:"'Inter',sans-serif",
+    grid:'rgba(0,0,0,0.04)',
+    prev: { bg:'#f5f0e8', color:'#c0392b', text:'Cream' }
+  },
+  forest: {
+    label: 'Forest',
+    bg:'#0f1f14', text:'#d4e8c2', accent:'#7bc67e', muted:'rgba(212,232,194,0.5)',
+    font:"'Montserrat',sans-serif", bodyFont:"'Inter',sans-serif",
+    grid:'rgba(123,198,126,0.04)',
+    prev: { bg:'#0f1f14', color:'#7bc67e', text:'FOREST' }
+  },
+  rose: {
+    label: 'Rose',
+    bg:'#1f1015', text:'#f0dde4', accent:'#e87aa0', muted:'rgba(240,221,228,0.5)',
+    font:"'Raleway',sans-serif", bodyFont:"'Inter',sans-serif",
+    grid:'rgba(232,122,160,0.05)',
+    prev: { bg:'#1f1015', color:'#e87aa0', text:'ROSE' }
+  },
+  paper: {
+    label: 'Paper',
+    bg:'#fafaf7', text:'#2c2c28', accent:'#2c2c28', muted:'rgba(44,44,40,0.45)',
+    font:"'Playfair Display',serif", bodyFont:"'Inter',sans-serif",
+    grid:'rgba(0,0,0,0.04)',
+    prev: { bg:'#fafaf7', color:'#2c2c28', text:'Paper' }
   }
+};
+
+// ── LAYOUTS ──────────────────────────────────────────────────
+const MID_LAYOUTS = ['bigquote','split','list','centered'];
+
+function makeLayoutPlan(total) {
+  const plan = [];
+  for (let i = 0; i < total; i++) {
+    if (i === 0 || i === total - 1) { plan.push('hero'); continue; }
+    const prev = plan[i-1];
+    const avail = MID_LAYOUTS.filter(l => l !== prev);
+    plan.push(avail[Math.floor(Math.random() * avail.length)]);
+  }
+  return plan;
 }
 
-// Определяем layout для каждого слайда по позиции и контенту
-function getLayout(slide, index, total) {
-  if (index === 0) return 'hero';           // Первый — всегда hero
-  if (index === total - 1) return 'hero';   // Последний — всегда hero
-  // Средние чередуем: split, statement, list, split...
-  const mid = index - 1;
-  const layouts = ['split', 'statement', 'list', 'split', 'statement'];
-  return layouts[mid % layouts.length];
+// ── SLIDE BUILDER ─────────────────────────────────────────────
+function clamp(v, mn, mx) { return Math.max(mn, Math.min(mx, v)); }
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
 }
 
-function buildSlideHTML(slide, index, total, style, forExport = false) {
-  const layout = getLayout(slide, index, total);
-  const n = String(index + 1).padStart(2, '0');
-  const colorClass = style === 'minimal' ? 'c-min' : style === 'dark' ? 'c-dark' : 'c-bold';
-  const boldBg = style === 'bold' ? `style="background:${BOLD_BGS[index % BOLD_BGS.length]}"` : '';
-  const darkAccent = style === 'dark' ? '<div class="sl-accent-bar"></div>' : '';
+function buildSlide(slide, idx, total, themeKey, layout, W) {
+  const t = THEMES[themeKey];
+  const n = String(idx+1).padStart(2,'0');
+  const tot = String(total).padStart(2,'0');
+  const p = Math.round(W * 0.088);
+  const sc = W / 400;
 
   const h = esc(slide.headline || '');
   const s = esc(slide.subhead || '');
   const b = esc(slide.body || '');
 
-  // Разбиваем body на пункты если есть точки/переносы
-  const bodyItems = (slide.body || '').split(/\n|(?<=\.)(?=\s[А-ЯA-Z])/).filter(x => x.trim().length > 10).slice(0, 3);
+  const bodyItems = (slide.body || '')
+    .split(/\n+/).map(x => x.trim()).filter(x => x.length > 5).slice(0, 4);
+  const items = bodyItems.length >= 2 ? bodyItems : [slide.subhead, slide.body].filter(Boolean);
 
-  let inner = '';
+  const gridBg = `background-image:linear-gradient(${t.grid} 1px,transparent 1px),linear-gradient(90deg,${t.grid} 1px,transparent 1px);background-size:${36*sc}px ${36*sc}px;`;
+
+  const base = `
+    width:${W}px;height:${W}px;
+    background:${t.bg};
+    display:flex;flex-direction:column;
+    position:relative;overflow:hidden;
+    font-family:${t.bodyFont};
+  `;
+
+  const grid = `<div style="position:absolute;inset:0;${gridBg}pointer-events:none;"></div>`;
+  const accentBar = `<div style="position:absolute;top:0;right:0;width:${Math.round(4*sc)}px;height:100%;background:${t.accent};z-index:2;"></div>`;
+  const num = `<div style="font-family:${t.font};font-size:${Math.round(10*sc)}px;font-weight:700;color:${t.muted};margin-bottom:auto;letter-spacing:.04em;">${n} / ${tot}</div>`;
+  const divider = `<div style="width:${Math.round(44*sc)}px;height:${Math.round(3*sc)}px;background:${t.accent};border-radius:${Math.round(2*sc)}px;margin-bottom:${Math.round(22*sc)}px;"></div>`;
+
+  const inner = `position:relative;z-index:1;height:100%;padding:${p}px;display:flex;flex-direction:column;`;
 
   if (layout === 'hero') {
-    inner = `
-      <div class="sl sl-hero ${colorClass}" ${boldBg}>
-        ${darkAccent}
-        <div class="sl-num">${n} / ${String(total).padStart(2,'0')}</div>
-        <div class="sl-headline">${h}</div>
-        ${b ? `<div class="sl-foot">${b}</div>` : (s ? `<div class="sl-foot">${s}</div>` : '')}
-      </div>`;
-  } else if (layout === 'split') {
-    inner = `
-      <div class="sl sl-split ${colorClass}" ${boldBg}>
-        ${darkAccent}
-        <div class="sl-num">${n} / ${String(total).padStart(2,'0')}</div>
-        <div class="sl-headline">${h}</div>
-        <div class="sl-divider"></div>
-        <div class="sl-blocks">
-          ${s ? `<div><div class="sl-block-title">${s}</div>${b ? `<div class="sl-block-body">${b}</div>` : ''}</div>` : ''}
-          ${!s && b ? `<div class="sl-block-body" style="font-size:4.2%;line-height:1.7;opacity:.8">${b}</div>` : ''}
-        </div>
-      </div>`;
-  } else if (layout === 'statement') {
-    inner = `
-      <div class="sl sl-statement ${colorClass}" ${boldBg}>
-        ${darkAccent}
-        <div class="sl-num">${n} / ${String(total).padStart(2,'0')}</div>
-        <div class="sl-quote">${h}</div>
-        ${b ? `<div class="sl-body">${b}</div>` : (s ? `<div class="sl-body">${s}</div>` : '')}
-      </div>`;
-  } else if (layout === 'list') {
-    const items = bodyItems.length >= 2 ? bodyItems : (b ? [s, b].filter(Boolean) : [s, b].filter(Boolean));
-    const listItems = items.slice(0, 3).map((item, i) =>
-      `<div class="sl-item">
-        <div class="sl-item-n">0${i+1}</div>
-        <div class="sl-item-text">
-          <div class="sl-item-body">${esc(item.trim())}</div>
-        </div>
-      </div>`
-    ).join('');
-    inner = `
-      <div class="sl sl-list ${colorClass}" ${boldBg}>
-        ${darkAccent}
-        <div class="sl-num">${n} / ${String(total).padStart(2,'0')}</div>
-        <div class="sl-headline">${h}</div>
-        <div class="sl-items">${listItems || `<div class="sl-item"><div class="sl-item-n">—</div><div class="sl-item-text"><div class="sl-item-body">${b}</div></div></div>`}</div>
-      </div>`;
+    const fz = clamp(Math.round((h.length > 50 ? 34 : h.length > 30 ? 40 : 48) * sc), Math.round(28*sc), Math.round(54*sc));
+    return `<div style="${base}">${grid}${accentBar}
+      <div style="${inner}">
+        ${num}
+        <div style="font-family:${t.font};font-size:${fz}px;font-weight:900;color:${t.text};line-height:1.05;text-transform:uppercase;flex:1;display:flex;align-items:center;">${h}</div>
+        ${(s||b)?`<div style="font-size:${Math.round(13*sc)}px;color:${t.muted};line-height:1.65;padding-top:${Math.round(16*sc)}px;border-top:1px solid ${t.muted.replace('0.5','0.15').replace('0.45','0.15')};font-weight:300;">${b||s}</div>`:''}
+      </div>
+    </div>`;
   }
 
-  return inner;
+  if (layout === 'bigquote') {
+    const fz = clamp(Math.round((h.length > 50 ? 28 : h.length > 30 ? 34 : 40) * sc), Math.round(22*sc), Math.round(44*sc));
+    return `<div style="${base}">${grid}${accentBar}
+      <div style="position:relative;z-index:1;height:100%;padding:${p}px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:${Math.round(18*sc)}px;">
+        <div style="position:absolute;top:${p}px;left:${p}px;font-family:${t.font};font-size:${Math.round(10*sc)}px;font-weight:700;color:${t.muted};">${n} / ${tot}</div>
+        <div style="font-family:${t.font};font-size:${fz}px;font-weight:900;color:${t.text};line-height:1.1;text-transform:uppercase;text-align:center;">${h}</div>
+        ${(s||b)?`<div style="font-size:${Math.round(13*sc)}px;color:${t.muted};line-height:1.65;text-align:center;max-width:${Math.round(300*sc)}px;font-weight:300;">${s||b}</div>`:''}
+      </div>
+    </div>`;
+  }
+
+  if (layout === 'split') {
+    const fz = clamp(Math.round((h.length > 35 ? 26 : 32) * sc), Math.round(20*sc), Math.round(38*sc));
+    return `<div style="${base}">${grid}${accentBar}
+      <div style="${inner}">
+        ${num}
+        <div style="font-family:${t.font};font-size:${fz}px;font-weight:900;color:${t.text};line-height:1.1;text-transform:uppercase;margin-bottom:${Math.round(18*sc)}px;">${h}</div>
+        ${divider}
+        ${s?`<div style="font-size:${Math.round(16*sc)}px;font-weight:600;color:${t.text};margin-bottom:${Math.round(10*sc)}px;line-height:1.35;">${s}</div>`:''}
+        ${b?`<div style="font-size:${Math.round(13*sc)}px;color:${t.muted};line-height:1.7;font-weight:300;flex:1;">${b}</div>`:''}
+      </div>
+    </div>`;
+  }
+
+  if (layout === 'list') {
+    const fz = clamp(Math.round((h.length > 30 ? 24 : 30) * sc), Math.round(18*sc), Math.round(34*sc));
+    const listHTML = items.slice(0, 4).map((item, i) => `
+      <div style="display:flex;gap:${Math.round(14*sc)}px;align-items:flex-start;">
+        <div style="font-family:${t.font};font-size:${Math.round(18*sc)}px;font-weight:900;color:${t.accent};line-height:1;min-width:${Math.round(26*sc)}px;opacity:.8;">0${i+1}</div>
+        <div style="font-size:${Math.round(12*sc)}px;color:${t.text};line-height:1.6;font-weight:300;padding-top:${Math.round(3*sc)}px;opacity:.85;">${esc(item)}</div>
+      </div>`).join('');
+    return `<div style="${base}">${grid}${accentBar}
+      <div style="${inner}">
+        ${num}
+        <div style="font-family:${t.font};font-size:${fz}px;font-weight:900;color:${t.text};line-height:1.1;text-transform:uppercase;margin-bottom:${Math.round(22*sc)}px;">${h}</div>
+        <div style="display:flex;flex-direction:column;gap:${Math.round(14*sc)}px;flex:1;">${listHTML}</div>
+      </div>
+    </div>`;
+  }
+
+  if (layout === 'centered') {
+    const fz = clamp(Math.round((h.length > 40 ? 26 : 33) * sc), Math.round(20*sc), Math.round(38*sc));
+    return `<div style="${base}">${grid}
+      <div style="position:absolute;top:0;left:0;right:0;height:45%;background:${t.accent};opacity:0.07;pointer-events:none;"></div>
+      ${accentBar}
+      <div style="${inner}">
+        ${num}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:${Math.round(14*sc)}px;">
+          <div style="font-family:${t.font};font-size:${fz}px;font-weight:900;color:${t.text};line-height:1.1;text-transform:uppercase;">${h}</div>
+          ${divider}
+          ${s?`<div style="font-size:${Math.round(15*sc)}px;font-weight:600;color:${t.accent};line-height:1.3;">${s}</div>`:''}
+          ${b?`<div style="font-size:${Math.round(13*sc)}px;color:${t.muted};line-height:1.7;font-weight:300;">${b}</div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }
+  return '';
 }
 
-function renderPreviews(slides) {
-  const area = document.getElementById('slides-area');
-  area.innerHTML = '';
-  area.style.display = 'flex';
+// ── STATE ─────────────────────────────────────────────────────
+const SID = localStorage.getItem('sid') || (()=>{ const id='s'+Math.random().toString(36).slice(2); localStorage.setItem('sid',id); return id; })();
+let theme='noir', cnt=5, slides=[], layouts=[], progressTimer;
 
-  slides.forEach((s, i) => {
-    const wrap = document.createElement('div');
-    wrap.className = 'slide-wrap';
-    wrap.style.animationDelay = (i * 0.06) + 's';
-
-    const meta = document.createElement('div');
-    meta.className = 'slide-meta';
-    meta.innerHTML = `<div class="slide-meta-num">0${i+1}</div>`;
-
+// ── THEME GRID ────────────────────────────────────────────────
+function renderThemeGrid() {
+  const grid = document.getElementById('themes-grid');
+  grid.innerHTML = '';
+  Object.entries(THEMES).forEach(([key, t]) => {
     const card = document.createElement('div');
-    card.className = 'slide-preview-card';
-    card.innerHTML = buildSlideHTML(s, i, slides.length, currentStyle);
+    card.className = 'theme-card' + (key===theme?' active':'');
+    card.innerHTML = `
+      <div class="theme-preview" style="background:${t.prev.bg}">
+        <span style="color:${t.prev.color};font-family:${t.font};font-size:11px;">${t.prev.text}</span>
+      </div>
+      <div class="theme-name">${t.label}</div>`;
+    card.onclick = () => {
+      document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('active'));
+      card.classList.add('active');
+      theme = key;
+      if (slides.length) renderSlides();
+    };
+    grid.appendChild(card);
+  });
+}
 
-    wrap.appendChild(meta);
-    wrap.appendChild(card);
-    area.appendChild(wrap);
+function chCnt(d) {
+  cnt = Math.max(3, Math.min(8, cnt+d));
+  document.getElementById('cnt').textContent = cnt;
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-generate').style.display = tab==='generate'?'block':'none';
+  document.getElementById('tab-history').style.display = tab==='history'?'block':'none';
+  document.getElementById('main-title').textContent = tab==='generate'?'Предпросмотр':'История';
+  document.getElementById('dl-btn').style.display = tab==='generate'?'flex':'none';
+  if (tab==='history') loadHistory();
+}
+
+function setLoading(on) {
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = on;
+  btn.innerHTML = on ? '<div class="spin"></div><span>Генерирую...</span>' : '<span>Сгенерировать</span>';
+}
+
+function startProgress() {
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('slides-list').style.display = 'none';
+  document.getElementById('progress-state').style.display = 'flex';
+  const fill = document.getElementById('progress-fill');
+  const lbl = document.getElementById('progress-label');
+  const msgs = ['Анализирую текст...','Выделяю ключевые мысли...','Формирую слайды...','Почти готово...'];
+  let p=0, mi=0; fill.style.width='0%';
+  progressTimer = setInterval(()=>{
+    p = Math.min(p + Math.random()*6+2, 88);
+    fill.style.width = p+'%';
+    if (mi<msgs.length-1 && p>(mi+1)*22) { mi++; lbl.textContent=msgs[mi]; }
+  }, 350);
+}
+
+function stopProgress() {
+  clearInterval(progressTimer);
+  document.getElementById('progress-fill').style.width='100%';
+  setTimeout(()=>{ document.getElementById('progress-state').style.display='none'; }, 300);
+}
+
+async function generate() {
+  const text = document.getElementById('txt').value.trim();
+  const err = document.getElementById('gen-error');
+  err.style.display='none';
+  if (text.length<10) { err.textContent='Введите текст.'; err.style.display='block'; return; }
+  setLoading(true); startProgress();
+  try {
+    const res = await fetch('/generate', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ text, style:theme, slideCount:cnt, sessionId:SID })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error||'Ошибка сервера');
+    stopProgress();
+    slides = data.slides;
+    layouts = makeLayoutPlan(slides.length);
+    renderSlides();
+    document.getElementById('dl-btn').disabled = false;
+    loadStats();
+  } catch(e) {
+    stopProgress();
+    document.getElementById('empty-state').style.display='flex';
+    err.textContent='Ошибка: '+e.message; err.style.display='block';
+  } finally { setLoading(false); }
+}
+
+function renderSlides() {
+  const list = document.getElementById('slides-list');
+  list.innerHTML=''; list.style.display='flex';
+  if (!layouts.length || layouts.length!==slides.length) layouts=makeLayoutPlan(slides.length);
+  slides.forEach((s,i)=>{
+    const row = document.createElement('div');
+    row.className='slide-row';
+    row.style.animationDelay=(i*.07)+'s';
+    row.innerHTML=`<div class="slide-index">0${i+1}</div><div class="slide-card"></div>`;
+    row.querySelector('.slide-card').innerHTML = buildSlide(s,i,slides.length,theme,layouts[i],380);
+    list.appendChild(row);
   });
 }
 
 async function downloadZip() {
-  if (!currentSlides.length) return;
+  if (!slides.length) return;
   const btn = document.getElementById('dl-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spin" style="border-top-color:var(--accent)"></div> Рендерю...';
-
-  const renderArea = document.getElementById('render-area');
-  renderArea.innerHTML = '';
-
-  // Создаём слайды 1080×1080 в скрытой области
-  currentSlides.forEach((s, i) => {
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'width:1080px;height:1080px;overflow:hidden;font-size:10px;';
-    // Масштабируем через font-size: всё в % от font-size через em
-    wrapper.innerHTML = `<div style="width:1080px;height:1080px;font-size:10px;">${buildSlideHTML(s, i, currentSlides.length, currentStyle, true)}</div>`;
-    // Подгоняем размер шрифта под 1080px
-    wrapper.querySelector('.sl').style.fontSize = '10px';
-    renderArea.appendChild(wrapper);
+  btn.disabled=true; btn.innerHTML='<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.15)"></div> Рендерю...';
+  const ra = document.getElementById('render-area');
+  ra.innerHTML='';
+  slides.forEach((s,i)=>{
+    const wrap=document.createElement('div');
+    wrap.style.cssText='width:1080px;height:1080px;overflow:hidden;';
+    wrap.innerHTML=buildSlide(s,i,slides.length,theme,layouts[i],1080);
+    ra.appendChild(wrap);
   });
-
   await document.fonts.ready;
-  await new Promise(r => setTimeout(r, 600));
-
-  const zip = new JSZip();
-  const wrappers = renderArea.children;
-
-  for (let i = 0; i < wrappers.length; i++) {
-    btn.innerHTML = `<div class="spin" style="border-top-color:var(--accent)"></div> ${i+1}/${wrappers.length}`;
-    const slideEl = wrappers[i].querySelector('.sl');
-    slideEl.style.width = '1080px';
-    slideEl.style.height = '1080px';
-    const canvas = await html2canvas(wrappers[i], {
-      scale: 1, useCORS: true, backgroundColor: null,
-      width: 1080, height: 1080, logging: false
-    });
-    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-    zip.file(`slide-${String(i+1).padStart(2,'0')}.png`, blob);
+  await new Promise(r=>setTimeout(r,800));
+  const zip=new JSZip();
+  for(let i=0;i<ra.children.length;i++){
+    btn.innerHTML=`<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.15)"></div> ${i+1}/${ra.children.length}`;
+    const canvas=await html2canvas(ra.children[i],{scale:1,useCORS:true,backgroundColor:null,width:1080,height:1080,logging:false});
+    const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+    zip.file(`slide-${String(i+1).padStart(2,'0')}.png`,blob);
   }
-
-  const zipBlob = await zip.generateAsync({ type: 'blob' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(zipBlob);
-  a.download = 'carousel.zip';
-  a.click();
-
-  renderArea.innerHTML = '';
-  btn.disabled = false;
-  btn.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg> Скачать ZIP`;
+  const zb=await zip.generateAsync({type:'blob'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(zb); a.download='carousel.zip'; a.click();
+  ra.innerHTML='';
+  btn.disabled=false;
+  btn.innerHTML=`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg> Скачать ZIP`;
 }
 
 async function loadStats() {
   try {
-    const res = await fetch('/stats');
-    const data = await res.json();
-    document.getElementById('stat-total').textContent = data.total;
-    document.getElementById('stat-today').textContent = data.today;
-    document.getElementById('stat-week').textContent = data.thisWeek;
-  } catch {}
+    const r=await fetch('/stats'); const d=await r.json();
+    document.getElementById('stat-total').textContent=d.total;
+    document.getElementById('stat-today').textContent=d.today;
+    document.getElementById('stat-week').textContent=d.thisWeek;
+  } catch{}
 }
 
 async function loadHistory() {
-  const area = document.getElementById('history-area');
+  const area=document.getElementById('history-list');
   try {
-    const res = await fetch(`/history?sessionId=${SESSION_ID}`);
-    const data = await res.json();
-    if (!data.length) { area.innerHTML = '<div class="history-empty">История пуста</div>'; return; }
-    area.innerHTML = '';
-    data.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'history-card';
-      const date = new Date(item.created_at).toLocaleDateString('ru', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
-      card.innerHTML = `
+    const r=await fetch(`/history?sessionId=${SID}`); const data=await r.json();
+    if(!data.length){area.innerHTML='<div class="history-empty">История пуста</div>';return;}
+    area.innerHTML='';
+    data.forEach(item=>{
+      const el=document.createElement('div'); el.className='history-item';
+      const date=new Date(item.created_at).toLocaleDateString('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+      el.innerHTML=`
         <div class="history-meta">
           <div class="history-date">${date}</div>
-          <div class="history-badge">${item.slide_count} сл · ${item.style}</div>
+          <div class="history-pill">${item.slide_count} сл · ${item.style}</div>
         </div>
-        <div class="history-text">${esc(item.input_text.slice(0, 120))}${item.input_text.length > 120 ? '...' : ''}</div>`;
-      card.onclick = () => {
-        currentSlides = item.slides;
-        currentStyle = item.style;
-        document.querySelectorAll('.style-opt').forEach(o => o.classList.toggle('active', o.dataset.style === item.style));
-        switchTab('generate', document.querySelector('.nav-btn'));
-        renderPreviews(currentSlides);
-        document.getElementById('dl-btn').disabled = false;
+        <div class="history-text">${esc(item.input_text.slice(0,120))}${item.input_text.length>120?'...':''}</div>`;
+      el.onclick=()=>{
+        slides=item.slides; theme=item.style;
+        document.querySelectorAll('.theme-card').forEach((c,idx)=>{
+          c.classList.toggle('active',Object.keys(THEMES)[idx]===item.style);
+        });
+        layouts=makeLayoutPlan(slides.length);
+        switchTab('generate',document.querySelector('.nav-btn'));
+        renderSlides();
+        document.getElementById('dl-btn').disabled=false;
       };
-      area.appendChild(card);
+      area.appendChild(el);
     });
-  } catch { area.innerHTML = '<div class="history-empty">Ошибка загрузки</div>'; }
+  } catch{area.innerHTML='<div class="history-empty">Ошибка загрузки</div>';}
 }
 
+renderThemeGrid();
 loadStats();
-document.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key==='Enter') generate(); });
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')generate();});
 </script>
 </body>
 </html>
