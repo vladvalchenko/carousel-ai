@@ -4,521 +4,270 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carousel AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,700&family=Space+Grotesk:wght@400;600;700&family=Montserrat:wght@700;900&family=Raleway:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Space+Grotesk:wght@400;500;600;700&family=Montserrat:wght@700;800;900&family=Raleway:wght@300;700;900&family=Syne:wght@700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f5f4f1;color:#1a1a18;min-height:100vh;display:flex;flex-direction:column;}
 
-body {
-  font-family: 'Inter', sans-serif;
-  background: #f7f6f3;
-  color: #1a1a18;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+.header{background:#fff;border-bottom:1px solid #e5e3de;padding:0 36px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.logo-dot{width:7px;height:7px;background:#1a1a18;border-radius:50%;animation:pulse 3s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.25;transform:scale(.65)}}
+.nav{display:flex;gap:2px;}
+.nav-btn{padding:5px 14px;font-size:12px;font-family:'Inter',sans-serif;border:none;border-radius:6px;cursor:pointer;background:transparent;color:#999;transition:all .15s;}
+.nav-btn:hover{background:#f0ede8;color:#1a1a18;}
+.nav-btn.active{background:#1a1a18;color:#fff;}
 
-/* HEADER */
-.header {
-  background: #fff;
-  border-bottom: 1px solid #e8e6e0;
-  padding: 0 40px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.logo {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  color: #1a1a18;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.logo-dot {
-  width: 8px; height: 8px;
-  background: #1a1a18;
-  border-radius: 50%;
-  animation: pulse 3s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.7)} }
-
-.nav { display: flex; gap: 2px; }
-.nav-btn {
-  padding: 6px 16px;
-  font-size: 13px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  background: transparent;
-  color: #888;
-  transition: all .15s;
-}
-.nav-btn:hover { background: #f0ede8; color: #1a1a18; }
-.nav-btn.active { background: #1a1a18; color: #fff; }
-
-/* LAYOUT */
-.layout {
-  display: grid;
-  grid-template-columns: 360px 1fr;
-  flex: 1;
-  min-height: 0;
-}
+.layout{display:grid;grid-template-columns:380px 1fr;flex:1;}
 
 /* SIDEBAR */
-.sidebar {
-  background: #fff;
-  border-right: 1px solid #e8e6e0;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
+.sidebar{background:#fff;border-right:1px solid #e5e3de;display:flex;flex-direction:column;overflow-y:auto;}
+.sb{padding:20px 24px;border-bottom:1px solid #f0ede8;}
+.sb:last-child{border-bottom:none;}
+.sb-title{font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#bbb;margin-bottom:12px;}
 
-.sidebar-block {
-  padding: 24px 28px;
-  border-bottom: 1px solid #f0ede8;
-}
+textarea{width:100%;height:130px;border:1.5px solid #e5e3de;border-radius:9px;padding:11px 13px;font-family:'Inter',sans-serif;font-size:13px;font-weight:300;line-height:1.7;color:#1a1a18;background:#faf9f7;resize:none;transition:border-color .2s;}
+textarea:focus{outline:none;border-color:#1a1a18;background:#fff;}
+textarea::placeholder{color:#c5c2bb;}
 
-.sidebar-block:last-child { border-bottom: none; }
+/* Templates */
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.tpl-card{border:1.5px solid #e5e3de;border-radius:9px;overflow:hidden;cursor:pointer;transition:all .15s;}
+.tpl-card:hover{border-color:#aaa;transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08);}
+.tpl-card.active{border-color:#1a1a18;box-shadow:0 0 0 1px #1a1a18;}
+.tpl-prev{height:56px;display:flex;align-items:center;justify-content:center;padding:8px;}
+.tpl-name{font-size:10px;color:#999;text-align:center;padding:4px 0 5px;background:#fff;}
 
-.block-title {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: #aaa;
-  margin-bottom: 12px;
-}
+/* Controls */
+.ctrl-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.ctrl-label{font-size:12px;color:#666;}
+.ctrl-val{font-size:12px;font-weight:500;color:#1a1a18;min-width:36px;text-align:right;}
+input[type=range]{width:100%;height:3px;background:#e5e3de;border-radius:2px;appearance:none;cursor:pointer;margin:4px 0;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:#1a1a18;cursor:pointer;}
 
-/* Textarea */
-textarea {
-  width: 100%;
-  height: 140px;
-  border: 1.5px solid #e8e6e0;
-  border-radius: 10px;
-  padding: 12px 14px;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 300;
-  line-height: 1.7;
-  color: #1a1a18;
-  background: #faf9f7;
-  resize: none;
-  transition: border-color .2s;
-}
-textarea:focus { outline: none; border-color: #1a1a18; background: #fff; }
-textarea::placeholder { color: #bbb; }
+.seg-btns{display:flex;gap:4px;}
+.seg-btn{flex:1;padding:6px 0;font-size:11px;border:1.5px solid #e5e3de;border-radius:6px;background:#fff;color:#999;cursor:pointer;transition:all .15s;text-align:center;}
+.seg-btn:hover{border-color:#aaa;color:#1a1a18;}
+.seg-btn.active{border-color:#1a1a18;background:#1a1a18;color:#fff;}
 
-/* Themes grid */
-.themes-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.theme-card {
-  border: 1.5px solid #e8e6e0;
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all .15s;
-}
-.theme-card:hover { border-color: #ccc; transform: translateY(-1px); }
-.theme-card.active { border-color: #1a1a18; }
-.theme-preview {
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.theme-preview span {
-  font-size: 11px;
-  font-weight: 700;
-}
-.theme-name {
-  padding: 5px 0 6px;
-  font-size: 10px;
-  color: #999;
-  text-align: center;
-  background: #fff;
-}
+.count-row{display:flex;align-items:center;gap:0;}
+.cnt-btn{width:30px;height:30px;border:1.5px solid #e5e3de;background:#fff;color:#1a1a18;border-radius:7px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.cnt-btn:hover{border-color:#1a1a18;}
+.cnt-num{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:700;width:44px;text-align:center;}
 
-/* Count */
-.count-row { display: flex; align-items: center; gap: 0; }
-.count-btn {
-  width: 32px; height: 32px;
-  border: 1.5px solid #e8e6e0;
-  background: #fff;
-  color: #1a1a18;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all .15s;
-  font-weight: 300;
-}
-.count-btn:hover { border-color: #1a1a18; }
-.count-num {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  width: 48px;
-  text-align: center;
-}
-.count-label { font-size: 12px; color: #aaa; margin-left: 8px; }
+.gen-btn{width:100%;padding:12px;background:#1a1a18;color:#fff;font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;border:none;border-radius:9px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.gen-btn:hover:not(:disabled){background:#333;transform:translateY(-1px);}
+.gen-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err-msg{margin-top:10px;font-size:12px;color:#c0392b;padding:9px 12px;background:#fdf0ef;border-radius:7px;border:1px solid #f5c6c2;line-height:1.5;}
 
-/* Generate button */
-.gen-btn {
-  width: 100%;
-  padding: 13px;
-  background: #1a1a18;
-  color: #fff;
-  font-family: 'Unbounded', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all .2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.gen-btn:hover:not(:disabled) { background: #333; transform: translateY(-1px); }
-.gen-btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.stat{background:#f7f6f3;border:1px solid #ede9e3;border-radius:8px;padding:11px;text-align:center;}
+.stat-n{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:700;}
+.stat-l{font-size:10px;color:#bbb;margin-top:2px;}
 
-.spin {
-  width: 14px; height: 14px;
-  border: 2px solid rgba(255,255,255,.25);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+/* MAIN */
+.main{display:flex;flex-direction:column;background:#f5f4f1;}
+.main-top{padding:14px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e3de;background:#f5f4f1;}
+.main-ttl{font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#bbb;}
+.dl-btn{padding:7px 16px;background:#fff;border:1.5px solid #e5e3de;color:#1a1a18;font-size:12px;font-family:'Inter',sans-serif;border-radius:7px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;}
+.dl-btn:hover:not(:disabled){border-color:#1a1a18;}
+.dl-btn:disabled{opacity:.3;cursor:not-allowed;}
+.scroll{flex:1;overflow-y:auto;padding:28px;}
 
-.error-msg {
-  margin-top: 10px;
-  font-size: 12px;
-  color: #c0392b;
-  padding: 10px 12px;
-  background: #fdf0ef;
-  border-radius: 8px;
-  border: 1px solid #f5c6c2;
-  line-height: 1.5;
-}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:8px;color:#ccc;text-align:center;}
+.empty p{font-size:13px;}
+.empty p+p{font-size:11px;opacity:.7;}
+.prog-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:14px;}
+.prog-track{width:200px;height:2px;background:#e5e3de;border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:#1a1a18;width:0%;transition:width .4s ease;border-radius:2px;}
+.prog-lbl{font-size:12px;color:#bbb;}
 
-/* Stats */
-.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
-.stat-card {
-  background: #faf9f7;
-  border: 1px solid #f0ede8;
-  border-radius: 8px;
-  padding: 12px;
-  text-align: center;
-}
-.stat-num {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  color: #1a1a18;
-}
-.stat-label { font-size: 10px; color: #bbb; margin-top: 2px; }
+.slides-list{display:flex;flex-direction:column;gap:16px;}
+.slide-row{display:flex;gap:14px;align-items:flex-start;animation:fadeUp .3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.slide-idx{font-family:'Unbounded',sans-serif;font-size:9px;font-weight:700;color:#ccc;padding-top:8px;min-width:22px;}
+.slide-card{flex:1;max-width:400px;border-radius:10px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.1);}
 
-/* MAIN CONTENT */
-.main {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: #f7f6f3;
-}
+.hist-list{display:flex;flex-direction:column;gap:9px;}
+.hist-item{background:#fff;border:1px solid #e5e3de;border-radius:9px;padding:13px 15px;cursor:pointer;transition:border-color .15s;}
+.hist-item:hover{border-color:#1a1a18;}
+.hist-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.hist-date{font-size:11px;color:#bbb;}
+.hist-pill{font-size:10px;padding:2px 8px;border-radius:20px;background:#f0ede8;color:#888;}
+.hist-txt{font-size:13px;color:#555;line-height:1.4;}
+.hist-empty{font-size:13px;color:#bbb;padding:40px 0;text-align:center;}
 
-.main-header {
-  padding: 16px 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #f7f6f3;
-  border-bottom: 1px solid #e8e6e0;
-}
-.main-title {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: #aaa;
-}
-.dl-btn {
-  padding: 8px 18px;
-  background: #fff;
-  border: 1.5px solid #e8e6e0;
-  color: #1a1a18;
-  font-size: 13px;
-  font-family: 'Inter', sans-serif;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all .15s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 400;
-}
-.dl-btn:hover:not(:disabled) { border-color: #1a1a18; }
-.dl-btn:disabled { opacity: .3; cursor: not-allowed; }
+.font-grid{display:flex;flex-direction:column;gap:4px;}
+.font-opt{padding:7px 10px;border:1.5px solid #e5e3de;border-radius:7px;cursor:pointer;transition:all .15s;display:flex;align-items:baseline;gap:8px;}
+.font-opt:hover{border-color:#aaa;}
+.font-opt.active{border-color:#1a1a18;background:#f7f6f3;}
+.font-opt-name{font-size:11px;color:#aaa;min-width:64px;flex-shrink:0;}
+.font-opt-sample{font-size:15px;color:#1a1a18;line-height:1;overflow:hidden;white-space:nowrap;}
 
-.scroll-area { flex: 1; overflow-y: auto; padding: 32px; }
-
-/* Empty */
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 32px;
-  gap: 8px;
-  color: #ccc;
-  text-align: center;
-}
-.empty p { font-size: 14px; }
-.empty p + p { font-size: 12px; opacity: .7; }
-
-/* Progress */
-.progress-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 32px;
-  gap: 16px;
-}
-.progress-track {
-  width: 220px; height: 2px;
-  background: #e8e6e0;
-  border-radius: 2px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: #1a1a18;
-  width: 0%;
-  transition: width .4s ease;
-  border-radius: 2px;
-}
-.progress-label { font-size: 12px; color: #aaa; }
-
-/* Slide list */
-.slides-list { display: flex; flex-direction: column; gap: 16px; }
-
-.slide-row {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  animation: fadeUp .3s ease both;
-}
-@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-
-.slide-index {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  color: #ccc;
-  padding-top: 8px;
-  min-width: 24px;
-}
-
-.slide-card {
-  flex: 1;
-  max-width: 400px;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.06);
-}
-
-/* History */
-.history-list { display: flex; flex-direction: column; gap: 10px; }
-.history-item {
-  background: #fff;
-  border: 1px solid #e8e6e0;
-  border-radius: 10px;
-  padding: 14px 16px;
-  cursor: pointer;
-  transition: border-color .15s;
-}
-.history-item:hover { border-color: #1a1a18; }
-.history-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-.history-date { font-size: 11px; color: #aaa; }
-.history-pill {
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 20px;
-  background: #f0ede8;
-  color: #888;
-}
-.history-text { font-size: 13px; color: #555; line-height: 1.4; }
-.history-empty { font-size: 13px; color: #bbb; padding: 40px 0; text-align: center; }
-
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
-
-#render-area { position: fixed; left: -9999px; top: 0; pointer-events: none; }
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px;}
+#render-area{position:fixed;left:-9999px;top:0;pointer-events:none;}
 </style>
 </head>
 <body>
 
 <header class="header">
-  <div class="logo">
-    <div class="logo-dot"></div>
-    Carousel AI
-  </div>
+  <div class="logo"><div class="logo-dot"></div>Carousel AI</div>
   <nav class="nav">
-    <button class="nav-btn active" onclick="switchTab('generate', this)">Генератор</button>
-    <button class="nav-btn" onclick="switchTab('history', this)">История</button>
+    <button class="nav-btn active" onclick="switchTab('gen',this)">Генератор</button>
+    <button class="nav-btn" onclick="switchTab('hist',this)">История</button>
   </nav>
 </header>
 
 <div class="layout">
-
-  <!-- Sidebar -->
   <aside class="sidebar">
 
-    <div class="sidebar-block">
-      <div class="block-title">Текст</div>
-      <textarea id="txt" placeholder="Вставьте любой текст — анонс события, статью, описание продукта..."></textarea>
+    <div class="sb">
+      <div class="sb-title">Текст</div>
+      <textarea id="txt" placeholder="Вставьте текст: анонс, статью, инструкцию, описание продукта..."></textarea>
     </div>
 
-    <div class="sidebar-block">
-      <div class="block-title">Тема</div>
-      <div class="themes-grid" id="themes-grid"></div>
+    <div class="sb">
+      <div class="sb-title">Шаблон</div>
+      <div class="tpl-grid" id="tpl-grid"></div>
     </div>
 
-    <div class="sidebar-block">
-      <div class="block-title">Слайдов</div>
+    <div class="sb">
+      <div class="sb-title">Шрифты</div>
+
+      <div class="ctrl-row" style="margin-bottom:6px;"><span class="ctrl-label">Заголовок</span></div>
+      <div class="font-grid" id="title-fonts"></div>
+
+      <div class="ctrl-row" style="margin-top:14px;margin-bottom:6px;"><span class="ctrl-label">Текст</span></div>
+      <div class="font-grid" id="body-fonts"></div>
+    </div>
+
+    <div class="sb">
+      <div class="sb-title">Настройка текста</div>
+
+      <div class="ctrl-row"><span class="ctrl-label">Размер заголовка</span><span class="ctrl-val" id="fz-val">100%</span></div>
+      <input type="range" id="fz-range" min="70" max="140" value="100" oninput="updateCtrl()">
+
+      <div style="margin-top:14px;margin-bottom:8px;" class="ctrl-row"><span class="ctrl-label">Расположение текста</span></div>
+      <div class="seg-btns">
+        <div class="seg-btn active" data-pos="top" onclick="setPos(this)">Сверху</div>
+        <div class="seg-btn" data-pos="center" onclick="setPos(this)">По центру</div>
+        <div class="seg-btn" data-pos="bottom" onclick="setPos(this)">Снизу</div>
+      </div>
+
+      <div style="margin-top:14px;" class="ctrl-row"><span class="ctrl-label">Отступы</span><span class="ctrl-val" id="pad-val">Normal</span></div>
+      <input type="range" id="pad-range" min="5" max="14" value="9" oninput="updateCtrl()">
+    </div>
+
+    <div class="sb">
+      <div class="sb-title">Слайдов</div>
       <div class="count-row">
-        <button class="count-btn" onclick="chCnt(-1)">−</button>
-        <div class="count-num" id="cnt">5</div>
-        <button class="count-btn" onclick="chCnt(1)">+</button>
-        <span class="count-label">слайдов</span>
+        <button class="cnt-btn" onclick="chCnt(-1)">−</button>
+        <div class="cnt-num" id="cnt">5</div>
+        <button class="cnt-btn" onclick="chCnt(1)">+</button>
+        <span style="font-size:12px;color:#bbb;margin-left:8px;">слайдов</span>
       </div>
     </div>
 
-    <div class="sidebar-block">
-      <button class="gen-btn" id="gen-btn" onclick="generate()">
-        <span id="gen-label">Сгенерировать</span>
-      </button>
-      <div id="gen-error" style="display:none" class="error-msg"></div>
+    <div class="sb">
+      <button class="gen-btn" id="gen-btn" onclick="generate()"><span id="gen-lbl">Сгенерировать</span></button>
+      <div id="gen-err" style="display:none" class="err-msg"></div>
     </div>
 
-    <div class="sidebar-block">
-      <div class="block-title">Статистика</div>
+    <div class="sb">
+      <div class="sb-title">Статистика</div>
       <div class="stats-row">
-        <div class="stat-card"><div class="stat-num" id="stat-total">—</div><div class="stat-label">всего</div></div>
-        <div class="stat-card"><div class="stat-num" id="stat-today">—</div><div class="stat-label">сегодня</div></div>
-        <div class="stat-card"><div class="stat-num" id="stat-week">—</div><div class="stat-label">за неделю</div></div>
+        <div class="stat"><div class="stat-n" id="s-total">—</div><div class="stat-l">всего</div></div>
+        <div class="stat"><div class="stat-n" id="s-today">—</div><div class="stat-l">сегодня</div></div>
+        <div class="stat"><div class="stat-n" id="s-week">—</div><div class="stat-l">неделя</div></div>
       </div>
     </div>
 
   </aside>
 
-  <!-- Main -->
   <main class="main">
-    <div class="main-header">
-      <div class="main-title" id="main-title">Предпросмотр</div>
-      <button class="dl-btn" id="dl-btn" onclick="downloadZip()" disabled>
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg>
+    <div class="main-top">
+      <div class="main-ttl" id="main-ttl">Предпросмотр</div>
+      <button class="dl-btn" id="dl-btn" onclick="dlZip()" disabled>
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg>
         Скачать ZIP
       </button>
     </div>
-
-    <div class="scroll-area" id="scroll-area">
-      <div id="tab-generate">
-        <div id="empty-state" class="empty">
-          <p>Выберите тему и нажмите «Сгенерировать»</p>
-          <p>Каждая генерация уникальна — layout меняется случайно</p>
-        </div>
-        <div id="progress-state" class="progress-wrap" style="display:none">
-          <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-          <div class="progress-label" id="progress-label">Генерирую...</div>
-        </div>
-        <div class="slides-list" id="slides-list" style="display:none"></div>
+    <div class="scroll" id="scroll">
+      <div id="tab-gen">
+        <div id="empty" class="empty"><p>Выберите шаблон и нажмите «Сгенерировать»</p><p>Каждая генерация уникальна</p></div>
+        <div id="prog" class="prog-wrap" style="display:none"><div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div><div class="prog-lbl" id="prog-lbl">Генерирую...</div></div>
+        <div class="slides-list" id="slist" style="display:none"></div>
       </div>
-
-      <div id="tab-history" style="display:none">
-        <div class="history-list" id="history-list">
-          <div class="history-empty">Загружаю...</div>
-        </div>
-      </div>
+      <div id="tab-hist" style="display:none"><div class="hist-list" id="hlist"><div class="hist-empty">Загружаю...</div></div></div>
     </div>
   </main>
-
 </div>
 
 <div id="render-area"></div>
 
 <script>
-// ── ТЕМЫ ──────────────────────────────────────────────────────
-const THEMES = {
+// ═══════════════════════════════════════════════════
+// 6 ШАБЛОНОВ — разные шрифты, палитры, характер
+// ═══════════════════════════════════════════════════
+const TEMPLATES = {
   noir: {
-    label: 'Noir',
-    bg:'#0d0d0d', text:'#f0ede8', accent:'#d4f55c', muted:'rgba(240,237,232,0.5)',
-    font:"'Unbounded',sans-serif", bodyFont:"'Inter',sans-serif",
-    grid:'rgba(255,255,255,0.03)',
-    prev: { bg:'#0d0d0d', color:'#d4f55c', text:'NOIR' }
+    name: 'Noir',
+    bg: '#0d0d0d', text: '#f0ede8', sub: 'rgba(240,237,232,0.55)', accent: '#d4f55c',
+    titleFont: "'Unbounded',sans-serif", bodyFont: "'Inter',sans-serif",
+    titleWeight: 900, grid: 'rgba(255,255,255,0.028)',
+    prevBg: '#0d0d0d', prevText: '#d4f55c', prevFont: "'Unbounded',sans-serif", prevLabel: 'NOIR'
   },
-  slate: {
-    label: 'Slate',
-    bg:'#1a1f2e', text:'#e8eaf0', accent:'#5b8cff', muted:'rgba(232,234,240,0.5)',
-    font:"'Space Grotesk',sans-serif", bodyFont:"'Inter',sans-serif",
-    grid:'rgba(91,140,255,0.05)',
-    prev: { bg:'#1a1f2e', color:'#5b8cff', text:'SLATE' }
+  editorial: {
+    name: 'Editorial',
+    bg: '#f8f4ee', text: '#1a1714', sub: 'rgba(26,23,20,0.5)', accent: '#c0392b',
+    titleFont: "'Playfair Display',serif", bodyFont: "'Inter',sans-serif",
+    titleWeight: 700, titleStyle: 'italic', grid: 'rgba(0,0,0,0.035)',
+    prevBg: '#f8f4ee', prevText: '#c0392b', prevFont: "'Playfair Display',serif", prevLabel: 'Editorial'
   },
-  cream: {
-    label: 'Cream',
-    bg:'#f5f0e8', text:'#1a1714', accent:'#c0392b', muted:'rgba(26,23,20,0.45)',
-    font:"'Playfair Display',serif", bodyFont:"'Inter',sans-serif",
-    grid:'rgba(0,0,0,0.04)',
-    prev: { bg:'#f5f0e8', color:'#c0392b', text:'Cream' }
+  neon: {
+    name: 'Neon',
+    bg: '#0a0a14', text: '#ffffff', sub: 'rgba(255,255,255,0.5)', accent: '#00f5c4',
+    titleFont: "'Syne',sans-serif", bodyFont: "'Space Grotesk',sans-serif",
+    titleWeight: 800, grid: 'rgba(0,245,196,0.04)',
+    prevBg: '#0a0a14', prevText: '#00f5c4', prevFont: "'Syne',sans-serif", prevLabel: 'NEON'
   },
-  forest: {
-    label: 'Forest',
-    bg:'#0f1f14', text:'#d4e8c2', accent:'#7bc67e', muted:'rgba(212,232,194,0.5)',
-    font:"'Montserrat',sans-serif", bodyFont:"'Inter',sans-serif",
-    grid:'rgba(123,198,126,0.04)',
-    prev: { bg:'#0f1f14', color:'#7bc67e', text:'FOREST' }
+  minimal: {
+    name: 'Minimal',
+    bg: '#ffffff', text: '#111111', sub: 'rgba(17,17,17,0.45)', accent: '#111111',
+    titleFont: "'DM Serif Display',serif", bodyFont: "'Inter',sans-serif",
+    titleWeight: 400, grid: 'rgba(0,0,0,0.04)',
+    prevBg: '#fff', prevText: '#111', prevFont: "'DM Serif Display',serif", prevLabel: 'Minimal'
   },
-  rose: {
-    label: 'Rose',
-    bg:'#1f1015', text:'#f0dde4', accent:'#e87aa0', muted:'rgba(240,221,228,0.5)',
-    font:"'Raleway',sans-serif", bodyFont:"'Inter',sans-serif",
-    grid:'rgba(232,122,160,0.05)',
-    prev: { bg:'#1f1015', color:'#e87aa0', text:'ROSE' }
+  bold: {
+    name: 'Bold',
+    bg: '#e8ff47', text: '#0d0d0d', sub: 'rgba(13,13,13,0.55)', accent: '#0d0d0d',
+    titleFont: "'Montserrat',sans-serif", bodyFont: "'Montserrat',sans-serif",
+    titleWeight: 900, grid: 'rgba(0,0,0,0.04)',
+    prevBg: '#e8ff47', prevText: '#0d0d0d', prevFont: "'Montserrat',sans-serif", prevLabel: 'BOLD'
   },
-  paper: {
-    label: 'Paper',
-    bg:'#fafaf7', text:'#2c2c28', accent:'#2c2c28', muted:'rgba(44,44,40,0.45)',
-    font:"'Playfair Display',serif", bodyFont:"'Inter',sans-serif",
-    grid:'rgba(0,0,0,0.04)',
-    prev: { bg:'#fafaf7', color:'#2c2c28', text:'Paper' }
+  night: {
+    name: 'Night',
+    bg: '#101827', text: '#e8eaf6', sub: 'rgba(232,234,246,0.5)', accent: '#7c9fff',
+    titleFont: "'Raleway',sans-serif", bodyFont: "'Inter',sans-serif",
+    titleWeight: 900, grid: 'rgba(124,159,255,0.04)',
+    prevBg: '#101827', prevText: '#7c9fff', prevFont: "'Raleway',sans-serif", prevLabel: 'NIGHT'
   }
 };
 
-// ── LAYOUTS ──────────────────────────────────────────────────
-const MID_LAYOUTS = ['bigquote','split','list','centered'];
+// ═══════════════════════════════════════════════════
+// LAYOUTS
+// ═══════════════════════════════════════════════════
+const MID_LAYOUTS = ['split','bigquote','list','feature','diagonal'];
 
-function makeLayoutPlan(total) {
+function makePlan(total) {
   const plan = [];
   for (let i = 0; i < total; i++) {
-    if (i === 0 || i === total - 1) { plan.push('hero'); continue; }
+    if (i === 0 || i === total-1) { plan.push('hero'); continue; }
     const prev = plan[i-1];
     const avail = MID_LAYOUTS.filter(l => l !== prev);
     plan.push(avail[Math.floor(Math.random() * avail.length)]);
@@ -526,242 +275,299 @@ function makeLayoutPlan(total) {
   return plan;
 }
 
-// ── SLIDE BUILDER ─────────────────────────────────────────────
-function clamp(v, mn, mx) { return Math.max(mn, Math.min(mx, v)); }
+// ═══════════════════════════════════════════════════
+// SLIDE BUILDER
+// ═══════════════════════════════════════════════════
+function esc(s) { const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
 
-function esc(s) {
-  const d = document.createElement('div');
-  d.textContent = s || '';
-  return d.innerHTML;
+// Подгоняем размер шрифта чтобы текст влез
+function fitFz(text, maxCharsPerLine, maxLines, baseFz) {
+  const chars = text.length;
+  const totalChars = maxCharsPerLine * maxLines;
+  if (chars <= totalChars * 0.6) return baseFz;
+  if (chars <= totalChars * 0.85) return Math.round(baseFz * 0.88);
+  if (chars <= totalChars) return Math.round(baseFz * 0.78);
+  return Math.round(baseFz * 0.68);
 }
 
-function buildSlide(slide, idx, total, themeKey, layout, W) {
-  const t = THEMES[themeKey];
+function buildSlide(slide, idx, total, tplKey, layout, W, opts = {}) {
+  const t = TEMPLATES[tplKey];
+  const titleFont = opts.titleFont || t.titleFont;
+  const bodyFont  = opts.bodyFont  || t.bodyFont;
+  const fzMult = (opts.fzMult || 1);
+  const pos = opts.pos || 'bottom';
+  const padPct = opts.padPct || 9;
+
   const n = String(idx+1).padStart(2,'0');
   const tot = String(total).padStart(2,'0');
-  const p = Math.round(W * 0.088);
+  const p = Math.round(W * padPct / 100);
   const sc = W / 400;
 
   const h = esc(slide.headline || '');
   const s = esc(slide.subhead || '');
   const b = esc(slide.body || '');
+  const rawItems = (slide.body||'').split(/\n+/).map(x=>x.trim()).filter(x=>x.length>5);
+  const items = rawItems.length >= 2 ? rawItems : [slide.subhead, slide.body].filter(Boolean);
 
-  const bodyItems = (slide.body || '')
-    .split(/\n+/).map(x => x.trim()).filter(x => x.length > 5).slice(0, 4);
-  const items = bodyItems.length >= 2 ? bodyItems : [slide.subhead, slide.body].filter(Boolean);
+  const gridBg = `background-image:linear-gradient(${t.grid} 1px,transparent 1px),linear-gradient(90deg,${t.grid} 1px,transparent 1px);background-size:${38*sc}px ${38*sc}px;`;
 
-  const gridBg = `background-image:linear-gradient(${t.grid} 1px,transparent 1px),linear-gradient(90deg,${t.grid} 1px,transparent 1px);background-size:${36*sc}px ${36*sc}px;`;
+  const wrap = `width:${W}px;height:${W}px;background:${t.bg};display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:${bodyFont};`;
+  const grid = `<div style="position:absolute;inset:0;${gridBg}pointer-events:none;z-index:0;"></div>`;
+  const num = `<div style="font-family:${titleFont};font-size:${Math.round(9*sc)}px;font-weight:600;color:${t.sub};letter-spacing:.05em;">${n} / ${tot}</div>`;
 
-  const base = `
-    width:${W}px;height:${W}px;
-    background:${t.bg};
-    display:flex;flex-direction:column;
-    position:relative;overflow:hidden;
-    font-family:${t.bodyFont};
-  `;
-
-  const grid = `<div style="position:absolute;inset:0;${gridBg}pointer-events:none;"></div>`;
-  const accentBar = `<div style="position:absolute;top:0;right:0;width:${Math.round(4*sc)}px;height:100%;background:${t.accent};z-index:2;"></div>`;
-  const num = `<div style="font-family:${t.font};font-size:${Math.round(10*sc)}px;font-weight:700;color:${t.muted};margin-bottom:auto;letter-spacing:.04em;">${n} / ${tot}</div>`;
-  const divider = `<div style="width:${Math.round(44*sc)}px;height:${Math.round(3*sc)}px;background:${t.accent};border-radius:${Math.round(2*sc)}px;margin-bottom:${Math.round(22*sc)}px;"></div>`;
-
-  const inner = `position:relative;z-index:1;height:100%;padding:${p}px;display:flex;flex-direction:column;`;
+  // Позиционирование контента
+  const justify = pos==='top' ? 'flex-start' : pos==='center' ? 'center' : 'flex-end';
+  const innerBase = `position:relative;z-index:1;height:100%;padding:${p}px;display:flex;flex-direction:column;`;
+  const innerPad = `${innerBase}justify-content:${justify};gap:${Math.round(12*sc)}px;`;
 
   if (layout === 'hero') {
-    const fz = clamp(Math.round((h.length > 50 ? 34 : h.length > 30 ? 40 : 48) * sc), Math.round(28*sc), Math.round(54*sc));
-    return `<div style="${base}">${grid}${accentBar}
-      <div style="${inner}">
+    const rawFz = fitFz(slide.headline||'', 18, 3, 44) * sc * fzMult;
+    const fz = clamp(Math.round(rawFz), Math.round(22*sc), Math.round(60*sc));
+    const ti = t.titleStyle==='italic'?'italic':'normal';
+    return `<div style="${wrap}">${grid}
+      <div style="${innerBase}justify-content:space-between;">
         ${num}
-        <div style="font-family:${t.font};font-size:${fz}px;font-weight:900;color:${t.text};line-height:1.05;text-transform:uppercase;flex:1;display:flex;align-items:center;">${h}</div>
-        ${(s||b)?`<div style="font-size:${Math.round(13*sc)}px;color:${t.muted};line-height:1.65;padding-top:${Math.round(16*sc)}px;border-top:1px solid ${t.muted.replace('0.5','0.15').replace('0.45','0.15')};font-weight:300;">${b||s}</div>`:''}
-      </div>
-    </div>`;
-  }
-
-  if (layout === 'bigquote') {
-    const fz = clamp(Math.round((h.length > 50 ? 28 : h.length > 30 ? 34 : 40) * sc), Math.round(22*sc), Math.round(44*sc));
-    return `<div style="${base}">${grid}${accentBar}
-      <div style="position:relative;z-index:1;height:100%;padding:${p}px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:${Math.round(18*sc)}px;">
-        <div style="position:absolute;top:${p}px;left:${p}px;font-family:${t.font};font-size:${Math.round(10*sc)}px;font-weight:700;color:${t.muted};">${n} / ${tot}</div>
-        <div style="font-family:${t.font};font-size:${fz}px;font-weight:900;color:${t.text};line-height:1.1;text-transform:uppercase;text-align:center;">${h}</div>
-        ${(s||b)?`<div style="font-size:${Math.round(13*sc)}px;color:${t.muted};line-height:1.65;text-align:center;max-width:${Math.round(300*sc)}px;font-weight:300;">${s||b}</div>`:''}
+        <div style="flex:1;display:flex;align-items:${justify};padding:${Math.round(10*sc)}px 0;">
+          <div style="font-family:${titleFont};font-style:${ti};font-size:${fz}px;font-weight:${t.titleWeight};color:${t.text};line-height:1.06;word-break:break-word;hyphens:auto;">${h}</div>
+        </div>
+        ${b||s ? `<div style="font-size:${Math.round(13*sc)}px;color:${t.sub};line-height:1.65;font-weight:300;border-top:1px solid ${t.sub.replace(/[\d.]+\)$/,'0.18)')};padding-top:${Math.round(14*sc)}px;">${b||s}</div>` : ''}
       </div>
     </div>`;
   }
 
   if (layout === 'split') {
-    const fz = clamp(Math.round((h.length > 35 ? 26 : 32) * sc), Math.round(20*sc), Math.round(38*sc));
-    return `<div style="${base}">${grid}${accentBar}
-      <div style="${inner}">
+    const rawFz = fitFz(slide.headline||'', 16, 2, 32) * sc * fzMult;
+    const fz = clamp(Math.round(rawFz), Math.round(18*sc), Math.round(40*sc));
+    const ti = t.titleStyle==='italic'?'italic':'normal';
+    return `<div style="${wrap}">${grid}
+      <div style="${innerPad}">
         ${num}
-        <div style="font-family:${t.font};font-size:${fz}px;font-weight:900;color:${t.text};line-height:1.1;text-transform:uppercase;margin-bottom:${Math.round(18*sc)}px;">${h}</div>
-        ${divider}
-        ${s?`<div style="font-size:${Math.round(16*sc)}px;font-weight:600;color:${t.text};margin-bottom:${Math.round(10*sc)}px;line-height:1.35;">${s}</div>`:''}
-        ${b?`<div style="font-size:${Math.round(13*sc)}px;color:${t.muted};line-height:1.7;font-weight:300;flex:1;">${b}</div>`:''}
+        <div>
+          <div style="font-family:${titleFont};font-style:${ti};font-size:${fz}px;font-weight:${t.titleWeight};color:${t.text};line-height:1.1;margin-bottom:${Math.round(16*sc)}px;">${h}</div>
+          <div style="width:${Math.round(40*sc)}px;height:${Math.round(3*sc)}px;background:${t.accent};border-radius:2px;margin-bottom:${Math.round(16*sc)}px;"></div>
+          ${s ? `<div style="font-size:${Math.round(15*sc)}px;font-weight:600;color:${t.text};margin-bottom:${Math.round(8*sc)}px;line-height:1.35;">${s}</div>` : ''}
+          ${b ? `<div style="font-size:${Math.round(13*sc)}px;color:${t.sub};line-height:1.7;font-weight:300;">${b}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if (layout === 'bigquote') {
+    const rawFz = fitFz(slide.headline||'', 20, 4, 36) * sc * fzMult;
+    const fz = clamp(Math.round(rawFz), Math.round(16*sc), Math.round(44*sc));
+    const ti = t.titleStyle==='italic'?'italic':'normal';
+    const align = pos==='center'?'center':'left';
+    return `<div style="${wrap}">${grid}
+      <div style="${innerPad}">
+        ${num}
+        <div style="font-family:${titleFont};font-style:${ti};font-size:${fz}px;font-weight:${t.titleWeight};color:${t.text};line-height:1.12;text-align:${align};">${h}</div>
+        ${b||s ? `<div style="font-size:${Math.round(13*sc)}px;color:${t.sub};line-height:1.65;font-weight:300;text-align:${align};margin-top:${Math.round(4*sc)}px;">${b||s}</div>` : ''}
       </div>
     </div>`;
   }
 
   if (layout === 'list') {
-    const fz = clamp(Math.round((h.length > 30 ? 24 : 30) * sc), Math.round(18*sc), Math.round(34*sc));
-    const listHTML = items.slice(0, 4).map((item, i) => `
-      <div style="display:flex;gap:${Math.round(14*sc)}px;align-items:flex-start;">
-        <div style="font-family:${t.font};font-size:${Math.round(18*sc)}px;font-weight:900;color:${t.accent};line-height:1;min-width:${Math.round(26*sc)}px;opacity:.8;">0${i+1}</div>
-        <div style="font-size:${Math.round(12*sc)}px;color:${t.text};line-height:1.6;font-weight:300;padding-top:${Math.round(3*sc)}px;opacity:.85;">${esc(item)}</div>
+    const rawFz = fitFz(slide.headline||'', 18, 2, 28) * sc * fzMult;
+    const fz = clamp(Math.round(rawFz), Math.round(16*sc), Math.round(34*sc));
+    const ti = t.titleStyle==='italic'?'italic':'normal';
+    const listHTML = items.slice(0,4).map((item,i)=>`
+      <div style="display:flex;gap:${Math.round(12*sc)}px;align-items:flex-start;">
+        <div style="font-family:${titleFont};font-size:${Math.round(16*sc)}px;font-weight:900;color:${t.accent};line-height:1;min-width:${Math.round(24*sc)}px;flex-shrink:0;">${i+1}</div>
+        <div style="font-size:${Math.round(12*sc)}px;color:${t.text};line-height:1.6;font-weight:300;opacity:.85;">${esc(item)}</div>
       </div>`).join('');
-    return `<div style="${base}">${grid}${accentBar}
-      <div style="${inner}">
+    return `<div style="${wrap}">${grid}
+      <div style="${innerPad}">
         ${num}
-        <div style="font-family:${t.font};font-size:${fz}px;font-weight:900;color:${t.text};line-height:1.1;text-transform:uppercase;margin-bottom:${Math.round(22*sc)}px;">${h}</div>
-        <div style="display:flex;flex-direction:column;gap:${Math.round(14*sc)}px;flex:1;">${listHTML}</div>
-      </div>
-    </div>`;
-  }
-
-  if (layout === 'centered') {
-    const fz = clamp(Math.round((h.length > 40 ? 26 : 33) * sc), Math.round(20*sc), Math.round(38*sc));
-    return `<div style="${base}">${grid}
-      <div style="position:absolute;top:0;left:0;right:0;height:45%;background:${t.accent};opacity:0.07;pointer-events:none;"></div>
-      ${accentBar}
-      <div style="${inner}">
-        ${num}
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:${Math.round(14*sc)}px;">
-          <div style="font-family:${t.font};font-size:${fz}px;font-weight:900;color:${t.text};line-height:1.1;text-transform:uppercase;">${h}</div>
-          ${divider}
-          ${s?`<div style="font-size:${Math.round(15*sc)}px;font-weight:600;color:${t.accent};line-height:1.3;">${s}</div>`:''}
-          ${b?`<div style="font-size:${Math.round(13*sc)}px;color:${t.muted};line-height:1.7;font-weight:300;">${b}</div>`:''}
+        <div>
+          <div style="font-family:${titleFont};font-style:${ti};font-size:${fz}px;font-weight:${t.titleWeight};color:${t.text};line-height:1.1;margin-bottom:${Math.round(18*sc)}px;">${h}</div>
+          <div style="display:flex;flex-direction:column;gap:${Math.round(12*sc)}px;">${listHTML}</div>
         </div>
       </div>
     </div>`;
   }
+
+  if (layout === 'feature') {
+    // Большой акцентный элемент
+    const rawFz = fitFz(slide.headline||'', 14, 2, 36) * sc * fzMult;
+    const fz = clamp(Math.round(rawFz), Math.round(18*sc), Math.round(42*sc));
+    const ti = t.titleStyle==='italic'?'italic':'normal';
+    return `<div style="${wrap}">${grid}
+      <div style="position:absolute;top:0;left:0;right:0;height:42%;background:${t.accent};opacity:0.10;pointer-events:none;z-index:0;"></div>
+      <div style="${innerPad}">
+        ${num}
+        <div>
+          <div style="font-size:${Math.round(10*sc)}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${t.accent};margin-bottom:${Math.round(10*sc)}px;font-family:${bodyFont};">${s||'Ключевая мысль'}</div>
+          <div style="font-family:${titleFont};font-style:${ti};font-size:${fz}px;font-weight:${t.titleWeight};color:${t.text};line-height:1.1;margin-bottom:${Math.round(14*sc)}px;">${h}</div>
+          ${b ? `<div style="font-size:${Math.round(13*sc)}px;color:${t.sub};line-height:1.7;font-weight:300;">${b}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if (layout === 'diagonal') {
+    // Нестандартный — заголовок крупно, тело с отступом
+    const rawFz = fitFz(slide.headline||'', 16, 3, 30) * sc * fzMult;
+    const fz = clamp(Math.round(rawFz), Math.round(16*sc), Math.round(38*sc));
+    const ti = t.titleStyle==='italic'?'italic':'normal';
+    return `<div style="${wrap}">${grid}
+      <div style="${innerBase}justify-content:space-between;">
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:${justify};padding:${p}px ${p}px 0;">
+          ${num}
+          <div style="font-family:${titleFont};font-style:${ti};font-size:${fz}px;font-weight:${t.titleWeight};color:${t.text};line-height:1.1;margin-top:auto;">${h}</div>
+        </div>
+        <div style="background:${t.accent};opacity:.08;height:1px;margin:0 ${p}px;"></div>
+        <div style="padding:${Math.round(18*sc)}px ${p}px ${p}px;padding-left:${Math.round(p*1.6)}px;">
+          ${s ? `<div style="font-size:${Math.round(14*sc)}px;font-weight:600;color:${t.text};margin-bottom:${Math.round(8*sc)}px;">${s}</div>` : ''}
+          ${b ? `<div style="font-size:${Math.round(12*sc)}px;color:${t.sub};line-height:1.7;font-weight:300;">${b}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }
+
   return '';
 }
 
-// ── STATE ─────────────────────────────────────────────────────
-const SID = localStorage.getItem('sid') || (()=>{ const id='s'+Math.random().toString(36).slice(2); localStorage.setItem('sid',id); return id; })();
-let theme='noir', cnt=5, slides=[], layouts=[], progressTimer;
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const SID = localStorage.getItem('sid')||(()=>{const id='s'+Math.random().toString(36).slice(2);localStorage.setItem('sid',id);return id;})();
+let tpl='noir', cnt=5, slides=[], layouts=[], progTimer;
+let opts = { fzMult:1, pos:'bottom', padPct:9 };
 
-// ── THEME GRID ────────────────────────────────────────────────
-function renderThemeGrid() {
-  const grid = document.getElementById('themes-grid');
-  grid.innerHTML = '';
-  Object.entries(THEMES).forEach(([key, t]) => {
-    const card = document.createElement('div');
-    card.className = 'theme-card' + (key===theme?' active':'');
-    card.innerHTML = `
-      <div class="theme-preview" style="background:${t.prev.bg}">
-        <span style="color:${t.prev.color};font-family:${t.font};font-size:11px;">${t.prev.text}</span>
+// ═══════════════════════════════════════════════════
+// TEMPLATE GRID
+// ═══════════════════════════════════════════════════
+function renderTplGrid() {
+  const grid = document.getElementById('tpl-grid');
+  grid.innerHTML='';
+  Object.entries(TEMPLATES).forEach(([key,t])=>{
+    const card=document.createElement('div');
+    card.className='tpl-card'+(key===tpl?' active':'');
+    card.innerHTML=`
+      <div class="tpl-prev" style="background:${t.prevBg};">
+        <span style="color:${t.prevText};font-family:${t.prevFont};font-size:11px;font-weight:700;text-align:center;padding:0 4px;line-height:1.3;">${t.prevLabel}</span>
       </div>
-      <div class="theme-name">${t.label}</div>`;
-    card.onclick = () => {
-      document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('active'));
+      <div class="tpl-name">${t.name}</div>`;
+    card.onclick=()=>{
+      document.querySelectorAll('.tpl-card').forEach(c=>c.classList.remove('active'));
       card.classList.add('active');
-      theme = key;
-      if (slides.length) renderSlides();
+      tpl=key;
+      if(slides.length) renderSlides();
     };
     grid.appendChild(card);
   });
 }
 
-function chCnt(d) {
-  cnt = Math.max(3, Math.min(8, cnt+d));
-  document.getElementById('cnt').textContent = cnt;
+function updateCtrl() {
+  const fz = document.getElementById('fz-range').value;
+  const pad = document.getElementById('pad-range').value;
+  const padLabels={5:'Узкие',7:'Меньше',9:'Normal',11:'Больше',14:'Широкие'};
+  document.getElementById('fz-val').textContent = fz+'%';
+  document.getElementById('pad-val').textContent = padLabels[pad]||pad;
+  opts.fzMult = fz/100;
+  opts.padPct = parseInt(pad);
+  if(slides.length) renderSlides();
 }
 
-function switchTab(tab, btn) {
+function setPos(el) {
+  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  opts.pos = el.dataset.pos;
+  if(slides.length) renderSlides();
+}
+
+function chCnt(d){cnt=Math.max(3,Math.min(8,cnt+d));document.getElementById('cnt').textContent=cnt;}
+
+function switchTab(tab,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('tab-generate').style.display = tab==='generate'?'block':'none';
-  document.getElementById('tab-history').style.display = tab==='history'?'block':'none';
-  document.getElementById('main-title').textContent = tab==='generate'?'Предпросмотр':'История';
-  document.getElementById('dl-btn').style.display = tab==='generate'?'flex':'none';
-  if (tab==='history') loadHistory();
+  document.getElementById('tab-gen').style.display=tab==='gen'?'block':'none';
+  document.getElementById('tab-hist').style.display=tab==='hist'?'block':'none';
+  document.getElementById('main-ttl').textContent=tab==='gen'?'Предпросмотр':'История';
+  document.getElementById('dl-btn').style.display=tab==='gen'?'flex':'none';
+  if(tab==='hist') loadHist();
 }
 
-function setLoading(on) {
-  const btn = document.getElementById('gen-btn');
-  btn.disabled = on;
-  btn.innerHTML = on ? '<div class="spin"></div><span>Генерирую...</span>' : '<span>Сгенерировать</span>';
+function setLoading(on){
+  const btn=document.getElementById('gen-btn');
+  btn.disabled=on;
+  btn.innerHTML=on?'<div class="spin"></div><span>Генерирую...</span>':'<span>Сгенерировать</span>';
 }
 
-function startProgress() {
-  document.getElementById('empty-state').style.display = 'none';
-  document.getElementById('slides-list').style.display = 'none';
-  document.getElementById('progress-state').style.display = 'flex';
-  const fill = document.getElementById('progress-fill');
-  const lbl = document.getElementById('progress-label');
-  const msgs = ['Анализирую текст...','Выделяю ключевые мысли...','Формирую слайды...','Почти готово...'];
-  let p=0, mi=0; fill.style.width='0%';
-  progressTimer = setInterval(()=>{
-    p = Math.min(p + Math.random()*6+2, 88);
-    fill.style.width = p+'%';
-    if (mi<msgs.length-1 && p>(mi+1)*22) { mi++; lbl.textContent=msgs[mi]; }
-  }, 350);
+function startProg(){
+  document.getElementById('empty').style.display='none';
+  document.getElementById('slist').style.display='none';
+  document.getElementById('prog').style.display='flex';
+  const fill=document.getElementById('prog-fill'),lbl=document.getElementById('prog-lbl');
+  const msgs=['Анализирую текст...','Выделяю ключевые мысли...','Формирую слайды...','Почти готово...'];
+  let p=0,mi=0; fill.style.width='0%';
+  progTimer=setInterval(()=>{
+    p=Math.min(p+Math.random()*6+2,88); fill.style.width=p+'%';
+    if(mi<msgs.length-1&&p>(mi+1)*22){mi++;lbl.textContent=msgs[mi];}
+  },350);
 }
 
-function stopProgress() {
-  clearInterval(progressTimer);
-  document.getElementById('progress-fill').style.width='100%';
-  setTimeout(()=>{ document.getElementById('progress-state').style.display='none'; }, 300);
+function stopProg(){
+  clearInterval(progTimer);
+  document.getElementById('prog-fill').style.width='100%';
+  setTimeout(()=>{document.getElementById('prog').style.display='none';},300);
 }
 
-async function generate() {
-  const text = document.getElementById('txt').value.trim();
-  const err = document.getElementById('gen-error');
+async function generate(){
+  const text=document.getElementById('txt').value.trim();
+  const err=document.getElementById('gen-err');
   err.style.display='none';
-  if (text.length<10) { err.textContent='Введите текст.'; err.style.display='block'; return; }
-  setLoading(true); startProgress();
-  try {
-    const res = await fetch('/generate', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ text, style:theme, slideCount:cnt, sessionId:SID })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error||'Ошибка сервера');
-    stopProgress();
-    slides = data.slides;
-    layouts = makeLayoutPlan(slides.length);
+  if(text.length<10){err.textContent='Введите текст.';err.style.display='block';return;}
+  setLoading(true); startProg();
+  try{
+    const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text,style:tpl,slideCount:cnt,sessionId:SID})});
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error||'Ошибка сервера');
+    stopProg();
+    slides=data.slides;
+    layouts=makePlan(slides.length);
     renderSlides();
-    document.getElementById('dl-btn').disabled = false;
+    document.getElementById('dl-btn').disabled=false;
     loadStats();
-  } catch(e) {
-    stopProgress();
-    document.getElementById('empty-state').style.display='flex';
+  }catch(e){
+    stopProg();
+    document.getElementById('empty').style.display='flex';
     err.textContent='Ошибка: '+e.message; err.style.display='block';
-  } finally { setLoading(false); }
+  }finally{setLoading(false);}
 }
 
-function renderSlides() {
-  const list = document.getElementById('slides-list');
+function renderSlides(){
+  const list=document.getElementById('slist');
   list.innerHTML=''; list.style.display='flex';
-  if (!layouts.length || layouts.length!==slides.length) layouts=makeLayoutPlan(slides.length);
+  if(!layouts.length||layouts.length!==slides.length) layouts=makePlan(slides.length);
   slides.forEach((s,i)=>{
-    const row = document.createElement('div');
-    row.className='slide-row';
-    row.style.animationDelay=(i*.07)+'s';
-    row.innerHTML=`<div class="slide-index">0${i+1}</div><div class="slide-card"></div>`;
-    row.querySelector('.slide-card').innerHTML = buildSlide(s,i,slides.length,theme,layouts[i],380);
+    const row=document.createElement('div');
+    row.className='slide-row'; row.style.animationDelay=(i*.07)+'s';
+    row.innerHTML=`<div class="slide-idx">0${i+1}</div><div class="slide-card"></div>`;
+    row.querySelector('.slide-card').innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],390,{...opts, titleFont: titleFontStack, bodyFont: bodyFontStack});
     list.appendChild(row);
   });
 }
 
-async function downloadZip() {
-  if (!slides.length) return;
-  const btn = document.getElementById('dl-btn');
-  btn.disabled=true; btn.innerHTML='<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.15)"></div> Рендерю...';
-  const ra = document.getElementById('render-area');
+async function dlZip(){
+  if(!slides.length) return;
+  const btn=document.getElementById('dl-btn');
+  btn.disabled=true; btn.innerHTML='<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.12)"></div> Рендерю...';
+  const ra=document.getElementById('render-area');
   ra.innerHTML='';
   slides.forEach((s,i)=>{
-    const wrap=document.createElement('div');
-    wrap.style.cssText='width:1080px;height:1080px;overflow:hidden;';
-    wrap.innerHTML=buildSlide(s,i,slides.length,theme,layouts[i],1080);
-    ra.appendChild(wrap);
+    const w=document.createElement('div');
+    w.style.cssText='width:1080px;height:1080px;overflow:hidden;';
+    w.innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],1080,{...opts, titleFont: titleFontStack, bodyFont: bodyFontStack});
+    ra.appendChild(w);
   });
   await document.fonts.ready;
-  await new Promise(r=>setTimeout(r,800));
+  await new Promise(r=>setTimeout(r,900));
   const zip=new JSZip();
   for(let i=0;i<ra.children.length;i++){
-    btn.innerHTML=`<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.15)"></div> ${i+1}/${ra.children.length}`;
+    btn.innerHTML=`<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.12)"></div> ${i+1}/${ra.children.length}`;
     const canvas=await html2canvas(ra.children[i],{scale:1,useCORS:true,backgroundColor:null,width:1080,height:1080,logging:false});
     const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
     zip.file(`slide-${String(i+1).padStart(2,'0')}.png`,blob);
@@ -770,50 +576,84 @@ async function downloadZip() {
   const a=document.createElement('a'); a.href=URL.createObjectURL(zb); a.download='carousel.zip'; a.click();
   ra.innerHTML='';
   btn.disabled=false;
-  btn.innerHTML=`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg> Скачать ZIP`;
+  btn.innerHTML=`<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg> Скачать ZIP`;
 }
 
-async function loadStats() {
-  try {
-    const r=await fetch('/stats'); const d=await r.json();
-    document.getElementById('stat-total').textContent=d.total;
-    document.getElementById('stat-today').textContent=d.today;
-    document.getElementById('stat-week').textContent=d.thisWeek;
-  } catch{}
+async function loadStats(){
+  try{const r=await fetch('/stats');const d=await r.json();
+    document.getElementById('s-total').textContent=d.total;
+    document.getElementById('s-today').textContent=d.today;
+    document.getElementById('s-week').textContent=d.thisWeek;
+  }catch{}
 }
 
-async function loadHistory() {
-  const area=document.getElementById('history-list');
-  try {
-    const r=await fetch(`/history?sessionId=${SID}`); const data=await r.json();
-    if(!data.length){area.innerHTML='<div class="history-empty">История пуста</div>';return;}
+async function loadHist(){
+  const area=document.getElementById('hlist');
+  try{
+    const r=await fetch(`/history?sessionId=${SID}`);const data=await r.json();
+    if(!data.length){area.innerHTML='<div class="hist-empty">История пуста</div>';return;}
     area.innerHTML='';
     data.forEach(item=>{
-      const el=document.createElement('div'); el.className='history-item';
+      const el=document.createElement('div'); el.className='hist-item';
       const date=new Date(item.created_at).toLocaleDateString('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-      el.innerHTML=`
-        <div class="history-meta">
-          <div class="history-date">${date}</div>
-          <div class="history-pill">${item.slide_count} сл · ${item.style}</div>
-        </div>
-        <div class="history-text">${esc(item.input_text.slice(0,120))}${item.input_text.length>120?'...':''}</div>`;
+      el.innerHTML=`<div class="hist-meta"><div class="hist-date">${date}</div><div class="hist-pill">${item.slide_count} сл · ${item.style}</div></div><div class="hist-txt">${esc(item.input_text.slice(0,120))}${item.input_text.length>120?'...':''}</div>`;
       el.onclick=()=>{
-        slides=item.slides; theme=item.style;
-        document.querySelectorAll('.theme-card').forEach((c,idx)=>{
-          c.classList.toggle('active',Object.keys(THEMES)[idx]===item.style);
-        });
-        layouts=makeLayoutPlan(slides.length);
-        switchTab('generate',document.querySelector('.nav-btn'));
-        renderSlides();
-        document.getElementById('dl-btn').disabled=false;
+        slides=item.slides; tpl=item.style;
+        renderTplGrid();
+        layouts=makePlan(slides.length);
+        switchTab('gen',document.querySelector('.nav-btn'));
+        renderSlides(); document.getElementById('dl-btn').disabled=false;
       };
       area.appendChild(el);
     });
-  } catch{area.innerHTML='<div class="history-empty">Ошибка загрузки</div>';}
+  }catch{area.innerHTML='<div class="hist-empty">Ошибка</div>';}
 }
 
-renderThemeGrid();
-loadStats();
+// ═══════════════════════════════════════════════════
+// FONTS
+// ═══════════════════════════════════════════════════
+const TITLE_FONTS = [
+  { key:'unbounded',   label:'Unbounded',   stack:"'Unbounded',sans-serif" },
+  { key:'playfair',    label:'Playfair',    stack:"'Playfair Display',serif" },
+  { key:'syne',        label:'Syne',        stack:"'Syne',sans-serif" },
+  { key:'montserrat',  label:'Montserrat',  stack:"'Montserrat',sans-serif" },
+  { key:'raleway',     label:'Raleway',     stack:"'Raleway',sans-serif" },
+  { key:'dm',          label:'DM Serif',    stack:"'DM Serif Display',serif" },
+];
+const BODY_FONTS = [
+  { key:'inter',       label:'Inter',         stack:"'Inter',sans-serif" },
+  { key:'grotesk',     label:'Space Grotesk', stack:"'Space Grotesk',sans-serif" },
+  { key:'raleway',     label:'Raleway',       stack:"'Raleway',sans-serif" },
+  { key:'montserrat',  label:'Montserrat',    stack:"'Montserrat',sans-serif" },
+];
+
+let titleFontStack = null;
+let bodyFontStack  = null;
+
+function renderFontPicker(fonts, containerId, activeKey, onSelect) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  const autoOpt = document.createElement('div');
+  autoOpt.className = 'font-opt' + (!activeKey ? ' active' : '');
+  autoOpt.innerHTML = `<span class="font-opt-name" style="color:#bbb;">Авто</span><span class="font-opt-sample" style="font-size:11px;color:#bbb;">Из шаблона</span>`;
+  autoOpt.onclick = () => { onSelect(null); renderFontPicker(fonts, containerId, null, onSelect); };
+  el.appendChild(autoOpt);
+  fonts.forEach(f => {
+    const opt = document.createElement('div');
+    opt.className = 'font-opt' + (activeKey === f.key ? ' active' : '');
+    opt.innerHTML = `<span class="font-opt-name">${f.label}</span><span class="font-opt-sample" style="font-family:${f.stack};font-weight:700;">Заголовок Aa</span>`;
+    opt.onclick = () => { onSelect(f.stack); renderFontPicker(fonts, containerId, f.key, onSelect); };
+    el.appendChild(opt);
+  });
+}
+
+function initFontPickers() {
+  renderFontPicker(TITLE_FONTS, 'title-fonts', null, (s) => { titleFontStack=s; if(slides.length) renderSlides(); });
+  renderFontPicker(BODY_FONTS,  'body-fonts',  null, (s) => { bodyFontStack=s;  if(slides.length) renderSlides(); });
+}
+
+renderTplGrid();
+initFontPickers();
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')generate();});
 </script>
 </body>
