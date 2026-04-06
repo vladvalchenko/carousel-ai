@@ -9,436 +9,435 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',sans-serif;background:#f4f3f0;color:#1a1a18;min-height:100vh;display:flex;flex-direction:column;}
-.header{background:#fff;border-bottom:1px solid #e5e3de;padding:0 32px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.logo{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;}
-.logo-dot{width:7px;height:7px;background:#1a1a18;border-radius:50%;animation:pulse 3s ease-in-out infinite;}
+body{font-family:'Inter',sans-serif;background:#f4f3f0;color:#1a1a18;min-height:100vh;display:flex;flex-direction:column;font-size:13px;}
+
+/* HEADER */
+.hdr{background:#fff;border-bottom:1px solid #e5e3de;padding:0 24px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.logo{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;display:flex;align-items:center;gap:7px;}
+.logo-dot{width:6px;height:6px;background:#1a1a18;border-radius:50%;animation:pulse 3s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.2;transform:scale(.6)}}
-.nav{display:flex;gap:2px;}
-.nav-btn{padding:5px 14px;font-size:12px;font-family:'Inter',sans-serif;border:none;border-radius:6px;cursor:pointer;background:transparent;color:#999;transition:all .15s;}
-.nav-btn:hover{background:#f0ede8;color:#1a1a18;}
-.nav-btn.active{background:#1a1a18;color:#fff;}
-.layout{display:grid;grid-template-columns:360px 1fr;flex:1;}
-.sidebar{background:#fff;border-right:1px solid #e5e3de;display:flex;flex-direction:column;overflow-y:auto;}
-.sb{padding:18px 22px;border-bottom:1px solid #f0ede8;}
-.sb:last-child{border-bottom:none;}
-.sb-title{font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#bbb;margin-bottom:11px;}
-textarea{width:100%;height:120px;border:1.5px solid #e5e3de;border-radius:8px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:13px;font-weight:300;line-height:1.7;color:#1a1a18;background:#faf9f7;resize:none;transition:border-color .2s;}
+.hdr-right{display:flex;gap:8px;align-items:center;}
+.dl-btn{padding:6px 14px;background:#1a1a18;color:#fff;border:none;border-radius:6px;font-size:11px;font-family:'Unbounded',sans-serif;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;letter-spacing:.04em;}
+.dl-btn:hover:not(:disabled){background:#333;}
+.dl-btn:disabled{opacity:.3;cursor:not-allowed;}
+.gen-btn{padding:6px 14px;background:#f0ede8;color:#1a1a18;border:none;border-radius:6px;font-size:11px;font-family:'Unbounded',sans-serif;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
+.gen-btn:hover:not(:disabled){background:#e5e3de;}
+.gen-btn:disabled{opacity:.35;cursor:not-allowed;}
+.spin{width:11px;height:11px;border:1.5px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:300px 1fr;flex:1;min-height:0;}
+
+/* SIDEBAR */
+.sidebar{background:#fff;border-right:1px solid #e5e3de;display:flex;flex-direction:column;overflow:hidden;}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid #e5e3de;flex-shrink:0;}
+.tab{flex:1;padding:10px 0;text-align:center;font-size:11px;font-weight:500;color:#999;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.03em;}
+.tab:hover{color:#1a1a18;}
+.tab.active{color:#1a1a18;border-bottom-color:#1a1a18;}
+.tab-content{display:none;flex:1;overflow-y:auto;padding:16px;}
+.tab-content.active{display:block;}
+
+/* FORM ELEMENTS */
+.field{margin-bottom:14px;}
+.field-label{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#aaa;margin-bottom:6px;display:block;}
+textarea{width:100%;height:110px;border:1.5px solid #e5e3de;border-radius:7px;padding:9px 11px;font-family:'Inter',sans-serif;font-size:12px;font-weight:300;line-height:1.7;color:#1a1a18;background:#faf9f7;resize:none;transition:border-color .2s;}
 textarea:focus{outline:none;border-color:#1a1a18;background:#fff;}
 textarea::placeholder{color:#c5c2bb;}
-.tpl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
-.tpl-card{border:1.5px solid #e5e3de;border-radius:7px;overflow:hidden;cursor:pointer;transition:all .15s;}
-.tpl-card:hover{border-color:#aaa;transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.07);}
-.tpl-card.active{border-color:#1a1a18;box-shadow:0 0 0 1px #1a1a18;}
-.tpl-prev{height:44px;display:flex;align-items:center;justify-content:center;padding:4px;overflow:hidden;}
-.tpl-name{font-size:9px;color:#999;text-align:center;padding:3px 0 4px;background:#fff;}
-.color-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.color-label{font-size:12px;color:#666;}
-.color-input-wrap{display:flex;align-items:center;gap:6px;}
-.color-swatch{width:28px;height:28px;border-radius:6px;border:1.5px solid #e5e3de;cursor:pointer;overflow:hidden;position:relative;}
-.color-swatch input[type=color]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:none;padding:0;}
-.color-hex{font-size:11px;font-family:'Inter',sans-serif;font-weight:500;color:#666;width:58px;border:1px solid #e5e3de;border-radius:5px;padding:4px 6px;outline:none;}
-.color-hex:focus{border-color:#1a1a18;}
-.font-list{display:flex;flex-direction:column;gap:3px;}
-.font-opt{padding:6px 10px;border:1.5px solid #e5e3de;border-radius:7px;cursor:pointer;transition:all .15s;display:flex;align-items:baseline;gap:8px;}
-.font-opt:hover{border-color:#bbb;}
-.font-opt.active{border-color:#1a1a18;background:#f7f6f3;}
-.font-opt-label{font-size:10px;color:#bbb;min-width:60px;flex-shrink:0;}
-.ctrl-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
-.ctrl-label{font-size:12px;color:#666;}
-.ctrl-val{font-size:12px;font-weight:500;color:#1a1a18;min-width:36px;text-align:right;}
-input[type=range]{width:100%;height:3px;background:#e5e3de;border-radius:2px;appearance:none;cursor:pointer;margin:3px 0 10px;}
-input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:#1a1a18;cursor:pointer;}
-.seg-btns{display:flex;gap:4px;}
-.seg-btn{flex:1;padding:6px 0;font-size:11px;border:1.5px solid #e5e3de;border-radius:6px;background:#fff;color:#999;cursor:pointer;transition:all .15s;text-align:center;}
-.seg-btn:hover{border-color:#aaa;color:#1a1a18;}
-.seg-btn.active{border-color:#1a1a18;background:#1a1a18;color:#fff;}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.toggle-label{font-size:12px;color:#666;}
-.toggle{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0;}
-.toggle input{opacity:0;width:0;height:0;}
-.toggle-track{position:absolute;inset:0;background:#e5e3de;border-radius:10px;transition:background .2s;}
-.toggle input:checked+.toggle-track{background:#1a1a18;}
-.toggle-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none;}
-.toggle input:checked~.toggle-thumb{transform:translateX(16px);}
 
-/* Photo section */
-.photo-mode-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:12px;}
-.photo-mode-btn{padding:8px 4px;border:1.5px solid #e5e3de;border-radius:7px;background:#fff;color:#999;font-size:11px;cursor:pointer;transition:all .15s;text-align:center;line-height:1.3;}
-.photo-mode-btn:hover{border-color:#aaa;color:#1a1a18;}
-.photo-mode-btn.active{border-color:#1a1a18;background:#1a1a18;color:#fff;}
-.photo-search-wrap{display:flex;gap:6px;margin-bottom:10px;}
-.photo-search{flex:1;padding:8px 10px;border:1.5px solid #e5e3de;border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;color:#1a1a18;background:#faf9f7;outline:none;}
-.photo-search:focus{border-color:#1a1a18;}
-.photo-search-btn{padding:8px 12px;background:#1a1a18;color:#fff;border:none;border-radius:7px;font-size:12px;cursor:pointer;white-space:nowrap;}
-.photo-search-btn:hover{background:#333;}
-.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
-.photo-thumb{aspect-ratio:1/1;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .15s;position:relative;}
-.photo-thumb:hover{border-color:#aaa;}
-.photo-thumb.selected{border-color:#1a1a18;}
-.photo-thumb img{width:100%;height:100%;object-fit:cover;}
-.photo-thumb-check{position:absolute;top:4px;right:4px;width:18px;height:18px;background:#1a1a18;border-radius:50%;display:none;align-items:center;justify-content:center;}
-.photo-thumb.selected .photo-thumb-check{display:flex;}
-.photo-author{font-size:10px;color:#bbb;margin-top:6px;}
-.photo-empty{font-size:12px;color:#bbb;text-align:center;padding:16px 0;}
-.photo-loading{font-size:12px;color:#bbb;text-align:center;padding:16px 0;}
-.photo-sub-opts{margin-top:10px;display:flex;flex-direction:column;gap:8px;}
-.photo-sub-label{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:#bbb;margin-bottom:5px;}
+select{width:100%;padding:7px 10px;border:1.5px solid #e5e3de;border-radius:7px;font-family:'Inter',sans-serif;font-size:12px;color:#1a1a18;background:#fff;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;outline:none;}
+select:focus{border-color:#1a1a18;}
 
-.count-row{display:flex;align-items:center;}
-.cnt-btn{width:30px;height:30px;border:1.5px solid #e5e3de;background:#fff;color:#1a1a18;border-radius:7px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-.cnt-btn:hover{border-color:#1a1a18;}
-.cnt-num{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:700;width:44px;text-align:center;}
-.gen-btn{width:100%;padding:12px;background:#1a1a18;color:#fff;font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;border:none;border-radius:8px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
-.gen-btn:hover:not(:disabled){background:#333;transform:translateY(-1px);}
-.gen-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
-.spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.err-msg{margin-top:10px;font-size:12px;color:#c0392b;padding:9px 12px;background:#fdf0ef;border-radius:7px;border:1px solid #f5c6c2;line-height:1.5;}
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
-.stat{background:#f7f6f3;border:1px solid #ede9e3;border-radius:8px;padding:10px;text-align:center;}
-.stat-n{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:700;}
-.stat-l{font-size:10px;color:#bbb;margin-top:2px;}
-.main{display:flex;flex-direction:column;background:#f4f3f0;}
-.main-top{padding:13px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e3de;background:#f4f3f0;}
-.main-ttl{font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#bbb;}
-.dl-btn{padding:7px 16px;background:#fff;border:1.5px solid #e5e3de;color:#1a1a18;font-size:12px;font-family:'Inter',sans-serif;border-radius:7px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;}
-.dl-btn:hover:not(:disabled){border-color:#1a1a18;}
-.dl-btn:disabled{opacity:.3;cursor:not-allowed;}
-.scroll{flex:1;overflow-y:auto;padding:24px;}
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 20px;gap:8px;color:#ccc;text-align:center;}
-.empty p{font-size:13px;}.empty p+p{font-size:11px;opacity:.7;}
-.prog-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 20px;gap:14px;}
-.prog-track{width:200px;height:2px;background:#e5e3de;border-radius:2px;overflow:hidden;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* Slider */
+.slider-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.slider-val{font-size:11px;font-weight:500;color:#1a1a18;}
+input[type=range]{width:100%;height:3px;background:#e5e3de;border-radius:2px;appearance:none;cursor:pointer;margin-bottom:12px;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:13px;height:13px;border-radius:50%;background:#1a1a18;cursor:pointer;}
+
+/* Seg */
+.seg{display:flex;gap:4px;margin-bottom:12px;}
+.seg-b{flex:1;padding:5px 0;font-size:11px;border:1.5px solid #e5e3de;border-radius:6px;background:#fff;color:#999;cursor:pointer;transition:all .15s;text-align:center;}
+.seg-b:hover{border-color:#aaa;color:#1a1a18;}
+.seg-b.on{border-color:#1a1a18;background:#1a1a18;color:#fff;}
+
+/* Color */
+.color-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.color-field{display:flex;align-items:center;gap:6px;}
+.color-lbl{font-size:11px;color:#888;flex:1;}
+.cswatch{width:24px;height:24px;border-radius:5px;border:1.5px solid #e5e3de;overflow:hidden;position:relative;flex-shrink:0;cursor:pointer;}
+.cswatch input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.chex{font-size:10px;width:52px;border:1px solid #e5e3de;border-radius:5px;padding:3px 5px;font-family:'Inter',sans-serif;color:#555;outline:none;}
+.chex:focus{border-color:#1a1a18;}
+
+/* Toggle */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.toggle-lbl{font-size:12px;color:#555;}
+.tog{position:relative;width:32px;height:18px;cursor:pointer;flex-shrink:0;}
+.tog input{opacity:0;width:0;height:0;}
+.tog-track{position:absolute;inset:0;background:#e5e3de;border-radius:9px;transition:background .2s;}
+.tog input:checked+.tog-track{background:#1a1a18;}
+.tog-thumb{position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none;}
+.tog input:checked~.tog-thumb{transform:translateX(14px);}
+
+/* Template grid */
+.tpl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:12px;}
+.tpl-card{border:1.5px solid #e5e3de;border-radius:6px;overflow:hidden;cursor:pointer;transition:all .15s;}
+.tpl-card:hover{border-color:#aaa;}
+.tpl-card.on{border-color:#1a1a18;box-shadow:0 0 0 1px #1a1a18;}
+.tpl-prev{height:38px;display:flex;align-items:center;justify-content:center;}
+.tpl-name{font-size:8px;color:#999;text-align:center;padding:2px 0 3px;background:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* Photo search */
+.psearch{display:flex;gap:5px;margin-bottom:8px;}
+.psearch input{flex:1;padding:7px 9px;border:1.5px solid #e5e3de;border-radius:7px;font-family:'Inter',sans-serif;font-size:12px;color:#1a1a18;background:#faf9f7;outline:none;}
+.psearch input:focus{border-color:#1a1a18;}
+.psearch button{padding:7px 10px;background:#1a1a18;color:#fff;border:none;border-radius:7px;font-size:11px;cursor:pointer;white-space:nowrap;}
+.photo-mode-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:10px;}
+.pmb{padding:7px 4px;border:1.5px solid #e5e3de;border-radius:6px;background:#fff;color:#999;font-size:11px;cursor:pointer;transition:all .15s;text-align:center;}
+.pmb:hover{border-color:#aaa;}
+.pmb.on{border-color:#1a1a18;background:#1a1a18;color:#fff;}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:6px;}
+.pthumb{aspect-ratio:1/1;border-radius:5px;overflow:hidden;cursor:pointer;border:2px solid transparent;position:relative;}
+.pthumb:hover{border-color:#aaa;}
+.pthumb.on{border-color:#1a1a18;}
+.pthumb img{width:100%;height:100%;object-fit:cover;}
+.pcheck{position:absolute;top:3px;right:3px;width:16px;height:16px;background:#1a1a18;border-radius:50%;display:none;align-items:center;justify-content:center;}
+.pthumb.on .pcheck{display:flex;}
+.photo-note{font-size:10px;color:#bbb;margin-bottom:8px;}
+
+/* Error */
+.err{font-size:11px;color:#c0392b;padding:8px 10px;background:#fdf0ef;border-radius:6px;border:1px solid #f5c6c2;margin-top:8px;line-height:1.5;}
+
+/* MAIN */
+.main{display:flex;flex-direction:column;overflow:hidden;}
+
+/* Progress */
+.prog-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.prog-track{width:180px;height:2px;background:#e5e3de;border-radius:2px;overflow:hidden;}
 .prog-fill{height:100%;background:#1a1a18;width:0%;transition:width .4s ease;border-radius:2px;}
-.prog-lbl{font-size:12px;color:#bbb;}
-.slides-list{display:flex;flex-direction:column;gap:14px;}
-.slide-row{display:flex;gap:12px;align-items:flex-start;animation:fadeUp .3s ease both;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.slide-idx{font-family:'Unbounded',sans-serif;font-size:9px;font-weight:700;color:#ccc;padding-top:8px;min-width:20px;}
-.slide-card{flex:1;max-width:400px;border-radius:10px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.1);}
-.hist-list{display:flex;flex-direction:column;gap:8px;}
-.hist-item{background:#fff;border:1px solid #e5e3de;border-radius:9px;padding:13px 15px;cursor:pointer;transition:border-color .15s;}
-.hist-item:hover{border-color:#1a1a18;}
-.hist-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
-.hist-date{font-size:11px;color:#bbb;}.hist-pill{font-size:10px;padding:2px 8px;border-radius:20px;background:#f0ede8;color:#888;}
-.hist-txt{font-size:13px;color:#555;line-height:1.4;}
-.hist-empty{font-size:13px;color:#bbb;padding:40px 0;text-align:center;}
-::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px;}
+.prog-lbl{font-size:11px;color:#aaa;}
+
+/* GRID VIEW */
+.grid-area{flex:1;overflow-y:auto;padding:20px;}
+.empty-hint{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:#ccc;}
+.empty-hint p{font-size:13px;}.empty-hint p+p{font-size:11px;opacity:.6;}
+
+.slides-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
+.grid-item{border-radius:8px;overflow:hidden;cursor:pointer;box-shadow:0 1px 8px rgba(0,0,0,.1);transition:all .18s;position:relative;}
+.grid-item:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.15);}
+.grid-item-num{position:absolute;top:6px;left:8px;font-size:9px;font-weight:700;color:rgba(255,255,255,.7);font-family:'Unbounded',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.5);}
+
+/* MODAL VIEWER */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:16px;}
+.modal-slide{border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5);}
+.modal-nav{display:flex;align-items:center;gap:20px;}
+.modal-arrow{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.modal-arrow:hover{background:rgba(255,255,255,.22);}
+.modal-arrow:disabled{opacity:.25;cursor:default;}
+.modal-dots{display:flex;gap:6px;align-items:center;}
+.modal-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);transition:all .2s;cursor:pointer;}
+.modal-dot.on{background:#fff;transform:scale(1.25);}
+.modal-close{position:absolute;top:-14px;right:-14px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:rgba(255,255,255,.25);}
+.modal-counter{font-size:12px;color:rgba(255,255,255,.5);font-family:'Unbounded',sans-serif;}
+
 #render-area{position:fixed;left:-9999px;top:0;pointer-events:none;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px;}
 </style>
 </head>
 <body>
-<header class="header">
+
+<header class="hdr">
   <div class="logo"><div class="logo-dot"></div>Carousel AI</div>
-  <nav class="nav">
-    <button class="nav-btn active" onclick="switchTab('gen',this)">Генератор</button>
-    <button class="nav-btn" onclick="switchTab('hist',this)">История</button>
-  </nav>
+  <div class="hdr-right">
+    <button class="gen-btn" id="gen-btn" onclick="generate()">Сгенерировать</button>
+    <button class="dl-btn" id="dl-btn" onclick="dlZip()" disabled>
+      <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg>
+      Скачать ZIP
+    </button>
+  </div>
 </header>
-<div class="layout">
-<aside class="sidebar">
-  <div class="sb"><div class="sb-title">Текст</div><textarea id="txt" placeholder="Вставьте текст: анонс, статью, инструкцию, описание продукта..."></textarea></div>
-  <div class="sb"><div class="sb-title">Шаблон</div><div class="tpl-grid" id="tpl-grid"></div></div>
 
-  <!-- ФОТО -->
-  <div class="sb">
-    <div class="sb-title">Фото</div>
-    <div class="photo-mode-btns">
-      <div class="photo-mode-btn active" data-mode="none" onclick="setPhotoMode(this)">Без фото</div>
-      <div class="photo-mode-btn" data-mode="bg" onclick="setPhotoMode(this)">Фон</div>
-      <div class="photo-mode-btn" data-mode="content" onclick="setPhotoMode(this)">Контент</div>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="tabs">
+      <div class="tab active" onclick="switchSbTab('content',this)">Контент</div>
+      <div class="tab" onclick="switchSbTab('design',this)">Дизайн</div>
+      <div class="tab" onclick="switchSbTab('photo',this)">Фото</div>
     </div>
 
-    <div id="photo-opts" style="display:none;">
-      <!-- Поиск -->
-      <div class="photo-search-wrap">
-        <input class="photo-search" id="photo-query" placeholder="Поиск фото..." onkeydown="if(event.key==='Enter')searchPhotos()">
-        <button class="photo-search-btn" onclick="searchPhotos()">Найти</button>
+    <!-- КОНТЕНТ -->
+    <div class="tab-content active" id="sbt-content">
+      <div class="field">
+        <label class="field-label">Текст</label>
+        <textarea id="txt" placeholder="Вставьте текст: анонс, статью, инструкцию, описание продукта..."></textarea>
       </div>
-      <div id="photo-grid" class="photo-grid"></div>
-      <div id="photo-author" class="photo-author"></div>
-
-      <!-- Доп. настройки фона -->
-      <div id="bg-opts" class="photo-sub-opts" style="display:none;">
-        <div class="ctrl-row" style="margin-top:4px"><span class="ctrl-label">Затемнение</span><span class="ctrl-val" id="dim-val">50%</span></div>
-        <input type="range" id="dim-range" min="0" max="90" value="50" oninput="updateDim()">
-      </div>
-
-      <!-- Доп. настройки контента -->
-      <div id="content-opts" class="photo-sub-opts" style="display:none;">
-        <div class="photo-sub-label">Расположение фото</div>
-        <div class="seg-btns" style="margin-bottom:10px;">
-          <div class="seg-btn active" data-layout="top" onclick="setContentLayout(this)">Сверху</div>
-          <div class="seg-btn" data-layout="bottom" onclick="setContentLayout(this)">Снизу</div>
-          <div class="seg-btn" data-layout="left" onclick="setContentLayout(this)">Слева</div>
-          <div class="seg-btn" data-layout="right" onclick="setContentLayout(this)">Справа</div>
-        </div>
-        <div class="photo-sub-label">На каких слайдах</div>
-        <div class="seg-btns">
-          <div class="seg-btn active" data-slides="all" onclick="setContentSlides(this)">Все</div>
-          <div class="seg-btn" data-slides="first-last" onclick="setContentSlides(this)">1-й и посл.</div>
-          <div class="seg-btn" data-slides="first" onclick="setContentSlides(this)">Только 1-й</div>
+      <div class="field">
+        <label class="field-label">Количество слайдов</label>
+        <div style="display:flex;align-items:center;gap:0;">
+          <button style="width:28px;height:28px;border:1.5px solid #e5e3de;background:#fff;border-radius:6px;font-size:14px;cursor:pointer;" onclick="chCnt(-1)">−</button>
+          <div id="cnt" style="font-family:'Unbounded',sans-serif;font-size:16px;font-weight:700;width:40px;text-align:center;">5</div>
+          <button style="width:28px;height:28px;border:1.5px solid #e5e3de;background:#fff;border-radius:6px;font-size:14px;cursor:pointer;" onclick="chCnt(1)">+</button>
         </div>
       </div>
+      <div id="gen-err" style="display:none" class="err"></div>
     </div>
-  </div>
 
-  <div class="sb">
-    <div class="sb-title">Цвета</div>
-    <div class="color-row"><span class="color-label">Фон</span><div class="color-input-wrap"><div class="color-swatch" id="sw-bg"><input type="color" id="bg-color" value="#0d0d0d" oninput="onColorChange('bg')"></div><input class="color-hex" id="bg-hex" value="#0d0d0d" maxlength="7" oninput="onHexInput('bg')"></div></div>
-    <div class="color-row"><span class="color-label">Заголовок</span><div class="color-input-wrap"><div class="color-swatch" id="sw-title"><input type="color" id="title-color" value="#f0ede8" oninput="onColorChange('title')"></div><input class="color-hex" id="title-hex" value="#f0ede8" maxlength="7" oninput="onHexInput('title')"></div></div>
-    <div class="color-row"><span class="color-label">Текст</span><div class="color-input-wrap"><div class="color-swatch" id="sw-body"><input type="color" id="body-color" value="#888888" oninput="onColorChange('body')"></div><input class="color-hex" id="body-hex" value="#888888" maxlength="7" oninput="onHexInput('body')"></div></div>
-    <div class="color-row"><span class="color-label">Акцент</span><div class="color-input-wrap"><div class="color-swatch" id="sw-accent"><input type="color" id="accent-color" value="#d4f55c" oninput="onColorChange('accent')"></div><input class="color-hex" id="accent-hex" value="#d4f55c" maxlength="7" oninput="onHexInput('accent')"></div></div>
-  </div>
-  <div class="sb"><div class="sb-title">Шрифт заголовка</div><div class="font-list" id="title-fonts"></div></div>
-  <div class="sb"><div class="sb-title">Шрифт текста</div><div class="font-list" id="body-fonts"></div></div>
-  <div class="sb">
-    <div class="sb-title">Настройки</div>
-    <div class="ctrl-row"><span class="ctrl-label">Размер заголовка</span><span class="ctrl-val" id="fz-val">100%</span></div>
-    <input type="range" id="fz-range" min="65" max="150" value="100" oninput="updateCtrl()">
-    <div class="ctrl-row" style="margin-top:2px"><span class="ctrl-label">Расположение</span></div>
-    <div class="seg-btns" style="margin-bottom:12px;">
-      <div class="seg-btn" data-pos="top" onclick="setPos(this)">Сверху</div>
-      <div class="seg-btn active" data-pos="center" onclick="setPos(this)">Центр</div>
-      <div class="seg-btn" data-pos="bottom" onclick="setPos(this)">Снизу</div>
+    <!-- ДИЗАЙН -->
+    <div class="tab-content" id="sbt-design">
+      <div class="field">
+        <label class="field-label">Шаблон</label>
+        <div class="tpl-grid" id="tpl-grid"></div>
+      </div>
+      <div class="field">
+        <label class="field-label">Цвета</label>
+        <div class="color-grid">
+          <div class="color-field"><span class="color-lbl">Фон</span><div class="cswatch" id="sw-bg"><input type="color" id="bg-color" value="#0d0d0d" oninput="onC('bg')"></div><input class="chex" id="bg-hex" value="#0d0d0d" maxlength="7" oninput="onH('bg')"></div>
+          <div class="color-field"><span class="color-lbl">Заголовок</span><div class="cswatch" id="sw-title"><input type="color" id="title-color" value="#f0ede8" oninput="onC('title')"></div><input class="chex" id="title-hex" value="#f0ede8" maxlength="7" oninput="onH('title')"></div>
+          <div class="color-field"><span class="color-lbl">Текст</span><div class="cswatch" id="sw-body"><input type="color" id="body-color" value="#888888" oninput="onC('body')"></div><input class="chex" id="body-hex" value="#888888" maxlength="7" oninput="onH('body')"></div>
+          <div class="color-field"><span class="color-lbl">Акцент</span><div class="cswatch" id="sw-accent"><input type="color" id="accent-color" value="#d4f55c" oninput="onC('accent')"></div><input class="chex" id="accent-hex" value="#d4f55c" maxlength="7" oninput="onH('accent')"></div>
+        </div>
+      </div>
+      <div class="field row2">
+        <div>
+          <label class="field-label">Шрифт заголовка</label>
+          <select id="tf-select" onchange="uTF=this.value||null;if(slides.length)renderGrid();">
+            <option value="">Из шаблона</option>
+            <option value="'Unbounded',sans-serif">Unbounded</option>
+            <option value="'Bebas Neue',sans-serif">Bebas Neue</option>
+            <option value="'Oswald',sans-serif">Oswald</option>
+            <option value="'Syne',sans-serif">Syne</option>
+            <option value="'Montserrat',sans-serif">Montserrat</option>
+            <option value="'Playfair Display',serif">Playfair</option>
+            <option value="'Cormorant Garamond',serif">Cormorant</option>
+            <option value="'DM Serif Display',serif">DM Serif</option>
+            <option value="'IBM Plex Mono',monospace">IBM Mono</option>
+            <option value="'Raleway',sans-serif">Raleway</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Шрифт текста</label>
+          <select id="bf-select" onchange="uBF=this.value||null;if(slides.length)renderGrid();">
+            <option value="">Из шаблона</option>
+            <option value="'Inter',sans-serif">Inter</option>
+            <option value="'Space Grotesk',sans-serif">Space Grotesk</option>
+            <option value="'Raleway',sans-serif">Raleway</option>
+            <option value="'IBM Plex Mono',monospace">IBM Mono</option>
+            <option value="'Montserrat',sans-serif">Montserrat</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <div class="slider-row"><span class="field-label" style="margin:0">Размер заголовка</span><span class="slider-val" id="fz-val">100%</span></div>
+        <input type="range" id="fz-range" min="65" max="150" value="100" oninput="updateCtrl()">
+        <label class="field-label">Расположение текста</label>
+        <div class="seg" id="pos-seg">
+          <div class="seg-b" data-v="top" onclick="setSeg('pos-seg',this,'pos')">Сверху</div>
+          <div class="seg-b on" data-v="center" onclick="setSeg('pos-seg',this,'pos')">Центр</div>
+          <div class="seg-b" data-v="bottom" onclick="setSeg('pos-seg',this,'pos')">Снизу</div>
+        </div>
+        <div class="slider-row"><span class="field-label" style="margin:0">Отступы</span><span class="slider-val" id="pad-val">Normal</span></div>
+        <input type="range" id="pad-range" min="5" max="14" value="9" oninput="updateCtrl()">
+        <div class="toggle-row">
+          <span class="toggle-lbl">Нумерация слайдов</span>
+          <label class="tog"><input type="checkbox" id="show-num" checked onchange="updateCtrl()"><div class="tog-track"></div><div class="tog-thumb"></div></label>
+        </div>
+      </div>
     </div>
-    <div class="ctrl-row"><span class="ctrl-label">Отступы</span><span class="ctrl-val" id="pad-val">Normal</span></div>
-    <input type="range" id="pad-range" min="5" max="14" value="9" oninput="updateCtrl()">
-    <div class="toggle-row" style="margin-top:4px">
-      <span class="toggle-label">Нумерация слайдов</span>
-      <label class="toggle"><input type="checkbox" id="show-num" checked onchange="updateCtrl()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+
+    <!-- ФОТО -->
+    <div class="tab-content" id="sbt-photo">
+      <div class="field">
+        <label class="field-label">Режим</label>
+        <div class="photo-mode-btns">
+          <div class="pmb on" data-mode="none" onclick="setPhotoMode(this)">Без фото</div>
+          <div class="pmb" data-mode="bg" onclick="setPhotoMode(this)">Фон</div>
+          <div class="pmb" data-mode="content" onclick="setPhotoMode(this)">Контент</div>
+        </div>
+      </div>
+      <div id="photo-opts" style="display:none;">
+        <div class="field">
+          <div class="psearch">
+            <input id="photo-q" placeholder="Поиск фото..." onkeydown="if(event.key==='Enter')searchPhotos()">
+            <button onclick="searchPhotos()">Найти</button>
+          </div>
+          <div class="pgrid" id="pgrid"></div>
+          <div class="photo-note" id="photo-credit"></div>
+        </div>
+        <div id="bg-opts" style="display:none;">
+          <div class="slider-row"><span class="field-label" style="margin:0">Затемнение</span><span class="slider-val" id="dim-val">50%</span></div>
+          <input type="range" id="dim-range" min="0" max="90" value="50" oninput="updateDim()">
+        </div>
+        <div id="content-opts" style="display:none;">
+          <label class="field-label">Расположение фото</label>
+          <div class="seg" id="cl-seg">
+            <div class="seg-b on" data-v="top" onclick="setSeg('cl-seg',this,'contentLayout')">Сверху</div>
+            <div class="seg-b" data-v="bottom" onclick="setSeg('cl-seg',this,'contentLayout')">Снизу</div>
+            <div class="seg-b" data-v="left" onclick="setSeg('cl-seg',this,'contentLayout')">Слева</div>
+            <div class="seg-b" data-v="right" onclick="setSeg('cl-seg',this,'contentLayout')">Справа</div>
+          </div>
+          <label class="field-label">На каких слайдах</label>
+          <div class="seg" id="cs-seg">
+            <div class="seg-b on" data-v="all" onclick="setSeg('cs-seg',this,'contentSlides')">Все</div>
+            <div class="seg-b" data-v="first-last" onclick="setSeg('cs-seg',this,'contentSlides')">1-й и посл.</div>
+            <div class="seg-b" data-v="first" onclick="setSeg('cs-seg',this,'contentSlides')">Только 1-й</div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="sb"><div class="sb-title">Слайдов</div><div class="count-row"><button class="cnt-btn" onclick="chCnt(-1)">−</button><div class="cnt-num" id="cnt">5</div><button class="cnt-btn" onclick="chCnt(1)">+</button><span style="font-size:12px;color:#bbb;margin-left:8px;">слайдов</span></div></div>
-  <div class="sb"><button class="gen-btn" id="gen-btn" onclick="generate()"><span>Сгенерировать</span></button><div id="gen-err" style="display:none" class="err-msg"></div></div>
-  <div class="sb"><div class="sb-title">Статистика</div><div class="stats-row"><div class="stat"><div class="stat-n" id="s-total">—</div><div class="stat-l">всего</div></div><div class="stat"><div class="stat-n" id="s-today">—</div><div class="stat-l">сегодня</div></div><div class="stat"><div class="stat-n" id="s-week">—</div><div class="stat-l">неделя</div></div></div></div>
-</aside>
-<main class="main">
-  <div class="main-top">
-    <div class="main-ttl" id="main-ttl">Предпросмотр</div>
-    <button class="dl-btn" id="dl-btn" onclick="dlZip()" disabled><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg>Скачать ZIP</button>
-  </div>
-  <div class="scroll">
-    <div id="tab-gen">
-      <div id="empty" class="empty"><p>Выберите шаблон и нажмите «Сгенерировать»</p><p>Layout меняется случайно при каждой генерации</p></div>
-      <div id="prog" class="prog-wrap" style="display:none"><div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div><div class="prog-lbl" id="prog-lbl">Генерирую...</div></div>
-      <div class="slides-list" id="slist" style="display:none"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div id="prog-area" class="prog-area" style="display:none;">
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+      <div class="prog-lbl" id="prog-lbl">Генерирую...</div>
     </div>
-    <div id="tab-hist" style="display:none"><div class="hist-list" id="hlist"><div class="hist-empty">Загружаю...</div></div></div>
-  </div>
-</main>
+    <div class="grid-area" id="grid-area">
+      <div class="empty-hint" id="empty-hint">
+        <p>Введите текст и нажмите «Сгенерировать»</p>
+        <p>Клик по слайду открывает просмотр</p>
+      </div>
+      <div class="slides-grid" id="slides-grid" style="display:none;"></div>
+    </div>
+  </main>
 </div>
+
+<!-- MODAL VIEWER -->
+<div class="modal-overlay" id="modal" onclick="handleModalClick(event)">
+  <div class="modal-inner" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-slide" id="modal-slide"></div>
+    <div class="modal-nav">
+      <button class="modal-arrow" id="m-prev" onclick="modalNav(-1)">&#8592;</button>
+      <div class="modal-dots" id="modal-dots"></div>
+      <button class="modal-arrow" id="m-next" onclick="modalNav(1)">&#8594;</button>
+    </div>
+    <div class="modal-counter" id="modal-counter"></div>
+  </div>
+</div>
+
 <div id="render-area"></div>
+
 <script>
-// ══ ШАБЛОНЫ ═══════════════════════════════════════════════════
+// ══ ШАБЛОНЫ ═══════════════════════════════════════
 const TEMPLATES = {
-  noir:      {name:'Noir',      bg:'#0d0d0d',tc:'#f0ede8',bc:'#777',ac:'#d4f55c', tf:"'Unbounded',sans-serif",        bf:"'Inter',sans-serif",         tw:900, numPos:'tl',textPos:'bottom',deco:'grid',    prev:{bg:'#0d0d0d',c:'#d4f55c',f:"'Unbounded',sans-serif",   t:'NOIR',     s:'11px',w:700}},
-  swiss:     {name:'Swiss',     bg:'#ffffff',tc:'#000000',bc:'#555',ac:'#e63322', tf:"'Helvetica Neue',Arial,sans-serif",bf:"'Helvetica Neue',Arial,sans-serif",tw:900,numPos:'tr',textPos:'top',  deco:'line-left',prev:{bg:'#fff',  c:'#e63322',f:"Arial,sans-serif",          t:'SWISS',    s:'11px',w:900}},
-  editorial: {name:'Editorial', bg:'#f5ede0',tc:'#1a1714',bc:'#7a6a58',ac:'#b03020',tf:"'Cormorant Garamond',serif",  bf:"'Inter',sans-serif",         tw:700,ts:true,numPos:'br',textPos:'center',deco:'underline-accent',prev:{bg:'#f5ede0',c:'#b03020',f:"'Cormorant Garamond',serif",t:'Editorial',s:'12px',w:700}},
-  neon:      {name:'Neon',      bg:'#07070f',tc:'#ffffff',bc:'#6699aa',ac:'#00ffe0',tf:"'Syne',sans-serif",            bf:"'Space Grotesk',sans-serif",  tw:800, numPos:'bl',textPos:'center',deco:'dot-row',  prev:{bg:'#07070f',c:'#00ffe0',f:"'Syne',sans-serif",         t:'NEON',     s:'12px',w:800}},
-  bold:      {name:'Bold',      bg:'#e8ff47',tc:'#0d0d0d',bc:'#3a3a2a',ac:'#0d0d0d',tf:"'Bebas Neue',sans-serif",     bf:"'Montserrat',sans-serif",     tw:400, numPos:'none',textPos:'bottom',deco:'big-num', prev:{bg:'#e8ff47',c:'#0d0d0d',f:"'Bebas Neue',sans-serif",   t:'BOLD',     s:'15px',w:400}},
-  midnight:  {name:'Midnight',  bg:'#0e1525',tc:'#e8ecff',bc:'#5566aa',ac:'#6b8cff',tf:"'Raleway',sans-serif",        bf:"'Inter',sans-serif",          tw:900, numPos:'tl',textPos:'center',deco:'circle',  prev:{bg:'#0e1525',c:'#6b8cff',f:"'Raleway',sans-serif",       t:'MIDNIGHT', s:'10px',w:900}},
-  paper:     {name:'Paper',     bg:'#fafaf7',tc:'#111111',bc:'#888',ac:'#111111',   tf:"'DM Serif Display',serif",     bf:"'Inter',sans-serif",          tw:400, numPos:'br',textPos:'bottom',deco:'none',    prev:{bg:'#fafaf7',c:'#333',   f:"'DM Serif Display',serif",   t:'Paper',    s:'13px',w:400}},
-  brutalist: {name:'Brutalist', bg:'#f0f0ec',tc:'#000000',bc:'#444',ac:'#000000',  tf:"'IBM Plex Mono',monospace",    bf:"'IBM Plex Mono',monospace",   tw:700, numPos:'none',textPos:'top',  deco:'corner-bracket',prev:{bg:'#f0f0ec',c:'#000',f:"'IBM Plex Mono',monospace", t:'BRUT',     s:'10px',w:700}},
-  aurora:    {name:'Aurora',    bg:'#0d1117',tc:'#d4c8ff',bc:'#7777aa',ac:'#a78bfa',tf:"'Syne',sans-serif",            bf:"'Inter',sans-serif",          tw:800, numPos:'tr',textPos:'bottom',deco:'slash',   prev:{bg:'#0d1117',c:'#a78bfa',f:"'Syne',sans-serif",          t:'AURORA',   s:'11px',w:800}},
-  clay:      {name:'Clay',      bg:'#e8ddd0',tc:'#2c1810',bc:'#8a6a58',ac:'#c0622a',tf:"'Playfair Display',serif",    bf:"'Inter',sans-serif",          tw:700, numPos:'tl',textPos:'top',  deco:'none',    prev:{bg:'#e8ddd0',c:'#c0622a',f:"'Playfair Display',serif",   t:'Clay',     s:'13px',w:700}},
-  y2k:       {name:'Y2K',       bg:'#1a0030',tc:'#ff99ff',bc:'#aa66cc',ac:'#00ffff',tf:"'Oswald',sans-serif",          bf:"'Space Grotesk',sans-serif",  tw:700, numPos:'br',textPos:'center',deco:'dot-row', prev:{bg:'#1a0030',c:'#00ffff',f:"'Oswald',sans-serif",         t:'Y2K',      s:'14px',w:700}},
-  terminal:  {name:'Terminal',  bg:'#0a1200',tc:'#33ff33',bc:'#228822',ac:'#33ff33',tf:"'IBM Plex Mono',monospace",    bf:"'IBM Plex Mono',monospace",   tw:700, numPos:'tl',textPos:'top',  deco:'none',    prev:{bg:'#0a1200',c:'#33ff33',f:"'IBM Plex Mono',monospace",  t:'>_TERM',   s:'9px', w:700}},
+  noir:      {name:'Noir',      bg:'#0d0d0d',tc:'#f0ede8',bc:'#777',ac:'#d4f55c', tf:"'Unbounded',sans-serif",        bf:"'Inter',sans-serif",         tw:900,numPos:'tl',textPos:'bottom',deco:'grid',           prev:{bg:'#0d0d0d',c:'#d4f55c',f:"'Unbounded',sans-serif",   t:'NOIR',     s:'9px', w:700}},
+  swiss:     {name:'Swiss',     bg:'#ffffff',tc:'#000000',bc:'#555', ac:'#e63322', tf:"'Helvetica Neue',Arial,sans-serif",bf:"'Helvetica Neue',Arial,sans-serif",tw:900,numPos:'tr',textPos:'top',deco:'line-left',   prev:{bg:'#fff',  c:'#e63322',f:"Arial,sans-serif",          t:'SWISS',    s:'9px', w:900}},
+  editorial: {name:'Editorial', bg:'#f5ede0',tc:'#1a1714',bc:'#7a6a58',ac:'#b03020',tf:"'Cormorant Garamond',serif",  bf:"'Inter',sans-serif",         tw:700,ts:true,numPos:'br',textPos:'center',deco:'underline-accent',prev:{bg:'#f5ede0',c:'#b03020',f:"'Cormorant Garamond',serif",t:'Edito',  s:'9px', w:700}},
+  neon:      {name:'Neon',      bg:'#07070f',tc:'#ffffff',bc:'#6699aa',ac:'#00ffe0',tf:"'Syne',sans-serif",            bf:"'Space Grotesk',sans-serif", tw:800,numPos:'bl',textPos:'center',deco:'dot-row',          prev:{bg:'#07070f',c:'#00ffe0',f:"'Syne',sans-serif",         t:'NEON',     s:'9px', w:800}},
+  bold:      {name:'Bold',      bg:'#e8ff47',tc:'#0d0d0d',bc:'#3a3a2a',ac:'#0d0d0d',tf:"'Bebas Neue',sans-serif",     bf:"'Montserrat',sans-serif",    tw:400,numPos:'none',textPos:'bottom',deco:'big-num',        prev:{bg:'#e8ff47',c:'#0d0d0d',f:"'Bebas Neue',sans-serif",  t:'BOLD',     s:'12px',w:400}},
+  midnight:  {name:'Midnight',  bg:'#0e1525',tc:'#e8ecff',bc:'#5566aa',ac:'#6b8cff',tf:"'Raleway',sans-serif",        bf:"'Inter',sans-serif",         tw:900,numPos:'tl',textPos:'center',deco:'circle',          prev:{bg:'#0e1525',c:'#6b8cff',f:"'Raleway',sans-serif",      t:'MDNT',     s:'8px', w:900}},
+  paper:     {name:'Paper',     bg:'#fafaf7',tc:'#111111',bc:'#888', ac:'#111111',  tf:"'DM Serif Display',serif",     bf:"'Inter',sans-serif",         tw:400,numPos:'br',textPos:'bottom',deco:'none',           prev:{bg:'#fafaf7',c:'#333',  f:"'DM Serif Display',serif", t:'Paper',    s:'10px',w:400}},
+  brutalist: {name:'Brutalist', bg:'#f0f0ec',tc:'#000000',bc:'#444', ac:'#000000',  tf:"'IBM Plex Mono',monospace",    bf:"'IBM Plex Mono',monospace",  tw:700,numPos:'none',textPos:'top',deco:'corner-bracket',  prev:{bg:'#f0f0ec',c:'#000',  f:"'IBM Plex Mono',monospace",t:'BRUT',     s:'8px', w:700}},
+  aurora:    {name:'Aurora',    bg:'#0d1117',tc:'#d4c8ff',bc:'#7777aa',ac:'#a78bfa',tf:"'Syne',sans-serif",            bf:"'Inter',sans-serif",         tw:800,numPos:'tr',textPos:'bottom',deco:'slash',           prev:{bg:'#0d1117',c:'#a78bfa',f:"'Syne',sans-serif",         t:'AURA',     s:'9px', w:800}},
+  clay:      {name:'Clay',      bg:'#e8ddd0',tc:'#2c1810',bc:'#8a6a58',ac:'#c0622a',tf:"'Playfair Display',serif",    bf:"'Inter',sans-serif",         tw:700,numPos:'tl',textPos:'top',deco:'none',              prev:{bg:'#e8ddd0',c:'#c0622a',f:"'Playfair Display',serif",  t:'Clay',     s:'10px',w:700}},
+  y2k:       {name:'Y2K',       bg:'#1a0030',tc:'#ff99ff',bc:'#aa66cc',ac:'#00ffff',tf:"'Oswald',sans-serif",          bf:"'Space Grotesk',sans-serif", tw:700,numPos:'br',textPos:'center',deco:'dot-row',         prev:{bg:'#1a0030',c:'#00ffff',f:"'Oswald',sans-serif",       t:'Y2K',      s:'10px',w:700}},
+  terminal:  {name:'Terminal',  bg:'#0a1200',tc:'#33ff33',bc:'#228822',ac:'#33ff33',tf:"'IBM Plex Mono',monospace",    bf:"'IBM Plex Mono',monospace",  tw:700,numPos:'tl',textPos:'top',deco:'none',              prev:{bg:'#0a1200',c:'#33ff33',f:"'IBM Plex Mono',monospace", t:'>_',       s:'10px',w:700}},
 };
 
-const TITLE_FONTS=[{k:'auto',l:'Авто',s:null,x:'Из шаблона'},{k:'unbounded',l:'Unbounded',s:"'Unbounded',sans-serif",x:'Заголовок'},{k:'bebas',l:'Bebas Neue',s:"'Bebas Neue',sans-serif",x:'Заголовок'},{k:'oswald',l:'Oswald',s:"'Oswald',sans-serif",x:'Заголовок'},{k:'syne',l:'Syne',s:"'Syne',sans-serif",x:'Заголовок'},{k:'montserrat',l:'Montserrat',s:"'Montserrat',sans-serif",x:'Заголовок'},{k:'playfair',l:'Playfair',s:"'Playfair Display',serif",x:'Заголовок'},{k:'cormorant',l:'Cormorant',s:"'Cormorant Garamond',serif",x:'Заголовок'},{k:'dm',l:'DM Serif',s:"'DM Serif Display',serif",x:'Заголовок'},{k:'mono',l:'IBM Mono',s:"'IBM Plex Mono',monospace",x:'Заголовок'},{k:'raleway',l:'Raleway',s:"'Raleway',sans-serif",x:'Заголовок'}];
-const BODY_FONTS=[{k:'auto',l:'Авто',s:null,x:'Из шаблона'},{k:'inter',l:'Inter',s:"'Inter',sans-serif",x:'Текст тела'},{k:'grotesk',l:'Space Grotesk',s:"'Space Grotesk',sans-serif",x:'Текст тела'},{k:'raleway',l:'Raleway',s:"'Raleway',sans-serif",x:'Текст тела'},{k:'mono',l:'IBM Mono',s:"'IBM Plex Mono',monospace",x:'Текст тела'},{k:'montserrat',l:'Montserrat',s:"'Montserrat',sans-serif",x:'Текст тела'}];
+// ══ LAYOUTS ════════════════════════════════════════
+const MID=['split','bigquote','list','feature'];
+function makePlan(n){const p=[];for(let i=0;i<n;i++){if(i===0||i===n-1){p.push('hero');continue;}const prev=p[i-1];const a=MID.filter(l=>l!==prev);p.push(a[Math.floor(Math.random()*a.length)]);}return p;}
 
-const MID_LAYOUTS=['split','bigquote','list','feature'];
-function makePlan(total){const p=[];for(let i=0;i<total;i++){if(i===0||i===total-1){p.push('hero');continue;}const prev=p[i-1];const a=MID_LAYOUTS.filter(l=>l!==prev);p.push(a[Math.floor(Math.random()*a.length)]);}return p;}
-
-// ══ SLIDE BUILDER ══════════════════════════════════════════════
+// ══ SLIDE BUILDER ══════════════════════════════════
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
 function cl(v,a,b){return Math.max(a,Math.min(b,v));}
-function autoFz(txt,cpl,lines,base,sc,mult){const len=(txt||'').length,cap=cpl*lines;let m=mult;if(len>cap*.5)m*=.9;if(len>cap*.75)m*=.86;if(len>cap)m*=.78;if(len>cap*1.3)m*=.7;return Math.round(base*sc*m);}
+function aFz(txt,cpl,lines,base,sc,m){const len=(txt||'').length,cap=cpl*lines;if(len>cap*.5)m*=.9;if(len>cap*.75)m*=.86;if(len>cap)m*=.78;if(len>cap*1.3)m*=.7;return Math.round(base*sc*m);}
 
-function renderDeco(deco,W,sc,ac,tc,bg){
+function deco(d,W,sc,ac){
   const p=Math.round(W*.09);
-  if(deco==='grid') return `<div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:${38*sc}px ${38*sc}px;pointer-events:none;z-index:0;"></div>`;
-  if(deco==='line-left') return `<div style="position:absolute;left:${p}px;top:${p}px;bottom:${p}px;width:${Math.round(4*sc)}px;background:${ac};z-index:0;border-radius:2px;"></div>`;
-  if(deco==='circle') return `<div style="position:absolute;right:${Math.round(-60*sc)}px;bottom:${Math.round(-60*sc)}px;width:${Math.round(280*sc)}px;height:${Math.round(280*sc)}px;border-radius:50%;border:${Math.round(40*sc)}px solid ${ac};opacity:.08;z-index:0;pointer-events:none;"></div>`;
-  if(deco==='corner-bracket'){const bw=Math.round(3*sc),bs=Math.round(36*sc);return `<div style="position:absolute;top:${p}px;left:${p}px;width:${bs}px;height:${bs}px;border-top:${bw}px solid ${ac};border-left:${bw}px solid ${ac};z-index:0;"></div><div style="position:absolute;bottom:${p}px;right:${p}px;width:${bs}px;height:${bs}px;border-bottom:${bw}px solid ${ac};border-right:${bw}px solid ${ac};z-index:0;"></div>`;}
-  if(deco==='slash') return `<div style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;z-index:0;pointer-events:none;"><div style="position:absolute;top:${Math.round(-20*sc)}px;right:${Math.round(60*sc)}px;width:${Math.round(3*sc)}px;height:${Math.round(W*1.4)}px;background:${ac};opacity:.12;transform:rotate(15deg);transform-origin:top center;"></div><div style="position:absolute;top:${Math.round(-20*sc)}px;right:${Math.round(90*sc)}px;width:${Math.round(3*sc)}px;height:${Math.round(W*1.4)}px;background:${ac};opacity:.06;transform:rotate(15deg);transform-origin:top center;"></div></div>`;
-  if(deco==='underline-accent') return `<div style="position:absolute;bottom:0;left:0;right:0;height:${Math.round(8*sc)}px;background:${ac};z-index:0;"></div>`;
-  if(deco==='dot-row'){const dots=Array.from({length:6},(_,i)=>`<div style="width:${Math.round(5*sc)}px;height:${Math.round(5*sc)}px;border-radius:50%;background:${ac};opacity:${i%2===0?.5:.2};"></div>`).join('');return `<div style="position:absolute;top:${p}px;right:${p}px;display:flex;flex-direction:column;gap:${Math.round(6*sc)}px;z-index:0;">${dots}</div>`;}
+  if(d==='grid') return `<div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:${38*sc}px ${38*sc}px;pointer-events:none;z-index:0;"></div>`;
+  if(d==='line-left') return `<div style="position:absolute;left:${p}px;top:${p}px;bottom:${p}px;width:${Math.round(4*sc)}px;background:${ac};z-index:0;border-radius:2px;"></div>`;
+  if(d==='circle') return `<div style="position:absolute;right:${Math.round(-60*sc)}px;bottom:${Math.round(-60*sc)}px;width:${Math.round(280*sc)}px;height:${Math.round(280*sc)}px;border-radius:50%;border:${Math.round(40*sc)}px solid ${ac};opacity:.08;z-index:0;pointer-events:none;"></div>`;
+  if(d==='corner-bracket'){const bw=Math.round(3*sc),bs=Math.round(36*sc);return `<div style="position:absolute;top:${p}px;left:${p}px;width:${bs}px;height:${bs}px;border-top:${bw}px solid ${ac};border-left:${bw}px solid ${ac};z-index:0;"></div><div style="position:absolute;bottom:${p}px;right:${p}px;width:${bs}px;height:${bs}px;border-bottom:${bw}px solid ${ac};border-right:${bw}px solid ${ac};z-index:0;"></div>`;}
+  if(d==='slash') return `<div style="position:absolute;inset:0;overflow:hidden;z-index:0;pointer-events:none;"><div style="position:absolute;top:${Math.round(-20*sc)}px;right:${Math.round(60*sc)}px;width:${Math.round(3*sc)}px;height:${Math.round(W*1.4)}px;background:${ac};opacity:.12;transform:rotate(15deg);transform-origin:top center;"></div><div style="position:absolute;top:${Math.round(-20*sc)}px;right:${Math.round(90*sc)}px;width:${Math.round(3*sc)}px;height:${Math.round(W*1.4)}px;background:${ac};opacity:.06;transform:rotate(15deg);transform-origin:top center;"></div></div>`;
+  if(d==='underline-accent') return `<div style="position:absolute;bottom:0;left:0;right:0;height:${Math.round(8*sc)}px;background:${ac};z-index:0;"></div>`;
+  if(d==='dot-row'){const dots=Array.from({length:6},(_,i)=>`<div style="width:${Math.round(5*sc)}px;height:${Math.round(5*sc)}px;border-radius:50%;background:${ac};opacity:${i%2===0?.5:.2};"></div>`).join('');return `<div style="position:absolute;top:${Math.round(W*.09)}px;right:${Math.round(W*.09)}px;display:flex;flex-direction:column;gap:${Math.round(6*sc)}px;z-index:0;">${dots}</div>`;}
   return '';
 }
 
 function buildSlide(slide,idx,total,tplKey,layout,W,uo,photoUrl){
-  const t=TEMPLATES[tplKey]; uo=uo||{};
-  const bgC=uo.bgC||t.bg, titleC=uo.titleC||t.tc, bodyC=uo.bodyC||t.bc, acC=uo.accentC||t.ac;
-  const tf=uo.titleFont||t.tf, bf=uo.bodyFont||t.bf, tw=t.tw;
+  const t=TEMPLATES[tplKey];uo=uo||{};
+  const bgC=uo.bgC||t.bg,titleC=uo.titleC||t.tc,bodyC=uo.bodyC||t.bc,acC=uo.accentC||t.ac;
+  const tf=uo.titleFont||t.tf,bf=uo.bodyFont||t.bf,tw=t.tw;
   const ti=(!uo.titleFont&&t.ts)?'italic':'normal';
-  const fzMult=uo.fzMult||1, pos=uo.pos||t.textPos, padPct=uo.padPct||9, showNum=uo.showNum!==false;
-  const photoMode=uo.photoMode||'none', dimOpacity=(uo.dimOpacity||50)/100;
-  const contentLayout=uo.contentLayout||'top', contentSlides=uo.contentSlides||'all';
+  const fzM=uo.fzMult||1,pos=uo.pos||t.textPos,padPct=uo.padPct||9,showNum=uo.showNum!==false;
+  const pMode=uo.photoMode||'none',dimOp=(uo.dimOpacity||50)/100;
+  const cLayout=uo.contentLayout||'top',cSlides=uo.contentSlides||'all';
+  const n=String(idx+1).padStart(2,'0'),tot=String(total).padStart(2,'0');
+  const p=Math.round(W*padPct/100),sc=W/400;
+  const h=esc(slide.headline||''),s=esc(slide.subhead||''),b=esc(slide.body||'');
+  const rawI=(slide.body||'').split(/\n+/).map(x=>x.trim()).filter(x=>x.length>4);
+  const items=rawI.length>=2?rawI:[slide.subhead,slide.body].filter(Boolean);
+  const isFirst=idx===0,isLast=idx===total-1;
+  const showPC=pMode==='content'&&photoUrl&&(cSlides==='all'||(cSlides==='first-last'&&(isFirst||isLast))||(cSlides==='first'&&isFirst));
+  const showPB=pMode==='bg'&&photoUrl;
+  const wrap=`width:${W}px;height:${W}px;background:${bgC};display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:${bf};hyphens:none;-webkit-hyphens:none;word-break:normal;overflow-wrap:break-word;`;
 
-  const n=String(idx+1).padStart(2,'0'), tot=String(total).padStart(2,'0');
-  const p=Math.round(W*padPct/100), sc=W/400;
-  const h=esc(slide.headline||''), s=esc(slide.subhead||''), b=esc(slide.body||'');
-  const rawItems=(slide.body||'').split(/\n+/).map(x=>x.trim()).filter(x=>x.length>4);
-  const items=rawItems.length>=2?rawItems:[slide.subhead,slide.body].filter(Boolean);
-
-  // Показывать ли фото-контент на этом слайде
-  const isFirst=idx===0, isLast=idx===total-1;
-  const showPhotoContent = photoMode==='content' && photoUrl && (
-    contentSlides==='all' || (contentSlides==='first-last' && (isFirst||isLast)) || (contentSlides==='first' && isFirst)
-  );
-  const showPhotoBg = photoMode==='bg' && photoUrl;
-
-  const wrapStyle=`width:${W}px;height:${W}px;background:${bgC};display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:${bf};hyphens:none;-webkit-hyphens:none;word-break:normal;overflow-wrap:break-word;`;
-
-  // Фото-контент: слайд делится на две зоны
-  if(showPhotoContent){
-    const photoSize=Math.round(W*0.48);
-    const textSize=W-photoSize;
-    const isVertical=contentLayout==='top'||contentLayout==='bottom';
-
-    const photoDiv=`<div style="flex-shrink:0;${isVertical?`width:${W}px;height:${photoSize}px;`:`width:${photoSize}px;height:${W}px;`}background:url('${photoUrl}') center/cover;"></div>`;
-    const textDiv=`<div style="flex:1;background:${bgC};padding:${p}px;display:flex;flex-direction:column;justify-content:${pos==='top'?'flex-start':pos==='center'?'center':'flex-end'};overflow:hidden;position:relative;">
-      ${renderDeco(t.deco,W,sc,acC,titleC,bgC)}
-      ${showNum&&t.numPos!=='none'?`<div style="font-family:${bf};font-size:${Math.round(9*sc)}px;font-weight:500;color:${bodyC};opacity:.65;margin-bottom:${Math.round(8*sc)}px;">${n} / ${tot}</div>`:''}
-      <div style="font-family:${tf};font-style:${ti};font-size:${cl(autoFz(slide.headline,14,2,28,sc,fzMult),Math.round(14*sc),Math.round(36*sc))}px;font-weight:${tw};color:${titleC};line-height:1.1;hyphens:none;">${h}</div>
-      ${b||s?`<div style="font-size:${Math.round(12*sc)}px;color:${bodyC};line-height:1.6;font-weight:300;margin-top:${Math.round(10*sc)}px;">${b||s}</div>`:''}
-    </div>`;
-
+  if(showPC){
+    const ps=Math.round(W*.48),ts=W-ps,iv=cLayout==='top'||cLayout==='bottom';
+    const pd=`<div style="flex-shrink:0;${iv?`width:${W}px;height:${ps}px;`:`width:${ps}px;height:${W}px;`}background:url('${photoUrl}') center/cover;"></div>`;
+    const jm={top:'flex-start',center:'center',bottom:'flex-end'};
+    const td=`<div style="flex:1;background:${bgC};padding:${p}px;display:flex;flex-direction:column;justify-content:${jm[pos]||'center'};overflow:hidden;position:relative;">${deco(t.deco,W,sc,acC)}${showNum&&t.numPos!=='none'?`<div style="font-family:${bf};font-size:${Math.round(9*sc)}px;font-weight:500;color:${bodyC};opacity:.65;margin-bottom:${Math.round(8*sc)}px;">${n} / ${tot}</div>`:''}<div style="font-family:${tf};font-style:${ti};font-size:${cl(aFz(slide.headline,14,2,28,sc,fzM),Math.round(14*sc),Math.round(36*sc))}px;font-weight:${tw};color:${titleC};line-height:1.1;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${Math.round(12*sc)}px;color:${bodyC};line-height:1.6;font-weight:300;margin-top:${Math.round(10*sc)}px;">${b||s}</div>`:''}</div>`;
     let inner='';
-    if(isVertical){
-      if(contentLayout==='top') inner=`<div style="display:flex;flex-direction:column;width:${W}px;height:${W}px;">${photoDiv}${textDiv}</div>`;
-      else inner=`<div style="display:flex;flex-direction:column;width:${W}px;height:${W}px;">${textDiv}${photoDiv}</div>`;
-    } else {
-      if(contentLayout==='left') inner=`<div style="display:flex;width:${W}px;height:${W}px;">${photoDiv}${textDiv}</div>`;
-      else inner=`<div style="display:flex;width:${W}px;height:${W}px;">${textDiv}${photoDiv}</div>`;
-    }
-    return `<div style="${wrapStyle}">${inner}</div>`;
+    if(iv){inner=cLayout==='top'?`<div style="display:flex;flex-direction:column;width:${W}px;height:${W}px;">${pd}${td}</div>`:`<div style="display:flex;flex-direction:column;width:${W}px;height:${W}px;">${td}${pd}</div>`;}
+    else{inner=cLayout==='left'?`<div style="display:flex;width:${W}px;height:${W}px;">${pd}${td}</div>`:`<div style="display:flex;width:${W}px;height:${W}px;">${td}${pd}</div>`;}
+    return `<div style="${wrap}">${inner}</div>`;
   }
 
-  // Фон
-  const bgPhoto=showPhotoBg?`<div style="position:absolute;inset:0;background:url('${photoUrl}') center/cover;z-index:0;"></div><div style="position:absolute;inset:0;background:rgba(0,0,0,${dimOpacity});z-index:0;"></div>`:'';
-  const effectiveTitleC=showPhotoBg?'#ffffff':titleC;
-  const effectiveBodyC=showPhotoBg?'rgba(255,255,255,.7)':bodyC;
-  const effectiveAcC=showPhotoBg?'rgba(255,255,255,.5)':acC;
+  const bgP=showPB?`<div style="position:absolute;inset:0;background:url('${photoUrl}') center/cover;z-index:0;"></div><div style="position:absolute;inset:0;background:rgba(0,0,0,${dimOp});z-index:0;"></div>`:'';
+  const eTC=showPB?'#ffffff':titleC,eBC=showPB?'rgba(255,255,255,.7)':bodyC,eAC=showPB?'rgba(255,255,255,.5)':acC;
+  const decoH=showPB?'':deco(t.deco,W,sc,acC);
+  const bigN=t.deco==='big-num'?`<div style="position:absolute;bottom:${Math.round(-10*sc)}px;right:${Math.round(p*.5)}px;font-family:${tf};font-size:${Math.round(180*sc)}px;font-weight:900;color:${eTC};opacity:.06;line-height:1;z-index:0;pointer-events:none;">${idx+1}</div>`:'';
+  const numS=`position:absolute;z-index:2;font-family:${bf};font-size:${Math.round(9*sc)}px;font-weight:500;color:${eBC};opacity:.7;letter-spacing:.05em;`;
+  let numH='';
+  if(showNum){const np=t.numPos,txt=`${n} / ${tot}`;if(np==='tl')numH=`<div style="${numS}top:${p}px;left:${p}px;">${txt}</div>`;else if(np==='tr')numH=`<div style="${numS}top:${p}px;right:${p}px;">${txt}</div>`;else if(np==='bl')numH=`<div style="${numS}bottom:${p}px;left:${p}px;">${txt}</div>`;else if(np==='br')numH=`<div style="${numS}bottom:${p}px;right:${p}px;">${txt}</div>`;}
+  const jm={top:'flex-start',center:'center',bottom:'flex-end'};
+  const justify=jm[pos]||'center';
+  const lo=t.deco==='line-left'?Math.round(p*1.5+4*sc):p;
+  const inn=`position:absolute;inset:0;z-index:1;padding:${p}px ${p}px ${p}px ${lo}px;display:flex;flex-direction:column;justify-content:${justify};`;
+  const div2=`<div style="width:${Math.round(40*sc)}px;height:${Math.round(3*sc)}px;background:${eAC};border-radius:2px;margin:${Math.round(12*sc)}px 0;flex-shrink:0;"></div>`;
 
-  const decoHTML=showPhotoBg?'':renderDeco(t.deco,W,sc,acC,titleC,bgC);
-  const bigNum=t.deco==='big-num'?`<div style="position:absolute;bottom:${Math.round(-10*sc)}px;right:${Math.round(p*.5)}px;font-family:${tf};font-size:${Math.round(180*sc)}px;font-weight:900;color:${effectiveTitleC};opacity:.06;line-height:1;z-index:0;pointer-events:none;">${idx+1}</div>`:'';
-
-  const numS=`position:absolute;z-index:2;font-family:${bf};font-size:${Math.round(9*sc)}px;font-weight:500;color:${effectiveBodyC};opacity:.7;letter-spacing:.05em;`;
-  let numHTML='';
-  if(showNum){
-    const np=t.numPos,txt=`${n} / ${tot}`;
-    if(np==='tl') numHTML=`<div style="${numS}top:${p}px;left:${p}px;">${txt}</div>`;
-    else if(np==='tr') numHTML=`<div style="${numS}top:${p}px;right:${p}px;">${txt}</div>`;
-    else if(np==='bl') numHTML=`<div style="${numS}bottom:${p}px;left:${p}px;">${txt}</div>`;
-    else if(np==='br') numHTML=`<div style="${numS}bottom:${p}px;right:${p}px;">${txt}</div>`;
-  }
-
-  const jMap={top:'flex-start',center:'center',bottom:'flex-end'};
-  const justify=jMap[pos]||'center';
-  const leftOffset=t.deco==='line-left'?Math.round(p*1.5+4*sc):p;
-  const innerStyle=`position:absolute;inset:0;z-index:1;padding:${p}px ${p}px ${p}px ${leftOffset}px;display:flex;flex-direction:column;justify-content:${justify};`;
-  const divider=`<div style="width:${Math.round(40*sc)}px;height:${Math.round(3*sc)}px;background:${effectiveAcC};border-radius:2px;margin:${Math.round(12*sc)}px 0;flex-shrink:0;"></div>`;
-
-  if(layout==='hero'){
-    const fz=cl(autoFz(slide.headline,14,3,40,sc,fzMult),Math.round(18*sc),Math.round(52*sc));
-    return `<div style="${wrapStyle}">${bgPhoto}${decoHTML}${bigNum}${numHTML}<div style="${innerStyle}"><div style="overflow:hidden;max-height:100%;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${effectiveTitleC};line-height:1.08;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${Math.round(13*sc)}px;color:${effectiveBodyC};line-height:1.65;font-weight:300;margin-top:${Math.round(14*sc)}px;border-top:1px solid ${effectiveAcC}44;padding-top:${Math.round(12*sc)}px;">${b||s}</div>`:''}</div></div></div>`;
-  }
-  if(layout==='split'){
-    const fz=cl(autoFz(slide.headline,16,2,30,sc,fzMult),Math.round(15*sc),Math.round(38*sc));
-    return `<div style="${wrapStyle}">${bgPhoto}${decoHTML}${bigNum}${numHTML}<div style="${innerStyle}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${effectiveTitleC};line-height:1.1;hyphens:none;">${h}</div>${divider}${s?`<div style="font-size:${Math.round(14*sc)}px;font-weight:600;color:${effectiveTitleC};margin-bottom:${Math.round(8*sc)}px;line-height:1.35;">${s}</div>`:''}${b?`<div style="font-size:${Math.round(13*sc)}px;color:${effectiveBodyC};line-height:1.7;font-weight:300;">${b}</div>`:''}</div></div></div>`;
-  }
-  if(layout==='bigquote'){
-    const fz=cl(autoFz(slide.headline,18,3,32,sc,fzMult),Math.round(14*sc),Math.round(42*sc));
-    return `<div style="${wrapStyle}">${bgPhoto}${decoHTML}${bigNum}${numHTML}<div style="${innerStyle}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${effectiveTitleC};line-height:1.12;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${Math.round(13*sc)}px;color:${effectiveBodyC};line-height:1.65;font-weight:300;margin-top:${Math.round(14*sc)}px;">${b||s}</div>`:''}</div></div></div>`;
-  }
-  if(layout==='list'){
-    const fz=cl(autoFz(slide.headline,18,2,24,sc,fzMult),Math.round(13*sc),Math.round(30*sc));
-    const listHTML=items.slice(0,4).map((item,i)=>`<div style="display:flex;gap:${Math.round(10*sc)}px;align-items:flex-start;"><div style="font-family:${tf};font-size:${Math.round(11*sc)}px;font-weight:900;color:${effectiveAcC};line-height:1.4;min-width:${Math.round(16*sc)}px;flex-shrink:0;">${i+1}</div><div style="font-size:${Math.round(12*sc)}px;color:${effectiveTitleC};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div></div>`).join('');
-    return `<div style="${wrapStyle}">${bgPhoto}${decoHTML}${bigNum}${numHTML}<div style="${innerStyle}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${effectiveTitleC};line-height:1.1;margin-bottom:${Math.round(16*sc)}px;hyphens:none;">${h}</div><div style="display:flex;flex-direction:column;gap:${Math.round(10*sc)}px;">${listHTML}</div></div></div></div>`;
-  }
-  if(layout==='feature'){
-    const fz=cl(autoFz(slide.headline,14,2,28,sc,fzMult),Math.round(13*sc),Math.round(36*sc));
-    return `<div style="${wrapStyle}">${bgPhoto}${!showPhotoBg?`<div style="position:absolute;top:0;left:0;right:0;height:40%;background:${acC};opacity:.1;z-index:0;pointer-events:none;"></div>`:''}${decoHTML}${bigNum}${numHTML}<div style="${innerStyle}"><div style="overflow:hidden;"><div style="font-size:${Math.round(9*sc)}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${effectiveAcC};margin-bottom:${Math.round(8*sc)}px;">${s||'Детали'}</div><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${effectiveTitleC};line-height:1.1;hyphens:none;">${h}</div>${b?`<div style="font-size:${Math.round(13*sc)}px;color:${effectiveBodyC};line-height:1.7;font-weight:300;margin-top:${Math.round(12*sc)}px;">${b}</div>`:''}</div></div></div>`;
-  }
+  if(layout==='hero'){const fz=cl(aFz(slide.headline,14,3,40,sc,fzM),Math.round(18*sc),Math.round(52*sc));return `<div style="${wrap}">${bgP}${decoH}${bigN}${numH}<div style="${inn}"><div style="overflow:hidden;max-height:100%;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eTC};line-height:1.08;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${Math.round(13*sc)}px;color:${eBC};line-height:1.65;font-weight:300;margin-top:${Math.round(14*sc)}px;border-top:1px solid ${eAC}44;padding-top:${Math.round(12*sc)}px;">${b||s}</div>`:''}</div></div></div>`;}
+  if(layout==='split'){const fz=cl(aFz(slide.headline,16,2,30,sc,fzM),Math.round(15*sc),Math.round(38*sc));return `<div style="${wrap}">${bgP}${decoH}${bigN}${numH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eTC};line-height:1.1;hyphens:none;">${h}</div>${div2}${s?`<div style="font-size:${Math.round(14*sc)}px;font-weight:600;color:${eTC};margin-bottom:${Math.round(8*sc)}px;line-height:1.35;">${s}</div>`:''}${b?`<div style="font-size:${Math.round(13*sc)}px;color:${eBC};line-height:1.7;font-weight:300;">${b}</div>`:''}</div></div></div>`;}
+  if(layout==='bigquote'){const fz=cl(aFz(slide.headline,18,3,32,sc,fzM),Math.round(14*sc),Math.round(42*sc));return `<div style="${wrap}">${bgP}${decoH}${bigN}${numH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eTC};line-height:1.12;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${Math.round(13*sc)}px;color:${eBC};line-height:1.65;font-weight:300;margin-top:${Math.round(14*sc)}px;">${b||s}</div>`:''}</div></div></div>`;}
+  if(layout==='list'){const fz=cl(aFz(slide.headline,18,2,24,sc,fzM),Math.round(13*sc),Math.round(30*sc));const lH=items.slice(0,4).map((item,i)=>`<div style="display:flex;gap:${Math.round(10*sc)}px;align-items:flex-start;"><div style="font-family:${tf};font-size:${Math.round(11*sc)}px;font-weight:900;color:${eAC};line-height:1.4;min-width:${Math.round(16*sc)}px;flex-shrink:0;">${i+1}</div><div style="font-size:${Math.round(12*sc)}px;color:${eTC};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div></div>`).join('');return `<div style="${wrap}">${bgP}${decoH}${bigN}${numH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eTC};line-height:1.1;margin-bottom:${Math.round(16*sc)}px;hyphens:none;">${h}</div><div style="display:flex;flex-direction:column;gap:${Math.round(10*sc)}px;">${lH}</div></div></div></div>`;}
+  if(layout==='feature'){const fz=cl(aFz(slide.headline,14,2,28,sc,fzM),Math.round(13*sc),Math.round(36*sc));return `<div style="${wrap}">${bgP}${!showPB?`<div style="position:absolute;top:0;left:0;right:0;height:40%;background:${acC};opacity:.1;z-index:0;pointer-events:none;"></div>`:''}${decoH}${bigN}${numH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-size:${Math.round(9*sc)}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${eAC};margin-bottom:${Math.round(8*sc)}px;">${s||'Детали'}</div><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eTC};line-height:1.1;hyphens:none;">${h}</div>${b?`<div style="font-size:${Math.round(13*sc)}px;color:${eBC};line-height:1.7;font-weight:300;margin-top:${Math.round(12*sc)}px;">${b}</div>`:''}</div></div></div>`;}
   return '';
 }
 
-// ══ STATE ══════════════════════════════════════════════════════
+// ══ STATE ═══════════════════════════════════════════
 const SID=localStorage.getItem('sid')||(()=>{const id='s'+Math.random().toString(36).slice(2);localStorage.setItem('sid',id);return id;})();
 let tpl='noir',cnt=5,slides=[],layouts=[],progTimer;
 let uC={bgC:'#0d0d0d',titleC:'#f0ede8',bodyC:'#888888',accentC:'#d4f55c'};
 let uTF=null,uBF=null;
-let opts={fzMult:1,pos:null,padPct:9,showNum:true};
-let photoState={mode:'none',url:null,dimOpacity:50,contentLayout:'top',contentSlides:'all'};
+let opts={fzMult:1,pos:'center',padPct:9,showNum:true};
+let pState={mode:'none',url:null,dimOpacity:50,contentLayout:'top',contentSlides:'all'};
+let modalIdx=0;
 
-// ══ PHOTO ══════════════════════════════════════════════════════
-function setPhotoMode(el){
-  document.querySelectorAll('.photo-mode-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  photoState.mode=el.dataset.mode;
-  const showOpts=photoState.mode!=='none';
-  document.getElementById('photo-opts').style.display=showOpts?'block':'none';
-  document.getElementById('bg-opts').style.display=photoState.mode==='bg'?'block':'none';
-  document.getElementById('content-opts').style.display=photoState.mode==='content'?'block':'none';
-  if(slides.length)renderSlides();
+// ══ SIDEBAR TABS ════════════════════════════════════
+function switchSbTab(id,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sbt-'+id).classList.add('active');
 }
 
-function setContentLayout(el){
-  document.querySelectorAll('#content-opts .seg-btn[data-layout]').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');photoState.contentLayout=el.dataset.layout;
-  if(slides.length)renderSlides();
-}
-
-function setContentSlides(el){
-  document.querySelectorAll('#content-opts .seg-btn[data-slides]').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');photoState.contentSlides=el.dataset.slides;
-  if(slides.length)renderSlides();
-}
-
-function updateDim(){
-  const v=document.getElementById('dim-range').value;
-  document.getElementById('dim-val').textContent=v+'%';
-  photoState.dimOpacity=parseInt(v);
-  if(slides.length)renderSlides();
-}
-
-async function searchPhotos(query){
-  const q=query||document.getElementById('photo-query').value.trim();
-  if(!q)return;
-  const grid=document.getElementById('photo-grid');
-  grid.innerHTML=`<div class="photo-loading" style="grid-column:1/-1;">Ищу фото...</div>`;
-  try{
-    const r=await fetch(`/photo?query=${encodeURIComponent(q)}`);
-    const data=await r.json();
-    if(!data.photos?.length){grid.innerHTML=`<div class="photo-empty" style="grid-column:1/-1;">Ничего не найдено</div>`;return;}
-    grid.innerHTML='';
-    data.photos.forEach(p=>{
-      const el=document.createElement('div');el.className='photo-thumb';
-      el.innerHTML=`<img src="${p.thumb}" loading="lazy"><div class="photo-thumb-check"><svg width="10" height="10" fill="white" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>`;
-      el.onclick=()=>{
-        document.querySelectorAll('.photo-thumb').forEach(x=>x.classList.remove('selected'));
-        el.classList.add('selected');
-        photoState.url=p.url;
-        document.getElementById('photo-author').textContent=`Фото: ${p.author} / Unsplash`;
-        if(slides.length)renderSlides();
-      };
-      grid.appendChild(el);
-    });
-  }catch(e){grid.innerHTML=`<div class="photo-empty" style="grid-column:1/-1;">Ошибка загрузки</div>`;}
-}
-
-// ══ TEMPLATES ══════════════════════════════════════════════════
+// ══ TEMPLATE GRID ═══════════════════════════════════
 function renderTplGrid(){
   const g=document.getElementById('tpl-grid');g.innerHTML='';
   Object.entries(TEMPLATES).forEach(([key,t])=>{
-    const c=document.createElement('div');c.className='tpl-card'+(key===tpl?' active':'');
-    c.innerHTML=`<div class="tpl-prev" style="background:${t.prev.bg};"><span style="color:${t.prev.c};font-family:${t.prev.f};font-size:${t.prev.s};font-weight:${t.prev.w};text-align:center;padding:0 3px;line-height:1.2;">${t.prev.t}</span></div><div class="tpl-name">${t.name}</div>`;
-    c.onclick=()=>{document.querySelectorAll('.tpl-card').forEach(x=>x.classList.remove('active'));c.classList.add('active');tpl=key;applyTplColors(key);if(slides.length)renderSlides();};
+    const c=document.createElement('div');c.className='tpl-card'+(key===tpl?' on':'');
+    c.innerHTML=`<div class="tpl-prev" style="background:${t.prev.bg};"><span style="color:${t.prev.c};font-family:${t.prev.f};font-size:${t.prev.s};font-weight:${t.prev.w};line-height:1.2;padding:0 2px;text-align:center;">${t.prev.t}</span></div><div class="tpl-name">${t.name}</div>`;
+    c.onclick=()=>{document.querySelectorAll('.tpl-card').forEach(x=>x.classList.remove('on'));c.classList.add('on');tpl=key;applyTplColors(key);if(slides.length)renderGrid();};
     g.appendChild(c);
   });
 }
@@ -451,45 +450,72 @@ function applyTplColors(k){
   uC={bgC:cols.bg,titleC:cols.title,bodyC:cols.body,accentC:cols.accent};
 }
 
-function onColorChange(k){const v=document.getElementById(`${k}-color`).value;document.getElementById(`${k}-hex`).value=v;document.getElementById(`sw-${k}`).style.background=v;uC[`${k}C`]=v;if(slides.length)renderSlides();}
-function onHexInput(k){const v=document.getElementById(`${k}-hex`).value;if(/^#[0-9a-fA-F]{6}$/.test(v)){document.getElementById(`${k}-color`).value=v;document.getElementById(`sw-${k}`).style.background=v;uC[`${k}C`]=v;if(slides.length)renderSlides();}}
-
-function renderFontList(fonts,id,activeKey,cb){
-  const el=document.getElementById(id);el.innerHTML='';
-  fonts.forEach(f=>{const opt=document.createElement('div');opt.className='font-opt'+(activeKey===f.k?' active':'');const ss=f.s?`font-family:${f.s};font-size:15px;color:#1a1a18;line-height:1;`:'font-size:11px;color:#bbb;';opt.innerHTML=`<span class="font-opt-label">${f.l}</span><span style="${ss}">${f.x}</span>`;opt.onclick=()=>{cb(f.k,f.s);renderFontList(fonts,id,f.k,cb);};el.appendChild(opt);});
-}
-function initFontPickers(){
-  renderFontList(TITLE_FONTS,'title-fonts','auto',(k,s)=>{uTF=s;if(slides.length)renderSlides();});
-  renderFontList(BODY_FONTS,'body-fonts','auto',(k,s)=>{uBF=s;if(slides.length)renderSlides();});
-}
+function onC(k){const v=document.getElementById(`${k}-color`).value;document.getElementById(`${k}-hex`).value=v;document.getElementById(`sw-${k}`).style.background=v;uC[`${k}C`]=v;if(slides.length)renderGrid();}
+function onH(k){const v=document.getElementById(`${k}-hex`).value;if(/^#[0-9a-fA-F]{6}$/.test(v)){document.getElementById(`${k}-color`).value=v;document.getElementById(`sw-${k}`).style.background=v;uC[`${k}C`]=v;if(slides.length)renderGrid();}}
 
 function updateCtrl(){
   const fz=document.getElementById('fz-range').value,pad=document.getElementById('pad-range').value;
-  const padL={5:'Узкие',6:'Узкие',7:'Меньше',8:'Меньше',9:'Normal',10:'Больше',11:'Больше',12:'Широкие',13:'Широкие',14:'Широкие'};
-  document.getElementById('fz-val').textContent=fz+'%';document.getElementById('pad-val').textContent=padL[pad]||pad;
+  const pL={5:'Узкие',6:'Узкие',7:'Меньше',8:'Меньше',9:'Normal',10:'Больше',11:'Больше',12:'Широкие',13:'Широкие',14:'Широкие'};
+  document.getElementById('fz-val').textContent=fz+'%';document.getElementById('pad-val').textContent=pL[pad]||pad;
   opts.fzMult=fz/100;opts.padPct=parseInt(pad);opts.showNum=document.getElementById('show-num').checked;
-  if(slides.length)renderSlides();
+  if(slides.length)renderGrid();
 }
-function setPos(el){document.querySelectorAll('.seg-btn[data-pos]').forEach(b=>b.classList.remove('active'));el.classList.add('active');opts.pos=el.dataset.pos;if(slides.length)renderSlides();}
+
+function setSeg(segId,el,optKey){
+  document.querySelectorAll(`#${segId} .seg-b`).forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  if(optKey==='pos') opts.pos=el.dataset.v;
+  else if(optKey==='contentLayout'){pState.contentLayout=el.dataset.v;if(slides.length)renderGrid();}
+  else if(optKey==='contentSlides'){pState.contentSlides=el.dataset.v;if(slides.length)renderGrid();}
+  if(optKey==='pos'&&slides.length)renderGrid();
+}
+
 function chCnt(d){cnt=Math.max(3,Math.min(8,cnt+d));document.getElementById('cnt').textContent=cnt;}
 
-function switchTab(tab,btn){
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  document.getElementById('tab-gen').style.display=tab==='gen'?'block':'none';
-  document.getElementById('tab-hist').style.display=tab==='hist'?'block':'none';
-  document.getElementById('main-ttl').textContent=tab==='gen'?'Предпросмотр':'История';
-  document.getElementById('dl-btn').style.display=tab==='gen'?'flex':'none';
-  if(tab==='hist')loadHist();
+// ══ PHOTO ═══════════════════════════════════════════
+function setPhotoMode(el){
+  document.querySelectorAll('.pmb').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+  pState.mode=el.dataset.mode;
+  document.getElementById('photo-opts').style.display=pState.mode!=='none'?'block':'none';
+  document.getElementById('bg-opts').style.display=pState.mode==='bg'?'block':'none';
+  document.getElementById('content-opts').style.display=pState.mode==='content'?'block':'none';
+  if(slides.length)renderGrid();
 }
-function setLoading(on){const btn=document.getElementById('gen-btn');btn.disabled=on;btn.innerHTML=on?'<div class="spin"></div><span>Генерирую...</span>':'<span>Сгенерировать</span>';}
+function updateDim(){const v=document.getElementById('dim-range').value;document.getElementById('dim-val').textContent=v+'%';pState.dimOpacity=parseInt(v);if(slides.length)renderGrid();}
+
+async function searchPhotos(q){
+  q=q||document.getElementById('photo-q').value.trim();if(!q)return;
+  const grid=document.getElementById('pgrid');grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:12px;font-size:11px;color:#aaa;">Ищу...</div>`;
+  try{
+    const r=await fetch(`/photo?query=${encodeURIComponent(q)}`);const data=await r.json();
+    if(!data.photos?.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:12px;font-size:11px;color:#bbb;">Ничего не найдено</div>`;return;}
+    grid.innerHTML='';
+    data.photos.forEach(p=>{
+      const el=document.createElement('div');el.className='pthumb';
+      el.innerHTML=`<img src="${p.thumb}" loading="lazy"><div class="pcheck"><svg width="8" height="8" fill="white" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg></div>`;
+      el.onclick=()=>{document.querySelectorAll('.pthumb').forEach(x=>x.classList.remove('on'));el.classList.add('on');pState.url=p.url;document.getElementById('photo-credit').textContent=`Фото: ${p.author} / Unsplash`;if(slides.length)renderGrid();};
+      grid.appendChild(el);
+    });
+  }catch(e){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:12px;font-size:11px;color:#bbb;">Ошибка</div>`;}
+}
+
+// ══ GENERATE ════════════════════════════════════════
+function setLoading(on){
+  const btn=document.getElementById('gen-btn');btn.disabled=on;
+  btn.innerHTML=on?'<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.12);display:inline-block;"></div> Генерирую...':'Сгенерировать';
+}
 function startProg(){
-  document.getElementById('empty').style.display='none';document.getElementById('slist').style.display='none';document.getElementById('prog').style.display='flex';
+  document.getElementById('grid-area').style.display='none';
+  document.getElementById('prog-area').style.display='flex';
   const fill=document.getElementById('prog-fill'),lbl=document.getElementById('prog-lbl');
   const msgs=['Анализирую текст...','Выделяю ключевые мысли...','Формирую слайды...','Почти готово...'];
   let p=0,mi=0;fill.style.width='0%';
   progTimer=setInterval(()=>{p=Math.min(p+Math.random()*6+2,88);fill.style.width=p+'%';if(mi<msgs.length-1&&p>(mi+1)*22){mi++;lbl.textContent=msgs[mi];}},350);
 }
-function stopProg(){clearInterval(progTimer);document.getElementById('prog-fill').style.width='100%';setTimeout(()=>{document.getElementById('prog').style.display='none';},300);}
+function stopProg(){
+  clearInterval(progTimer);document.getElementById('prog-fill').style.width='100%';
+  setTimeout(()=>{document.getElementById('prog-area').style.display='none';document.getElementById('grid-area').style.display='block';},300);
+}
 
 async function generate(){
   const text=document.getElementById('txt').value.trim();
@@ -500,79 +526,113 @@ async function generate(){
     const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,style:tpl,slideCount:cnt,sessionId:SID})});
     const data=await res.json();if(!res.ok)throw new Error(data.error||'Ошибка сервера');
     stopProg();slides=data.slides;layouts=makePlan(slides.length);
-
-    // Автопоиск фото если режим выбран и фото не выбрано вручную
-    if(photoState.mode!=='none'&&!photoState.url&&data.photo_keyword){
-      document.getElementById('photo-query').value=data.photo_keyword;
+    if(pState.mode!=='none'&&!pState.url&&data.photo_keyword){
+      document.getElementById('photo-q').value=data.photo_keyword;
       await searchPhotos(data.photo_keyword);
-      // Автовыбор первого фото
-      const firstThumb=document.querySelector('.photo-thumb');
-      if(firstThumb){firstThumb.click();}
+      const ft=document.querySelector('.pthumb');if(ft)ft.click();
     }
-
-    renderSlides();document.getElementById('dl-btn').disabled=false;loadStats();
-  }catch(e){stopProg();document.getElementById('empty').style.display='flex';err.textContent='Ошибка: '+e.message;err.style.display='block';}
+    renderGrid();document.getElementById('dl-btn').disabled=false;
+  }catch(e){stopProg();err.textContent='Ошибка: '+e.message;err.style.display='block';}
   finally{setLoading(false);}
 }
 
-function getOpts(){
-  return{...opts,...uC,titleFont:uTF,bodyFont:uBF,showNum:opts.showNum,
-    photoMode:photoState.mode,dimOpacity:photoState.dimOpacity,
-    contentLayout:photoState.contentLayout,contentSlides:photoState.contentSlides};
-}
+function getOpts(){return{...opts,...uC,titleFont:uTF,bodyFont:uBF,showNum:opts.showNum,photoMode:pState.mode,dimOpacity:pState.dimOpacity,contentLayout:pState.contentLayout,contentSlides:pState.contentSlides};}
 
-function renderSlides(){
-  const list=document.getElementById('slist');list.innerHTML='';list.style.display='flex';
-  if(!layouts.length||layouts.length!==slides.length)layouts=makePlan(slides.length);
-  const so=getOpts();
+// ══ GRID VIEW ═══════════════════════════════════════
+function renderGrid(){
+  document.getElementById('empty-hint').style.display='none';
+  const grid=document.getElementById('slides-grid');grid.innerHTML='';grid.style.display='grid';
+  const so=getOpts(),W=160;
   slides.forEach((s,i)=>{
-    const row=document.createElement('div');row.className='slide-row';row.style.animationDelay=(i*.07)+'s';
-    row.innerHTML=`<div class="slide-idx">0${i+1}</div><div class="slide-card"></div>`;
-    row.querySelector('.slide-card').innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],390,so,photoState.url);
-    list.appendChild(row);
+    const item=document.createElement('div');item.className='grid-item';
+    item.innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],W,so,pState.url);
+    const numBadge=document.createElement('div');numBadge.className='grid-item-num';numBadge.textContent=`${i+1}/${slides.length}`;
+    item.appendChild(numBadge);
+    item.onclick=()=>openModal(i);
+    grid.appendChild(item);
   });
 }
 
+// ══ MODAL ═══════════════════════════════════════════
+function openModal(idx){
+  modalIdx=idx;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  renderModal();
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function handleModalClick(e){if(e.target===e.currentTarget)closeModal();}
+
+function renderModal(){
+  const so=getOpts();
+  // Размер слайда в модале — вписываем в экран
+  const maxW=Math.min(window.innerWidth-120,window.innerHeight-160,520);
+  const W=Math.round(maxW);
+
+  document.getElementById('modal-slide').innerHTML=buildSlide(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pState.url);
+  document.getElementById('modal-slide').style.width=W+'px';
+
+  // Dots
+  const dotsEl=document.getElementById('modal-dots');dotsEl.innerHTML='';
+  slides.forEach((_,i)=>{
+    const d=document.createElement('div');d.className='modal-dot'+(i===modalIdx?' on':'');
+    d.onclick=()=>{modalIdx=i;renderModal();};dotsEl.appendChild(d);
+  });
+
+  document.getElementById('modal-counter').textContent=`${modalIdx+1} / ${slides.length}`;
+  document.getElementById('m-prev').disabled=modalIdx===0;
+  document.getElementById('m-next').disabled=modalIdx===slides.length-1;
+}
+
+function modalNav(dir){
+  modalIdx=Math.max(0,Math.min(slides.length-1,modalIdx+dir));
+  renderModal();
+}
+
+// Клавиатура для модала
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('modal').classList.contains('open')){
+    if(e.key==='ArrowLeft')modalNav(-1);
+    if(e.key==='ArrowRight')modalNav(1);
+    if(e.key==='Escape')closeModal();
+  }
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter')generate();
+});
+
+// Свайп на тач-устройствах
+let touchX=null;
+document.getElementById('modal').addEventListener('touchstart',e=>{touchX=e.touches[0].clientX;},{passive:true});
+document.getElementById('modal').addEventListener('touchend',e=>{
+  if(touchX===null)return;const dx=e.changedTouches[0].clientX-touchX;
+  if(Math.abs(dx)>40){modalNav(dx<0?1:-1);}touchX=null;
+},{passive:true});
+
+// ══ DOWNLOAD ════════════════════════════════════════
 async function dlZip(){
   if(!slides.length)return;
   const btn=document.getElementById('dl-btn');
-  btn.disabled=true;btn.innerHTML='<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.12)"></div> Рендерю...';
+  btn.disabled=true;btn.innerHTML='<div class="spin"></div> Рендерю...';
   const ra=document.getElementById('render-area');ra.innerHTML='';
   const so=getOpts();
-
-  // Для экспорта грузим full-size фото
-  let exportPhotoUrl=photoState.url;
-  if(exportPhotoUrl){
-    // Используем url который уже regular (хорошее качество)
-    exportPhotoUrl=exportPhotoUrl.replace('w=400','w=1080');
-  }
-
-  slides.forEach((s,i)=>{const w=document.createElement('div');w.style.cssText='width:1080px;height:1080px;overflow:hidden;';w.innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],1080,so,exportPhotoUrl);ra.appendChild(w);});
-  await document.fonts.ready;await new Promise(r=>setTimeout(r,1200));
+  slides.forEach((s,i)=>{const w=document.createElement('div');w.style.cssText='width:1080px;height:1080px;overflow:hidden;';w.innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],1080,so,pState.url);ra.appendChild(w);});
+  await document.fonts.ready;await new Promise(r=>setTimeout(r,1000));
   const zip=new JSZip();
   for(let i=0;i<ra.children.length;i++){
-    btn.innerHTML=`<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.12)"></div> ${i+1}/${ra.children.length}`;
+    btn.innerHTML=`<div class="spin"></div> ${i+1}/${ra.children.length}`;
     const canvas=await html2canvas(ra.children[i],{scale:1,useCORS:true,allowTaint:true,backgroundColor:null,width:1080,height:1080,logging:false});
     const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));zip.file(`slide-${String(i+1).padStart(2,'0')}.png`,blob);
   }
   const zb=await zip.generateAsync({type:'blob'});
   const a=document.createElement('a');a.href=URL.createObjectURL(zb);a.download='carousel.zip';a.click();
   ra.innerHTML='';btn.disabled=false;
-  btn.innerHTML=`<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg> Скачать ZIP`;
+  btn.innerHTML=`<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg> Скачать ZIP`;
 }
 
-async function loadStats(){try{const r=await fetch('/stats');const d=await r.json();document.getElementById('s-total').textContent=d.total;document.getElementById('s-today').textContent=d.today;document.getElementById('s-week').textContent=d.thisWeek;}catch{}}
-async function loadHist(){
-  const area=document.getElementById('hlist');
-  try{const r=await fetch(`/history?sessionId=${SID}`);const data=await r.json();
-    if(!data.length){area.innerHTML='<div class="hist-empty">История пуста</div>';return;}
-    area.innerHTML='';
-    data.forEach(item=>{const el=document.createElement('div');el.className='hist-item';const date=new Date(item.created_at).toLocaleDateString('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});el.innerHTML=`<div class="hist-meta"><div class="hist-date">${date}</div><div class="hist-pill">${item.slide_count} сл · ${item.style}</div></div><div class="hist-txt">${esc(item.input_text.slice(0,120))}${item.input_text.length>120?'...':''}</div>`;el.onclick=()=>{slides=item.slides;tpl=item.style;renderTplGrid();applyTplColors(item.style);layouts=makePlan(slides.length);switchTab('gen',document.querySelector('.nav-btn'));renderSlides();document.getElementById('dl-btn').disabled=false;};area.appendChild(el);});
-  }catch{area.innerHTML='<div class="hist-empty">Ошибка</div>';}
-}
-
-renderTplGrid();applyTplColors('noir');initFontPickers();loadStats();
-document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')generate();});
+// ══ INIT ════════════════════════════════════════════
+renderTplGrid();applyTplColors('noir');
 </script>
 </body>
 </html>
