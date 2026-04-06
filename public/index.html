@@ -30,8 +30,8 @@ textarea::placeholder{color:#c5c2bb;}
 .tpl-card{border:1.5px solid #e5e3de;border-radius:7px;overflow:hidden;cursor:pointer;transition:all .15s;}
 .tpl-card:hover{border-color:#aaa;transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.07);}
 .tpl-card.active{border-color:#1a1a18;box-shadow:0 0 0 1px #1a1a18;}
-.tpl-prev{height:44px;display:flex;align-items:center;justify-content:center;padding:4px;}
-.tpl-name{font-size:9px;color:#999;text-align:center;padding:3px 0 4px;background:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tpl-prev{height:44px;display:flex;align-items:center;justify-content:center;padding:4px;overflow:hidden;}
+.tpl-name{font-size:9px;color:#999;text-align:center;padding:3px 0 4px;background:#fff;}
 .color-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .color-label{font-size:12px;color:#666;}
 .color-input-wrap{display:flex;align-items:center;gap:6px;}
@@ -53,6 +53,14 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 .seg-btn{flex:1;padding:6px 0;font-size:11px;border:1.5px solid #e5e3de;border-radius:6px;background:#fff;color:#999;cursor:pointer;transition:all .15s;text-align:center;}
 .seg-btn:hover{border-color:#aaa;color:#1a1a18;}
 .seg-btn.active{border-color:#1a1a18;background:#1a1a18;color:#fff;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;}
+.toggle-label{font-size:12px;color:#666;}
+.toggle{position:relative;width:36px;height:20px;cursor:pointer;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-track{position:absolute;inset:0;background:#e5e3de;border-radius:10px;transition:background .2s;}
+.toggle input:checked + .toggle-track{background:#1a1a18;}
+.toggle-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none;}
+.toggle input:checked ~ .toggle-thumb{transform:translateX(16px);}
 .count-row{display:flex;align-items:center;}
 .cnt-btn{width:30px;height:30px;border:1.5px solid #e5e3de;background:#fff;color:#1a1a18;border-radius:7px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .cnt-btn:hover{border-color:#1a1a18;}
@@ -75,8 +83,7 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 .dl-btn:disabled{opacity:.3;cursor:not-allowed;}
 .scroll{flex:1;overflow-y:auto;padding:24px;}
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 20px;gap:8px;color:#ccc;text-align:center;}
-.empty p{font-size:13px;}
-.empty p+p{font-size:11px;opacity:.7;}
+.empty p{font-size:13px;}.empty p+p{font-size:11px;opacity:.7;}
 .prog-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 20px;gap:14px;}
 .prog-track{width:200px;height:2px;background:#e5e3de;border-radius:2px;overflow:hidden;}
 .prog-fill{height:100%;background:#1a1a18;width:0%;transition:width .4s ease;border-radius:2px;}
@@ -90,12 +97,10 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 .hist-item{background:#fff;border:1px solid #e5e3de;border-radius:9px;padding:13px 15px;cursor:pointer;transition:border-color .15s;}
 .hist-item:hover{border-color:#1a1a18;}
 .hist-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
-.hist-date{font-size:11px;color:#bbb;}
-.hist-pill{font-size:10px;padding:2px 8px;border-radius:20px;background:#f0ede8;color:#888;}
+.hist-date{font-size:11px;color:#bbb;}.hist-pill{font-size:10px;padding:2px 8px;border-radius:20px;background:#f0ede8;color:#888;}
 .hist-txt{font-size:13px;color:#555;line-height:1.4;}
 .hist-empty{font-size:13px;color:#bbb;padding:40px 0;text-align:center;}
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px;}
 #render-area{position:fixed;left:-9999px;top:0;pointer-events:none;}
 </style>
 </head>
@@ -113,31 +118,36 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
   <div class="sb"><div class="sb-title">Шаблон</div><div class="tpl-grid" id="tpl-grid"></div></div>
   <div class="sb">
     <div class="sb-title">Цвета</div>
-    <div class="color-row"><span class="color-label">Фон</span><div class="color-input-wrap"><div class="color-swatch"><input type="color" id="bg-color" value="#0d0d0d" oninput="onColorChange('bg')"></div><input class="color-hex" id="bg-hex" value="#0d0d0d" maxlength="7" oninput="onHexInput('bg')"></div></div>
-    <div class="color-row"><span class="color-label">Заголовок</span><div class="color-input-wrap"><div class="color-swatch"><input type="color" id="title-color" value="#f0ede8" oninput="onColorChange('title')"></div><input class="color-hex" id="title-hex" value="#f0ede8" maxlength="7" oninput="onHexInput('title')"></div></div>
-    <div class="color-row"><span class="color-label">Текст</span><div class="color-input-wrap"><div class="color-swatch"><input type="color" id="body-color" value="#888888" oninput="onColorChange('body')"></div><input class="color-hex" id="body-hex" value="#888888" maxlength="7" oninput="onHexInput('body')"></div></div>
-    <div class="color-row"><span class="color-label">Акцент</span><div class="color-input-wrap"><div class="color-swatch"><input type="color" id="accent-color" value="#d4f55c" oninput="onColorChange('accent')"></div><input class="color-hex" id="accent-hex" value="#d4f55c" maxlength="7" oninput="onHexInput('accent')"></div></div>
+    <div class="color-row"><span class="color-label">Фон</span><div class="color-input-wrap"><div class="color-swatch" id="sw-bg"><input type="color" id="bg-color" value="#0d0d0d" oninput="onColorChange('bg')"></div><input class="color-hex" id="bg-hex" value="#0d0d0d" maxlength="7" oninput="onHexInput('bg')"></div></div>
+    <div class="color-row"><span class="color-label">Заголовок</span><div class="color-input-wrap"><div class="color-swatch" id="sw-title"><input type="color" id="title-color" value="#f0ede8" oninput="onColorChange('title')"></div><input class="color-hex" id="title-hex" value="#f0ede8" maxlength="7" oninput="onHexInput('title')"></div></div>
+    <div class="color-row"><span class="color-label">Текст</span><div class="color-input-wrap"><div class="color-swatch" id="sw-body"><input type="color" id="body-color" value="#888888" oninput="onColorChange('body')"></div><input class="color-hex" id="body-hex" value="#888888" maxlength="7" oninput="onHexInput('body')"></div></div>
+    <div class="color-row"><span class="color-label">Акцент</span><div class="color-input-wrap"><div class="color-swatch" id="sw-accent"><input type="color" id="accent-color" value="#d4f55c" oninput="onColorChange('accent')"></div><input class="color-hex" id="accent-hex" value="#d4f55c" maxlength="7" oninput="onHexInput('accent')"></div></div>
   </div>
   <div class="sb"><div class="sb-title">Шрифт заголовка</div><div class="font-list" id="title-fonts"></div></div>
   <div class="sb"><div class="sb-title">Шрифт текста</div><div class="font-list" id="body-fonts"></div></div>
   <div class="sb">
-    <div class="sb-title">Размер и расположение</div>
+    <div class="sb-title">Настройки</div>
     <div class="ctrl-row"><span class="ctrl-label">Размер заголовка</span><span class="ctrl-val" id="fz-val">100%</span></div>
     <input type="range" id="fz-range" min="65" max="150" value="100" oninput="updateCtrl()">
-    <div class="ctrl-row" style="margin-top:4px"><span class="ctrl-label">Расположение текста</span></div>
-    <div class="seg-btns" style="margin-bottom:10px;">
+    <div class="ctrl-row" style="margin-top:2px"><span class="ctrl-label">Расположение</span></div>
+    <div class="seg-btns" style="margin-bottom:12px;">
       <div class="seg-btn" data-pos="top" onclick="setPos(this)">Сверху</div>
       <div class="seg-btn active" data-pos="center" onclick="setPos(this)">Центр</div>
       <div class="seg-btn" data-pos="bottom" onclick="setPos(this)">Снизу</div>
     </div>
     <div class="ctrl-row"><span class="ctrl-label">Отступы</span><span class="ctrl-val" id="pad-val">Normal</span></div>
     <input type="range" id="pad-range" min="5" max="14" value="9" oninput="updateCtrl()">
+    <div class="toggle-row" style="margin-top:4px">
+      <span class="toggle-label">Нумерация слайдов</span>
+      <label class="toggle">
+        <input type="checkbox" id="show-num" checked onchange="updateCtrl()">
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>
   </div>
-  <div class="sb">
-    <div class="sb-title">Слайдов</div>
-    <div class="count-row"><button class="cnt-btn" onclick="chCnt(-1)">−</button><div class="cnt-num" id="cnt">5</div><button class="cnt-btn" onclick="chCnt(1)">+</button><span style="font-size:12px;color:#bbb;margin-left:8px;">слайдов</span></div>
-  </div>
-  <div class="sb"><button class="gen-btn" id="gen-btn" onclick="generate()"><span id="gen-lbl">Сгенерировать</span></button><div id="gen-err" style="display:none" class="err-msg"></div></div>
+  <div class="sb"><div class="sb-title">Слайдов</div><div class="count-row"><button class="cnt-btn" onclick="chCnt(-1)">−</button><div class="cnt-num" id="cnt">5</div><button class="cnt-btn" onclick="chCnt(1)">+</button><span style="font-size:12px;color:#bbb;margin-left:8px;">слайдов</span></div></div>
+  <div class="sb"><button class="gen-btn" id="gen-btn" onclick="generate()"><span>Сгенерировать</span></button><div id="gen-err" style="display:none" class="err-msg"></div></div>
   <div class="sb"><div class="sb-title">Статистика</div><div class="stats-row"><div class="stat"><div class="stat-n" id="s-total">—</div><div class="stat-l">всего</div></div><div class="stat"><div class="stat-n" id="s-today">—</div><div class="stat-l">сегодня</div></div><div class="stat"><div class="stat-n" id="s-week">—</div><div class="stat-l">неделя</div></div></div></div>
 </aside>
 <main class="main">
@@ -157,390 +167,469 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 </div>
 <div id="render-area"></div>
 <script>
-// ══ 12 ШАБЛОНОВ ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// 12 ШАБЛОНОВ — каждый со своей философией оформления
+// numPos: где номер ('tl'=top-left, 'tr'=top-right, 'bl'=bottom-left, 'br'=bottom-right, 'none'=нет по умолчанию)
+// textPos: где основной блок ('top','center','bottom')
+// deco: декоративный элемент ('none','grid','line-left','circle','corner-bracket','slash','underline-accent','dot-row','big-num')
+// ══════════════════════════════════════════════════════════════
 const TEMPLATES = {
-  noir:       { name:'Noir',        bg:'#0d0d0d', tc:'#f0ede8', bc:'rgba(240,237,232,.5)', ac:'#d4f55c',  tf:"'Unbounded',sans-serif",         bf:"'Inter',sans-serif",         tw:900, grid:'rgba(255,255,255,.028)', prev:{bg:'#0d0d0d',c:'#d4f55c', f:"'Unbounded',sans-serif",   t:'NOIR',      s:'11px'} },
-  swiss:      { name:'Swiss',       bg:'#ffffff', tc:'#0d0d0d', bc:'rgba(13,13,13,.5)',    ac:'#e63322',  tf:"'Helvetica Neue',Arial,sans-serif", bf:"'Helvetica Neue',Arial,sans-serif", tw:900, grid:'rgba(0,0,0,.04)',         prev:{bg:'#fff',   c:'#e63322',f:"Arial,sans-serif",            t:'SWISS',     s:'11px'} },
-  editorial:  { name:'Editorial',   bg:'#f7f2e8', tc:'#1a1714', bc:'rgba(26,23,20,.5)',    ac:'#b03020',  tf:"'Cormorant Garamond',serif",       bf:"'Inter',sans-serif",         tw:700, ts:'italic', grid:'rgba(0,0,0,.035)',    prev:{bg:'#f7f2e8',c:'#b03020',f:"'Cormorant Garamond',serif", t:'Editorial', s:'12px'} },
-  neon:       { name:'Neon',        bg:'#07070f', tc:'#ffffff', bc:'rgba(255,255,255,.45)', ac:'#00ffe0', tf:"'Syne',sans-serif",               bf:"'Space Grotesk',sans-serif", tw:800, grid:'rgba(0,255,224,.04)',       prev:{bg:'#07070f',c:'#00ffe0',f:"'Syne',sans-serif",          t:'NEON',      s:'12px'} },
-  bold:       { name:'Bold',        bg:'#e8ff47', tc:'#0d0d0d', bc:'rgba(13,13,13,.6)',    ac:'#0d0d0d',  tf:"'Bebas Neue',sans-serif",          bf:"'Montserrat',sans-serif",    tw:400, grid:'rgba(0,0,0,.04)',         prev:{bg:'#e8ff47',c:'#0d0d0d',f:"'Bebas Neue',sans-serif",   t:'BOLD',      s:'14px'} },
-  midnight:   { name:'Midnight',    bg:'#0e1525', tc:'#e8ecff', bc:'rgba(232,236,255,.48)', ac:'#6b8cff', tf:"'Raleway',sans-serif",            bf:"'Inter',sans-serif",         tw:900, grid:'rgba(107,140,255,.04)',    prev:{bg:'#0e1525',c:'#6b8cff',f:"'Raleway',sans-serif",       t:'MIDNIGHT',  s:'10px'} },
-  paper:      { name:'Paper',       bg:'#fafaf7', tc:'#111111', bc:'rgba(17,17,17,.48)',   ac:'#111111',  tf:"'DM Serif Display',serif",         bf:"'Inter',sans-serif",         tw:400, grid:'rgba(0,0,0,.04)',         prev:{bg:'#fafaf7',c:'#111',   f:"'DM Serif Display',serif",  t:'Paper',     s:'13px'} },
-  brutalist:  { name:'Brutalist',   bg:'#f5f5f5', tc:'#000000', bc:'rgba(0,0,0,.55)',      ac:'#000000',  tf:"'IBM Plex Mono',monospace",        bf:"'IBM Plex Mono',monospace",  tw:700, grid:'rgba(0,0,0,.06)',         prev:{bg:'#f5f5f5',c:'#000',   f:"'IBM Plex Mono',monospace", t:'BRUTALIST', s:'9px'} },
-  aurora:     { name:'Aurora',      bg:'#0d1117', tc:'#c9b8ff', bc:'rgba(201,184,255,.48)', ac:'#a78bfa',  tf:"'Syne',sans-serif",              bf:"'Inter',sans-serif",         tw:800, grid:'rgba(167,139,250,.04)',   prev:{bg:'#0d1117',c:'#a78bfa',f:"'Syne',sans-serif",          t:'AURORA',    s:'11px'} },
-  clay:       { name:'Clay',        bg:'#e8ddd0', tc:'#2c1810', bc:'rgba(44,24,16,.5)',    ac:'#c0622a',  tf:"'Playfair Display',serif",         bf:"'Inter',sans-serif",         tw:700, grid:'rgba(0,0,0,.04)',         prev:{bg:'#e8ddd0',c:'#c0622a',f:"'Playfair Display',serif",   t:'Clay',      s:'13px'} },
-  y2k:        { name:'Y2K',         bg:'#ff69b4', tc:'#ffffff', bc:'rgba(255,255,255,.6)', ac:'#00ffff',  tf:"'Oswald',sans-serif",              bf:"'Space Grotesk',sans-serif", tw:700, grid:'rgba(0,255,255,.06)',     prev:{bg:'#ff69b4',c:'#00ffff',f:"'Oswald',sans-serif",        t:'Y2K',       s:'14px'} },
-  forest:     { name:'Forest',      bg:'#0f1f14', tc:'#d4e8c2', bc:'rgba(212,232,194,.48)', ac:'#7bc67e', tf:"'Montserrat',sans-serif",         bf:"'Inter',sans-serif",         tw:900, grid:'rgba(123,198,126,.04)',   prev:{bg:'#0f1f14',c:'#7bc67e',f:"'Montserrat',sans-serif",    t:'FOREST',    s:'11px'} },
+  noir: {
+    name:'Noir', bg:'#0d0d0d', tc:'#f0ede8', bc:'#777777', ac:'#d4f55c',
+    tf:"'Unbounded',sans-serif", bf:"'Inter',sans-serif", tw:900,
+    numPos:'tl', textPos:'bottom', deco:'grid',
+    prev:{bg:'#0d0d0d',c:'#d4f55c',f:"'Unbounded',sans-serif",t:'NOIR',s:'11px',w:700}
+  },
+  swiss: {
+    name:'Swiss', bg:'#ffffff', tc:'#000000', bc:'#555555', ac:'#e63322',
+    tf:"'Helvetica Neue',Arial,sans-serif", bf:"'Helvetica Neue',Arial,sans-serif", tw:900,
+    numPos:'tr', textPos:'top', deco:'line-left',
+    prev:{bg:'#fff',c:'#e63322',f:"Arial,sans-serif",t:'SWISS',s:'11px',w:900}
+  },
+  editorial: {
+    name:'Editorial', bg:'#f5ede0', tc:'#1a1714', bc:'#7a6a58', ac:'#b03020',
+    tf:"'Cormorant Garamond',serif", bf:"'Inter',sans-serif", tw:700, ts:true,
+    numPos:'br', textPos:'center', deco:'underline-accent',
+    prev:{bg:'#f5ede0',c:'#b03020',f:"'Cormorant Garamond',serif",t:'Editorial',s:'12px',w:700}
+  },
+  neon: {
+    name:'Neon', bg:'#07070f', tc:'#ffffff', bc:'#6699aa', ac:'#00ffe0',
+    tf:"'Syne',sans-serif", bf:"'Space Grotesk',sans-serif", tw:800,
+    numPos:'bl', textPos:'center', deco:'dot-row',
+    prev:{bg:'#07070f',c:'#00ffe0',f:"'Syne',sans-serif",t:'NEON',s:'12px',w:800}
+  },
+  bold: {
+    name:'Bold', bg:'#e8ff47', tc:'#0d0d0d', bc:'#3a3a2a', ac:'#0d0d0d',
+    tf:"'Bebas Neue',sans-serif", bf:"'Montserrat',sans-serif", tw:400,
+    numPos:'none', textPos:'bottom', deco:'big-num',
+    prev:{bg:'#e8ff47',c:'#0d0d0d',f:"'Bebas Neue',sans-serif",t:'BOLD',s:'15px',w:400}
+  },
+  midnight: {
+    name:'Midnight', bg:'#0e1525', tc:'#e8ecff', bc:'#5566aa', ac:'#6b8cff',
+    tf:"'Raleway',sans-serif", bf:"'Inter',sans-serif", tw:900,
+    numPos:'tl', textPos:'center', deco:'circle',
+    prev:{bg:'#0e1525',c:'#6b8cff',f:"'Raleway',sans-serif",t:'MIDNIGHT',s:'10px',w:900}
+  },
+  paper: {
+    name:'Paper', bg:'#fafaf7', tc:'#111111', bc:'#888888', ac:'#111111',
+    tf:"'DM Serif Display',serif", bf:"'Inter',sans-serif", tw:400,
+    numPos:'br', textPos:'bottom', deco:'none',
+    prev:{bg:'#fafaf7',c:'#333',f:"'DM Serif Display',serif",t:'Paper',s:'13px',w:400}
+  },
+  brutalist: {
+    name:'Brutalist', bg:'#f0f0ec', tc:'#000000', bc:'#444444', ac:'#000000',
+    tf:"'IBM Plex Mono',monospace", bf:"'IBM Plex Mono',monospace", tw:700,
+    numPos:'none', textPos:'top', deco:'corner-bracket',
+    prev:{bg:'#f0f0ec',c:'#000',f:"'IBM Plex Mono',monospace",t:'BRUT',s:'10px',w:700}
+  },
+  aurora: {
+    name:'Aurora', bg:'#0d1117', tc:'#d4c8ff', bc:'#7777aa', ac:'#a78bfa',
+    tf:"'Syne',sans-serif", bf:"'Inter',sans-serif", tw:800,
+    numPos:'tr', textPos:'bottom', deco:'slash',
+    prev:{bg:'#0d1117',c:'#a78bfa',f:"'Syne',sans-serif",t:'AURORA',s:'11px',w:800}
+  },
+  clay: {
+    name:'Clay', bg:'#e8ddd0', tc:'#2c1810', bc:'#8a6a58', ac:'#c0622a',
+    tf:"'Playfair Display',serif", bf:"'Inter',sans-serif", tw:700,
+    numPos:'tl', textPos:'top', deco:'none',
+    prev:{bg:'#e8ddd0',c:'#c0622a',f:"'Playfair Display',serif",t:'Clay',s:'13px',w:700}
+  },
+  y2k: {
+    name:'Y2K', bg:'#1a0030', tc:'#ff99ff', bc:'#aa66cc', ac:'#00ffff',
+    tf:"'Oswald',sans-serif", bf:"'Space Grotesk',sans-serif", tw:700,
+    numPos:'br', textPos:'center', deco:'dot-row',
+    prev:{bg:'#1a0030',c:'#00ffff',f:"'Oswald',sans-serif",t:'Y2K',s:'14px',w:700}
+  },
+  mono: {
+    name:'Terminal', bg:'#0a1200', tc:'#33ff33', bc:'#228822', ac:'#33ff33',
+    tf:"'IBM Plex Mono',monospace", bf:"'IBM Plex Mono',monospace", tw:700,
+    numPos:'tl', textPos:'top', deco:'none',
+    prev:{bg:'#0a1200',c:'#33ff33',f:"'IBM Plex Mono',monospace",t:'>_TERM',s:'9px',w:700}
+  },
 };
 
-// ══ ШРИФТЫ ═══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// ШРИФТЫ
+// ══════════════════════════════════════════════════════════════
 const TITLE_FONTS = [
-  {k:'auto',      l:'Авто',        s:null,                                  x:'Из шаблона'},
-  {k:'unbounded', l:'Unbounded',   s:"'Unbounded',sans-serif",              x:'Заголовок'},
-  {k:'bebas',     l:'Bebas Neue',  s:"'Bebas Neue',sans-serif",             x:'Заголовок'},
-  {k:'oswald',    l:'Oswald',      s:"'Oswald',sans-serif",                 x:'Заголовок'},
-  {k:'syne',      l:'Syne',        s:"'Syne',sans-serif",                   x:'Заголовок'},
-  {k:'montserrat',l:'Montserrat',  s:"'Montserrat',sans-serif",             x:'Заголовок'},
-  {k:'playfair',  l:'Playfair',    s:"'Playfair Display',serif",            x:'Заголовок'},
-  {k:'cormorant', l:'Cormorant',   s:"'Cormorant Garamond',serif",          x:'Заголовок'},
-  {k:'dm',        l:'DM Serif',    s:"'DM Serif Display',serif",            x:'Заголовок'},
-  {k:'mono',      l:'IBM Mono',    s:"'IBM Plex Mono',monospace",           x:'Заголовок'},
-  {k:'raleway',   l:'Raleway',     s:"'Raleway',sans-serif",                x:'Заголовок'},
+  {k:'auto',l:'Авто',s:null,x:'Из шаблона'},
+  {k:'unbounded',l:'Unbounded',s:"'Unbounded',sans-serif",x:'Заголовок'},
+  {k:'bebas',l:'Bebas Neue',s:"'Bebas Neue',sans-serif",x:'Заголовок'},
+  {k:'oswald',l:'Oswald',s:"'Oswald',sans-serif",x:'Заголовок'},
+  {k:'syne',l:'Syne',s:"'Syne',sans-serif",x:'Заголовок'},
+  {k:'montserrat',l:'Montserrat',s:"'Montserrat',sans-serif",x:'Заголовок'},
+  {k:'playfair',l:'Playfair',s:"'Playfair Display',serif",x:'Заголовок'},
+  {k:'cormorant',l:'Cormorant',s:"'Cormorant Garamond',serif",x:'Заголовок'},
+  {k:'dm',l:'DM Serif',s:"'DM Serif Display',serif",x:'Заголовок'},
+  {k:'mono',l:'IBM Mono',s:"'IBM Plex Mono',monospace",x:'Заголовок'},
+  {k:'raleway',l:'Raleway',s:"'Raleway',sans-serif",x:'Заголовок'},
 ];
 const BODY_FONTS = [
-  {k:'auto',    l:'Авто',          s:null,                                  x:'Из шаблона'},
-  {k:'inter',   l:'Inter',         s:"'Inter',sans-serif",                  x:'Текст тела'},
-  {k:'grotesk', l:'Space Grotesk', s:"'Space Grotesk',sans-serif",          x:'Текст тела'},
-  {k:'raleway', l:'Raleway',       s:"'Raleway',sans-serif",                x:'Текст тела'},
-  {k:'mono',    l:'IBM Mono',      s:"'IBM Plex Mono',monospace",           x:'Текст тела'},
-  {k:'montserrat',l:'Montserrat',  s:"'Montserrat',sans-serif",             x:'Текст тела'},
+  {k:'auto',l:'Авто',s:null,x:'Из шаблона'},
+  {k:'inter',l:'Inter',s:"'Inter',sans-serif",x:'Текст тела'},
+  {k:'grotesk',l:'Space Grotesk',s:"'Space Grotesk',sans-serif",x:'Текст тела'},
+  {k:'raleway',l:'Raleway',s:"'Raleway',sans-serif",x:'Текст тела'},
+  {k:'mono',l:'IBM Mono',s:"'IBM Plex Mono',monospace",x:'Текст тела'},
+  {k:'montserrat',l:'Montserrat',s:"'Montserrat',sans-serif",x:'Текст тела'},
 ];
 
-// ══ LAYOUTS ═══════════════════════════════════════════════════════
-// У всех средних слайдов — одинаковый базовый стиль, меняется только layout-тип
+// ══════════════════════════════════════════════════════════════
+// LAYOUTS — средние слайды
+// ══════════════════════════════════════════════════════════════
 const MID_LAYOUTS = ['split','bigquote','list','feature'];
 
 function makePlan(total) {
   const plan = [];
-  for (let i = 0; i < total; i++) {
-    if (i === 0 || i === total-1) { plan.push('hero'); continue; }
-    const prev = plan[i-1];
-    const avail = MID_LAYOUTS.filter(l => l !== prev);
-    plan.push(avail[Math.floor(Math.random() * avail.length)]);
+  for(let i=0;i<total;i++){
+    if(i===0||i===total-1){plan.push('hero');continue;}
+    const prev=plan[i-1];
+    const avail=MID_LAYOUTS.filter(l=>l!==prev);
+    plan.push(avail[Math.floor(Math.random()*avail.length)]);
   }
   return plan;
 }
 
-// ══ SLIDE BUILDER ═════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// SLIDE BUILDER
+// ══════════════════════════════════════════════════════════════
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
 function cl(v,a,b){return Math.max(a,Math.min(b,v));}
 
-function autoFz(headline, basePerLine, lines, baseFz, sc, fzMult) {
-  const len = (headline||'').length;
-  const cap = basePerLine * lines;
-  let m = fzMult;
-  if(len > cap*0.5)  m *= 0.9;
-  if(len > cap*0.75) m *= 0.85;
-  if(len > cap*1.0)  m *= 0.78;
-  if(len > cap*1.3)  m *= 0.70;
-  return Math.round(baseFz * sc * m);
+function autoFz(txt, charsPerLine, lines, base, sc, mult) {
+  const len=(txt||'').length;
+  const cap=charsPerLine*lines;
+  let m=mult;
+  if(len>cap*0.5) m*=0.9;
+  if(len>cap*0.75) m*=0.86;
+  if(len>cap*1.0)  m*=0.78;
+  if(len>cap*1.3)  m*=0.7;
+  return Math.round(base*sc*m);
+}
+
+// Декоративные элементы
+function renderDeco(deco, W, sc, ac, tc, bg) {
+  const p=Math.round(W*0.09);
+  switch(deco) {
+    case 'grid':
+      return `<div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:${38*sc}px ${38*sc}px;pointer-events:none;z-index:0;"></div>`;
+    case 'line-left':
+      return `<div style="position:absolute;left:${p}px;top:${p}px;bottom:${p}px;width:${Math.round(4*sc)}px;background:${ac};z-index:0;border-radius:2px;"></div>`;
+    case 'circle':
+      return `<div style="position:absolute;right:${Math.round(-60*sc)}px;bottom:${Math.round(-60*sc)}px;width:${Math.round(280*sc)}px;height:${Math.round(280*sc)}px;border-radius:50%;border:${Math.round(40*sc)}px solid ${ac};opacity:.08;z-index:0;pointer-events:none;"></div>`;
+    case 'corner-bracket':
+      const bw=Math.round(3*sc), bs=Math.round(36*sc);
+      return `
+        <div style="position:absolute;top:${p}px;left:${p}px;width:${bs}px;height:${bs}px;border-top:${bw}px solid ${ac};border-left:${bw}px solid ${ac};z-index:0;"></div>
+        <div style="position:absolute;bottom:${p}px;right:${p}px;width:${bs}px;height:${bs}px;border-bottom:${bw}px solid ${ac};border-right:${bw}px solid ${ac};z-index:0;"></div>`;
+    case 'slash':
+      return `<div style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;z-index:0;pointer-events:none;">
+        <div style="position:absolute;top:${Math.round(-20*sc)}px;right:${Math.round(60*sc)}px;width:${Math.round(3*sc)}px;height:${Math.round(W*1.4)}px;background:${ac};opacity:.12;transform:rotate(15deg);transform-origin:top center;"></div>
+        <div style="position:absolute;top:${Math.round(-20*sc)}px;right:${Math.round(90*sc)}px;width:${Math.round(3*sc)}px;height:${Math.round(W*1.4)}px;background:${ac};opacity:.06;transform:rotate(15deg);transform-origin:top center;"></div>
+      </div>`;
+    case 'underline-accent':
+      return `<div style="position:absolute;bottom:0;left:0;right:0;height:${Math.round(8*sc)}px;background:${ac};z-index:0;"></div>`;
+    case 'dot-row':
+      const dots=Array.from({length:6},(_,i)=>`<div style="width:${Math.round(5*sc)}px;height:${Math.round(5*sc)}px;border-radius:50%;background:${ac};opacity:${i%2===0?0.5:0.2};"></div>`).join('');
+      return `<div style="position:absolute;top:${p}px;right:${p}px;display:flex;flex-direction:column;gap:${Math.round(6*sc)}px;z-index:0;">${dots}</div>`;
+    case 'big-num':
+      return ''; // рендерится отдельно через overlay
+    default:
+      return '';
+  }
 }
 
 function buildSlide(slide, idx, total, tplKey, layout, W, uo) {
-  const t  = TEMPLATES[tplKey];
-  uo = uo || {};
+  const t = TEMPLATES[tplKey];
+  uo = uo||{};
 
-  const bgC     = uo.bgC     || t.bg;
-  const titleC  = uo.titleC  || t.tc;
-  const bodyC   = uo.bodyC   || t.bc;
-  const accentC = uo.accentC || t.ac;
-  const titleFont  = uo.titleFont || t.tf;
-  const bodyFont   = uo.bodyFont  || t.bf;
-  const titleW     = t.tw;
-  const titleStyle = (!uo.titleFont && t.ts) ? 'italic' : 'normal';
+  const bgC    = uo.bgC    || t.bg;
+  const titleC = uo.titleC || t.tc;
+  const bodyC  = uo.bodyC  || t.bc;
+  const acC    = uo.accentC|| t.ac;
+  const tf     = uo.titleFont || t.tf;
+  const bf     = uo.bodyFont  || t.bf;
+  const tw     = t.tw;
+  const ti     = (!uo.titleFont && t.ts) ? 'italic' : 'normal';
 
-  const fzMult = uo.fzMult || 1;
-  const pos    = uo.pos    || 'center';
-  const padPct = uo.padPct || 9;
+  const fzMult  = uo.fzMult || 1;
+  const posOver = uo.pos;   // пользовательское расположение или null
+  const padPct  = uo.padPct || 9;
+  const showNum = uo.showNum !== false;
 
   const n   = String(idx+1).padStart(2,'0');
   const tot = String(total).padStart(2,'0');
   const p   = Math.round(W * padPct / 100);
   const sc  = W / 400;
 
-  const h  = esc(slide.headline || '');
-  const s  = esc(slide.subhead  || '');
-  const b  = esc(slide.body     || '');
-  const rawItems = (slide.body||'').split(/\n+/).map(x=>x.trim()).filter(x=>x.length>4);
-  const items    = rawItems.length >= 2 ? rawItems : [slide.subhead, slide.body].filter(Boolean);
+  const h = esc(slide.headline||'');
+  const s = esc(slide.subhead||'');
+  const b = esc(slide.body||'');
+  const rawItems=(slide.body||'').split(/\n+/).map(x=>x.trim()).filter(x=>x.length>4);
+  const items=rawItems.length>=2?rawItems:[slide.subhead,slide.body].filter(Boolean);
 
-  const gridBg = `background-image:linear-gradient(${t.grid} 1px,transparent 1px),linear-gradient(90deg,${t.grid} 1px,transparent 1px);background-size:${38*sc}px ${38*sc}px;`;
+  const wrap=`width:${W}px;height:${W}px;background:${bgC};display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:${bf};hyphens:none;-webkit-hyphens:none;word-break:normal;overflow-wrap:break-word;`;
 
-  const wrapStyle = `
-    width:${W}px;height:${W}px;background:${bgC};
-    display:flex;flex-direction:column;position:relative;overflow:hidden;
-    font-family:${bodyFont};hyphens:none;-webkit-hyphens:none;word-break:normal;overflow-wrap:break-word;
-  `;
-  const gridDiv = `<div style="position:absolute;inset:0;${gridBg}pointer-events:none;z-index:0;"></div>`;
-  const numStyle = `font-family:${bodyFont};font-size:${Math.round(9*sc)}px;font-weight:500;color:${bodyC};opacity:.7;letter-spacing:.04em;flex-shrink:0;`;
+  // Декор
+  const decoHTML = renderDeco(t.deco, W, sc, acC, titleC, bgC);
 
-  // Расположение: top/center/bottom
-  const justifyMap = {top:'flex-start', center:'center', bottom:'flex-end'};
-  const justify = justifyMap[pos] || 'center';
+  // Нумерация
+  const numStyle = `position:absolute;z-index:2;font-family:${bf};font-size:${Math.round(9*sc)}px;font-weight:500;color:${bodyC};opacity:.65;letter-spacing:.05em;`;
+  const numText  = `${n} / ${tot}`;
+  let numHTML = '';
+  if(showNum) {
+    const np = t.numPos;
+    if(np==='tl') numHTML=`<div style="${numStyle}top:${p}px;left:${p}px;">${numText}</div>`;
+    else if(np==='tr') numHTML=`<div style="${numStyle}top:${p}px;right:${p}px;">${numText}</div>`;
+    else if(np==='bl') numHTML=`<div style="${numStyle}bottom:${p}px;left:${p}px;">${numText}</div>`;
+    else if(np==='br') numHTML=`<div style="${numStyle}bottom:${p}px;right:${p}px;">${numText}</div>`;
+  }
 
-  const divider = `<div style="width:${Math.round(40*sc)}px;height:${Math.round(3*sc)}px;background:${accentC};border-radius:2px;margin:${Math.round(14*sc)}px 0;flex-shrink:0;"></div>`;
+  // Big-num overlay (для bold шаблона)
+  const bigNumHTML = t.deco==='big-num'
+    ? `<div style="position:absolute;bottom:${Math.round(-10*sc)}px;right:${Math.round(p*0.5)}px;font-family:${tf};font-size:${Math.round(180*sc)}px;font-weight:900;color:${titleC};opacity:.06;line-height:1;z-index:0;pointer-events:none;">${idx+1}</div>`
+    : '';
 
-  // Стандартная обёртка контента с правильным расположением
-  const contentWrap = (inner) => `
-    <div style="position:relative;z-index:1;width:100%;height:100%;padding:${p}px;display:flex;flex-direction:column;justify-content:${justify};gap:${Math.round(10*sc)}px;overflow:hidden;">
-      <div style="${numStyle}">${n} / ${tot}</div>
-      ${inner}
+  // Расположение — берём пользовательское или дефолт шаблона
+  const pos = posOver || t.textPos;
+  const jMap = {top:'flex-start',center:'center',bottom:'flex-end'};
+  const justify = jMap[pos]||'center';
+
+  // Отступ для line-left дека
+  const leftOffset = t.deco==='line-left' ? Math.round(p*1.5+4*sc) : p;
+
+  const innerStyle=`position:absolute;inset:0;z-index:1;padding:${p}px ${p}px ${p}px ${leftOffset}px;display:flex;flex-direction:column;justify-content:${justify};`;
+
+  const divider=`<div style="width:${Math.round(40*sc)}px;height:${Math.round(3*sc)}px;background:${acC};border-radius:2px;margin:${Math.round(12*sc)}px 0;flex-shrink:0;"></div>`;
+
+  // ── HERO ─────────────────────────────────────────────────────
+  if(layout==='hero') {
+    const fz=cl(autoFz(slide.headline,14,3,40,sc,fzMult),Math.round(18*sc),Math.round(52*sc));
+    return `<div style="${wrap}">${decoHTML}${bigNumHTML}${numHTML}
+      <div style="${innerStyle}">
+        <div style="overflow:hidden;max-height:100%;">
+          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${titleC};line-height:1.08;hyphens:none;">${h}</div>
+          ${b||s?`<div style="font-size:${Math.round(13*sc)}px;color:${bodyC};line-height:1.65;font-weight:300;margin-top:${Math.round(14*sc)}px;border-top:1px solid ${acC}33;padding-top:${Math.round(12*sc)}px;">${b||s}</div>`:''}
+        </div>
+      </div>
     </div>`;
-
-  // ── HERO (первый и последний слайды) ─────────────────────────
-  if (layout === 'hero') {
-    const fz = cl(autoFz(slide.headline, 14, 3, 40, sc, fzMult), Math.round(20*sc), Math.round(52*sc));
-    return `<div style="${wrapStyle}">${gridDiv}${contentWrap(`
-      <div style="flex:1;display:flex;align-items:${justify};overflow:hidden;">
-        <div style="font-family:${titleFont};font-style:${titleStyle};font-size:${fz}px;font-weight:${titleW};color:${titleC};line-height:1.08;hyphens:none;">${h}</div>
-      </div>
-      ${b||s ? `<div style="font-size:${Math.round(13*sc)}px;color:${bodyC};line-height:1.65;font-weight:300;border-top:1px solid ${accentC}44;padding-top:${Math.round(12*sc)}px;flex-shrink:0;">${b||s}</div>` : ''}
-    `)}</div>`;
   }
 
-  // ── SPLIT ────────────────────────────────────────────────────
-  if (layout === 'split') {
-    const fz = cl(autoFz(slide.headline, 16, 2, 30, sc, fzMult), Math.round(16*sc), Math.round(38*sc));
-    return `<div style="${wrapStyle}">${gridDiv}${contentWrap(`
-      <div style="overflow:hidden;">
-        <div style="font-family:${titleFont};font-style:${titleStyle};font-size:${fz}px;font-weight:${titleW};color:${titleC};line-height:1.1;hyphens:none;">${h}</div>
-        ${divider}
-        ${s?`<div style="font-size:${Math.round(14*sc)}px;font-weight:600;color:${titleC};margin-bottom:${Math.round(8*sc)}px;line-height:1.35;">${s}</div>`:''}
-        ${b?`<div style="font-size:${Math.round(13*sc)}px;color:${bodyC};line-height:1.7;font-weight:300;">${b}</div>`:''}
-      </div>
-    `)}</div>`;
-  }
-
-  // ── BIGQUOTE ─────────────────────────────────────────────────
-  if (layout === 'bigquote') {
-    const fz = cl(autoFz(slide.headline, 18, 3, 32, sc, fzMult), Math.round(14*sc), Math.round(40*sc));
-    return `<div style="${wrapStyle}">${gridDiv}${contentWrap(`
-      <div style="overflow:hidden;">
-        <div style="font-family:${titleFont};font-style:${titleStyle};font-size:${fz}px;font-weight:${titleW};color:${titleC};line-height:1.12;hyphens:none;">${h}</div>
-        ${b||s?`<div style="font-size:${Math.round(13*sc)}px;color:${bodyC};line-height:1.65;font-weight:300;margin-top:${Math.round(14*sc)}px;">${b||s}</div>`:''}
-      </div>
-    `)}</div>`;
-  }
-
-  // ── LIST ─────────────────────────────────────────────────────
-  if (layout === 'list') {
-    const fz = cl(autoFz(slide.headline, 18, 2, 24, sc, fzMult), Math.round(14*sc), Math.round(30*sc));
-    const listHTML = items.slice(0,4).map((item,i)=>`
-      <div style="display:flex;gap:${Math.round(10*sc)}px;align-items:flex-start;flex-shrink:0;">
-        <div style="font-family:${titleFont};font-size:${Math.round(12*sc)}px;font-weight:900;color:${accentC};line-height:1.3;min-width:${Math.round(18*sc)}px;flex-shrink:0;">${i+1}</div>
-        <div style="font-size:${Math.round(12*sc)}px;color:${titleC};line-height:1.6;font-weight:300;opacity:.85;hyphens:none;">${esc(item)}</div>
-      </div>`).join('');
-    return `<div style="${wrapStyle}">${gridDiv}${contentWrap(`
-      <div style="overflow:hidden;">
-        <div style="font-family:${titleFont};font-style:${titleStyle};font-size:${fz}px;font-weight:${titleW};color:${titleC};line-height:1.1;margin-bottom:${Math.round(16*sc)}px;hyphens:none;">${h}</div>
-        <div style="display:flex;flex-direction:column;gap:${Math.round(10*sc)}px;">${listHTML}</div>
-      </div>
-    `)}</div>`;
-  }
-
-  // ── FEATURE ──────────────────────────────────────────────────
-  if (layout === 'feature') {
-    const fz = cl(autoFz(slide.headline, 14, 2, 30, sc, fzMult), Math.round(14*sc), Math.round(38*sc));
-    return `<div style="${wrapStyle}">${gridDiv}
-      <div style="position:absolute;top:0;left:0;right:0;height:38%;background:${accentC};opacity:.09;pointer-events:none;z-index:0;"></div>
-      ${contentWrap(`
+  // ── SPLIT ─────────────────────────────────────────────────────
+  if(layout==='split') {
+    const fz=cl(autoFz(slide.headline,16,2,30,sc,fzMult),Math.round(15*sc),Math.round(38*sc));
+    return `<div style="${wrap}">${decoHTML}${bigNumHTML}${numHTML}
+      <div style="${innerStyle}">
         <div style="overflow:hidden;">
-          <div style="font-size:${Math.round(9*sc)}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${accentC};margin-bottom:${Math.round(8*sc)}px;">${s||'Детали'}</div>
-          <div style="font-family:${titleFont};font-style:${titleStyle};font-size:${fz}px;font-weight:${titleW};color:${titleC};line-height:1.1;hyphens:none;">${h}</div>
+          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${titleC};line-height:1.1;hyphens:none;">${h}</div>
+          ${divider}
+          ${s?`<div style="font-size:${Math.round(14*sc)}px;font-weight:600;color:${titleC};margin-bottom:${Math.round(8*sc)}px;line-height:1.35;">${s}</div>`:''}
+          ${b?`<div style="font-size:${Math.round(13*sc)}px;color:${bodyC};line-height:1.7;font-weight:300;">${b}</div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── BIGQUOTE ──────────────────────────────────────────────────
+  if(layout==='bigquote') {
+    const fz=cl(autoFz(slide.headline,18,3,32,sc,fzMult),Math.round(14*sc),Math.round(42*sc));
+    return `<div style="${wrap}">${decoHTML}${bigNumHTML}${numHTML}
+      <div style="${innerStyle}">
+        <div style="overflow:hidden;">
+          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${titleC};line-height:1.12;hyphens:none;">${h}</div>
+          ${b||s?`<div style="font-size:${Math.round(13*sc)}px;color:${bodyC};line-height:1.65;font-weight:300;margin-top:${Math.round(14*sc)}px;">${b||s}</div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── LIST ──────────────────────────────────────────────────────
+  if(layout==='list') {
+    const fz=cl(autoFz(slide.headline,18,2,24,sc,fzMult),Math.round(13*sc),Math.round(30*sc));
+    const listHTML=items.slice(0,4).map((item,i)=>`
+      <div style="display:flex;gap:${Math.round(10*sc)}px;align-items:flex-start;">
+        <div style="font-family:${tf};font-size:${Math.round(11*sc)}px;font-weight:900;color:${acC};line-height:1.4;min-width:${Math.round(16*sc)}px;flex-shrink:0;">${i+1}</div>
+        <div style="font-size:${Math.round(12*sc)}px;color:${titleC};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div>
+      </div>`).join('');
+    return `<div style="${wrap}">${decoHTML}${bigNumHTML}${numHTML}
+      <div style="${innerStyle}">
+        <div style="overflow:hidden;">
+          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${titleC};line-height:1.1;margin-bottom:${Math.round(16*sc)}px;hyphens:none;">${h}</div>
+          <div style="display:flex;flex-direction:column;gap:${Math.round(10*sc)}px;">${listHTML}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── FEATURE ───────────────────────────────────────────────────
+  if(layout==='feature') {
+    const fz=cl(autoFz(slide.headline,14,2,28,sc,fzMult),Math.round(13*sc),Math.round(36*sc));
+    return `<div style="${wrap}">${decoHTML}${bigNumHTML}
+      <div style="position:absolute;top:0;left:0;right:0;height:40%;background:${acC};opacity:.1;z-index:0;pointer-events:none;"></div>
+      ${numHTML}
+      <div style="${innerStyle}">
+        <div style="overflow:hidden;">
+          <div style="font-size:${Math.round(9*sc)}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${acC};margin-bottom:${Math.round(8*sc)}px;">${s||'Детали'}</div>
+          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${titleC};line-height:1.1;hyphens:none;">${h}</div>
           ${b?`<div style="font-size:${Math.round(13*sc)}px;color:${bodyC};line-height:1.7;font-weight:300;margin-top:${Math.round(12*sc)}px;">${b}</div>`:''}
         </div>
-      `)}
+      </div>
     </div>`;
   }
 
   return '';
 }
 
-// ══ STATE ═════════════════════════════════════════════════════════
-const SID = localStorage.getItem('sid')||(()=>{const id='s'+Math.random().toString(36).slice(2);localStorage.setItem('sid',id);return id;})();
-let tpl='noir', cnt=5, slides=[], layouts=[], progTimer;
-let uC = { bgC:'#0d0d0d', titleC:'#f0ede8', bodyC:'#888888', accentC:'#d4f55c' };
-let uTF = null, uBF = null;
-let opts = { fzMult:1, pos:'center', padPct:9 };
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+const SID=localStorage.getItem('sid')||(()=>{const id='s'+Math.random().toString(36).slice(2);localStorage.setItem('sid',id);return id;})();
+let tpl='noir',cnt=5,slides=[],layouts=[],progTimer;
+let uC={bgC:'#0d0d0d',titleC:'#f0ede8',bodyC:'#888888',accentC:'#d4f55c'};
+let uTF=null,uBF=null;
+let opts={fzMult:1,pos:null,padPct:9,showNum:true};
 
-// ══ TEMPLATE GRID ═════════════════════════════════════════════════
-function renderTplGrid() {
-  const g = document.getElementById('tpl-grid');
-  g.innerHTML = '';
+// ══ TEMPLATE GRID ══════════════════════════════════════════════
+function renderTplGrid(){
+  const g=document.getElementById('tpl-grid');g.innerHTML='';
   Object.entries(TEMPLATES).forEach(([key,t])=>{
-    const c = document.createElement('div');
-    c.className = 'tpl-card'+(key===tpl?' active':'');
-    c.innerHTML = `<div class="tpl-prev" style="background:${t.prev.bg};"><span style="color:${t.prev.c};font-family:${t.prev.f};font-size:${t.prev.s};font-weight:700;text-align:center;padding:0 3px;line-height:1.2;">${t.prev.t}</span></div><div class="tpl-name">${t.name}</div>`;
-    c.onclick = ()=>{
-      document.querySelectorAll('.tpl-card').forEach(x=>x.classList.remove('active'));
-      c.classList.add('active'); tpl=key; applyTplColors(key);
-      if(slides.length) renderSlides();
-    };
+    const c=document.createElement('div');c.className='tpl-card'+(key===tpl?' active':'');
+    c.innerHTML=`<div class="tpl-prev" style="background:${t.prev.bg};"><span style="color:${t.prev.c};font-family:${t.prev.f};font-size:${t.prev.s};font-weight:${t.prev.w};text-align:center;padding:0 3px;line-height:1.2;">${t.prev.t}</span></div><div class="tpl-name">${t.name}</div>`;
+    c.onclick=()=>{document.querySelectorAll('.tpl-card').forEach(x=>x.classList.remove('active'));c.classList.add('active');tpl=key;applyTplColors(key);if(slides.length)renderSlides();};
     g.appendChild(c);
   });
 }
 
-function applyTplColors(k) {
-  const t = TEMPLATES[k];
-  const bg = t.bg;
-  const tc = t.tc.startsWith('rgba') ? rgbaToHex(t.tc) : t.tc;
-  const bc = t.bc.startsWith('rgba') ? rgbaToHex(t.bc) : t.bc;
-  const ac = t.ac;
-  setColorUI('bg', bg); setColorUI('title', tc); setColorUI('body', bc); setColorUI('accent', ac);
-  uC = {bgC:bg, titleC:tc, bodyC:bc, accentC:ac};
+function applyTplColors(k){
+  const t=TEMPLATES[k];
+  const toHex=c=>c.startsWith('rgba')?`#${c.match(/\d+/g).slice(0,3).map(x=>parseInt(x).toString(16).padStart(2,'0')).join('')}`:c;
+  const cols={bg:t.bg,title:toHex(t.tc),body:toHex(t.bc),accent:t.ac};
+  Object.entries(cols).forEach(([k,v])=>{
+    document.getElementById(`${k}-color`).value=v;
+    document.getElementById(`${k}-hex`).value=v;
+    document.getElementById(`sw-${k}`).style.background=v;
+  });
+  uC={bgC:cols.bg,titleC:cols.title,bodyC:cols.body,accentC:cols.accent};
 }
 
-function rgbaToHex(rgba) {
-  const m = rgba.match(/[\d.]+/g);
-  if(!m) return '#888888';
-  const r=parseInt(m[0]),g=parseInt(m[1]),b=parseInt(m[2]);
-  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+function onColorChange(k){
+  const v=document.getElementById(`${k}-color`).value;
+  document.getElementById(`${k}-hex`).value=v;
+  document.getElementById(`sw-${k}`).style.background=v;
+  uC[`${k}C`]=v;if(slides.length)renderSlides();
 }
-
-function setColorUI(k, hex) {
-  document.getElementById(`${k}-color`).value = hex;
-  document.getElementById(`${k}-hex`).value   = hex;
-  document.getElementById(`${k}-color`).closest('.color-swatch').style.background = hex;
-}
-
-function onColorChange(k) {
-  const hex = document.getElementById(`${k}-color`).value;
-  document.getElementById(`${k}-hex`).value = hex;
-  document.getElementById(`${k}-color`).closest('.color-swatch').style.background = hex;
-  uC[`${k}C`] = hex;
-  if(slides.length) renderSlides();
-}
-
-function onHexInput(k) {
-  const hex = document.getElementById(`${k}-hex`).value;
-  if(/^#[0-9a-fA-F]{6}$/.test(hex)){
-    document.getElementById(`${k}-color`).value = hex;
-    document.getElementById(`${k}-color`).closest('.color-swatch').style.background = hex;
-    uC[`${k}C`] = hex;
-    if(slides.length) renderSlides();
+function onHexInput(k){
+  const v=document.getElementById(`${k}-hex`).value;
+  if(/^#[0-9a-fA-F]{6}$/.test(v)){
+    document.getElementById(`${k}-color`).value=v;
+    document.getElementById(`sw-${k}`).style.background=v;
+    uC[`${k}C`]=v;if(slides.length)renderSlides();
   }
 }
 
-// ══ FONT PICKERS ══════════════════════════════════════════════════
-function renderFontList(fonts, id, activeKey, cb) {
-  const el = document.getElementById(id);
-  el.innerHTML = '';
+// ══ FONT PICKERS ═══════════════════════════════════════════════
+function renderFontList(fonts,id,activeKey,cb){
+  const el=document.getElementById(id);el.innerHTML='';
   fonts.forEach(f=>{
-    const opt = document.createElement('div');
-    opt.className = 'font-opt'+(activeKey===f.k?' active':'');
-    const sStyle = f.s ? `font-family:${f.s};font-size:15px;color:#1a1a18;line-height:1;` : 'font-size:11px;color:#bbb;';
-    opt.innerHTML = `<span class="font-opt-label">${f.l}</span><span style="${sStyle}">${f.x}</span>`;
-    opt.onclick = ()=>{ cb(f.k, f.s); renderFontList(fonts, id, f.k, cb); };
+    const opt=document.createElement('div');opt.className='font-opt'+(activeKey===f.k?' active':'');
+    const ss=f.s?`font-family:${f.s};font-size:15px;color:#1a1a18;line-height:1;`:'font-size:11px;color:#bbb;';
+    opt.innerHTML=`<span class="font-opt-label">${f.l}</span><span style="${ss}">${f.x}</span>`;
+    opt.onclick=()=>{cb(f.k,f.s);renderFontList(fonts,id,f.k,cb);};
     el.appendChild(opt);
   });
 }
-
-function initFontPickers() {
-  renderFontList(TITLE_FONTS,'title-fonts','auto',(k,s)=>{ uTF=s; if(slides.length) renderSlides(); });
-  renderFontList(BODY_FONTS, 'body-fonts', 'auto',(k,s)=>{ uBF=s; if(slides.length) renderSlides(); });
+function initFontPickers(){
+  renderFontList(TITLE_FONTS,'title-fonts','auto',(k,s)=>{uTF=s;if(slides.length)renderSlides();});
+  renderFontList(BODY_FONTS,'body-fonts','auto',(k,s)=>{uBF=s;if(slides.length)renderSlides();});
 }
 
-// ══ CONTROLS ══════════════════════════════════════════════════════
-function updateCtrl() {
-  const fz  = document.getElementById('fz-range').value;
-  const pad = document.getElementById('pad-range').value;
-  const padL = {5:'Узкие',6:'Узкие',7:'Меньше',8:'Меньше',9:'Normal',10:'Больше',11:'Больше',12:'Широкие',13:'Широкие',14:'Широкие'};
-  document.getElementById('fz-val').textContent  = fz+'%';
-  document.getElementById('pad-val').textContent = padL[pad]||pad;
-  opts.fzMult = fz/100;
-  opts.padPct = parseInt(pad);
-  if(slides.length) renderSlides();
+// ══ CONTROLS ═══════════════════════════════════════════════════
+function updateCtrl(){
+  const fz=document.getElementById('fz-range').value;
+  const pad=document.getElementById('pad-range').value;
+  const padL={5:'Узкие',6:'Узкие',7:'Меньше',8:'Меньше',9:'Normal',10:'Больше',11:'Больше',12:'Широкие',13:'Широкие',14:'Широкие'};
+  document.getElementById('fz-val').textContent=fz+'%';
+  document.getElementById('pad-val').textContent=padL[pad]||pad;
+  opts.fzMult=fz/100;opts.padPct=parseInt(pad);
+  opts.showNum=document.getElementById('show-num').checked;
+  if(slides.length)renderSlides();
 }
-
-function setPos(el) {
+function setPos(el){
   document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  opts.pos = el.dataset.pos;
-  if(slides.length) renderSlides();
+  el.classList.add('active');opts.pos=el.dataset.pos;if(slides.length)renderSlides();
 }
+function chCnt(d){cnt=Math.max(3,Math.min(8,cnt+d));document.getElementById('cnt').textContent=cnt;}
 
-function chCnt(d){ cnt=Math.max(3,Math.min(8,cnt+d)); document.getElementById('cnt').textContent=cnt; }
-
-// ══ TAB / LOADING ══════════════════════════════════════════════════
+// ══ TABS / LOADING ═════════════════════════════════════════════
 function switchTab(tab,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('tab-gen').style.display  = tab==='gen'?'block':'none';
-  document.getElementById('tab-hist').style.display = tab==='hist'?'block':'none';
-  document.getElementById('main-ttl').textContent   = tab==='gen'?'Предпросмотр':'История';
-  document.getElementById('dl-btn').style.display   = tab==='gen'?'flex':'none';
-  if(tab==='hist') loadHist();
+  document.getElementById('tab-gen').style.display=tab==='gen'?'block':'none';
+  document.getElementById('tab-hist').style.display=tab==='hist'?'block':'none';
+  document.getElementById('main-ttl').textContent=tab==='gen'?'Предпросмотр':'История';
+  document.getElementById('dl-btn').style.display=tab==='gen'?'flex':'none';
+  if(tab==='hist')loadHist();
 }
-
 function setLoading(on){
-  const btn=document.getElementById('gen-btn');
-  btn.disabled=on;
+  const btn=document.getElementById('gen-btn');btn.disabled=on;
   btn.innerHTML=on?'<div class="spin"></div><span>Генерирую...</span>':'<span>Сгенерировать</span>';
 }
-
 function startProg(){
   document.getElementById('empty').style.display='none';
   document.getElementById('slist').style.display='none';
   document.getElementById('prog').style.display='flex';
   const fill=document.getElementById('prog-fill'),lbl=document.getElementById('prog-lbl');
   const msgs=['Анализирую текст...','Выделяю ключевые мысли...','Формирую слайды...','Почти готово...'];
-  let p=0,mi=0; fill.style.width='0%';
-  progTimer=setInterval(()=>{
-    p=Math.min(p+Math.random()*6+2,88);fill.style.width=p+'%';
-    if(mi<msgs.length-1&&p>(mi+1)*22){mi++;lbl.textContent=msgs[mi];}
-  },350);
+  let p=0,mi=0;fill.style.width='0%';
+  progTimer=setInterval(()=>{p=Math.min(p+Math.random()*6+2,88);fill.style.width=p+'%';if(mi<msgs.length-1&&p>(mi+1)*22){mi++;lbl.textContent=msgs[mi];}},350);
 }
-
 function stopProg(){
-  clearInterval(progTimer);
-  document.getElementById('prog-fill').style.width='100%';
+  clearInterval(progTimer);document.getElementById('prog-fill').style.width='100%';
   setTimeout(()=>{document.getElementById('prog').style.display='none';},300);
 }
 
-// ══ GENERATE ══════════════════════════════════════════════════════
+// ══ GENERATE ═══════════════════════════════════════════════════
 async function generate(){
   const text=document.getElementById('txt').value.trim();
-  const err=document.getElementById('gen-err');
-  err.style.display='none';
+  const err=document.getElementById('gen-err');err.style.display='none';
   if(text.length<10){err.textContent='Введите текст.';err.style.display='block';return;}
   setLoading(true);startProg();
   try{
-    const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text,style:tpl,slideCount:cnt,sessionId:SID})});
-    const data=await res.json();
-    if(!res.ok) throw new Error(data.error||'Ошибка сервера');
+    const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,style:tpl,slideCount:cnt,sessionId:SID})});
+    const data=await res.json();if(!res.ok)throw new Error(data.error||'Ошибка сервера');
     stopProg();slides=data.slides;layouts=makePlan(slides.length);
     renderSlides();document.getElementById('dl-btn').disabled=false;loadStats();
-  }catch(e){
-    stopProg();document.getElementById('empty').style.display='flex';
-    err.textContent='Ошибка: '+e.message;err.style.display='block';
-  }finally{setLoading(false);}
+  }catch(e){stopProg();document.getElementById('empty').style.display='flex';err.textContent='Ошибка: '+e.message;err.style.display='block';}
+  finally{setLoading(false);}
 }
 
-function getOpts(){return{...opts,...uC,titleFont:uTF,bodyFont:uBF};}
+function getOpts(){return{...opts,...uC,titleFont:uTF,bodyFont:uBF,showNum:opts.showNum};}
 
 function renderSlides(){
-  const list=document.getElementById('slist');
-  list.innerHTML='';list.style.display='flex';
-  if(!layouts.length||layouts.length!==slides.length) layouts=makePlan(slides.length);
+  const list=document.getElementById('slist');list.innerHTML='';list.style.display='flex';
+  if(!layouts.length||layouts.length!==slides.length)layouts=makePlan(slides.length);
   const so=getOpts();
   slides.forEach((s,i)=>{
-    const row=document.createElement('div');
-    row.className='slide-row';row.style.animationDelay=(i*.07)+'s';
+    const row=document.createElement('div');row.className='slide-row';row.style.animationDelay=(i*.07)+'s';
     row.innerHTML=`<div class="slide-idx">0${i+1}</div><div class="slide-card"></div>`;
     row.querySelector('.slide-card').innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],390,so);
     list.appendChild(row);
   });
 }
 
-// ══ DOWNLOAD ══════════════════════════════════════════════════════
+// ══ DOWNLOAD ═══════════════════════════════════════════════════
 async function dlZip(){
   if(!slides.length)return;
   const btn=document.getElementById('dl-btn');
   btn.disabled=true;btn.innerHTML='<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.12)"></div> Рендерю...';
   const ra=document.getElementById('render-area');ra.innerHTML='';
   const so=getOpts();
-  slides.forEach((s,i)=>{
-    const w=document.createElement('div');w.style.cssText='width:1080px;height:1080px;overflow:hidden;';
-    w.innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],1080,so);ra.appendChild(w);
-  });
+  slides.forEach((s,i)=>{const w=document.createElement('div');w.style.cssText='width:1080px;height:1080px;overflow:hidden;';w.innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],1080,so);ra.appendChild(w);});
   await document.fonts.ready;await new Promise(r=>setTimeout(r,900));
   const zip=new JSZip();
   for(let i=0;i<ra.children.length;i++){
     btn.innerHTML=`<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.12)"></div> ${i+1}/${ra.children.length}`;
     const canvas=await html2canvas(ra.children[i],{scale:1,useCORS:true,backgroundColor:null,width:1080,height:1080,logging:false});
-    const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
-    zip.file(`slide-${String(i+1).padStart(2,'0')}.png`,blob);
+    const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));zip.file(`slide-${String(i+1).padStart(2,'0')}.png`,blob);
   }
   const zb=await zip.generateAsync({type:'blob'});
   const a=document.createElement('a');a.href=URL.createObjectURL(zb);a.download='carousel.zip';a.click();
@@ -548,13 +637,9 @@ async function dlZip(){
   btn.innerHTML=`<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg> Скачать ZIP`;
 }
 
-// ══ STATS / HISTORY ═══════════════════════════════════════════════
+// ══ STATS / HISTORY ════════════════════════════════════════════
 async function loadStats(){
-  try{const r=await fetch('/stats');const d=await r.json();
-    document.getElementById('s-total').textContent=d.total;
-    document.getElementById('s-today').textContent=d.today;
-    document.getElementById('s-week').textContent=d.thisWeek;
-  }catch{}
+  try{const r=await fetch('/stats');const d=await r.json();document.getElementById('s-total').textContent=d.total;document.getElementById('s-today').textContent=d.today;document.getElementById('s-week').textContent=d.thisWeek;}catch{}
 }
 async function loadHist(){
   const area=document.getElementById('hlist');
@@ -572,7 +657,7 @@ async function loadHist(){
   }catch{area.innerHTML='<div class="hist-empty">Ошибка</div>';}
 }
 
-// ══ INIT ══════════════════════════════════════════════════════════
+// ══ INIT ═══════════════════════════════════════════════════════
 renderTplGrid();
 applyTplColors('noir');
 initFontPickers();
