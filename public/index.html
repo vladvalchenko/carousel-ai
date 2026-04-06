@@ -53,14 +53,38 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 .seg-btn{flex:1;padding:6px 0;font-size:11px;border:1.5px solid #e5e3de;border-radius:6px;background:#fff;color:#999;cursor:pointer;transition:all .15s;text-align:center;}
 .seg-btn:hover{border-color:#aaa;color:#1a1a18;}
 .seg-btn.active{border-color:#1a1a18;background:#1a1a18;color:#fff;}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .toggle-label{font-size:12px;color:#666;}
-.toggle{position:relative;width:36px;height:20px;cursor:pointer;}
+.toggle{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0;}
 .toggle input{opacity:0;width:0;height:0;}
 .toggle-track{position:absolute;inset:0;background:#e5e3de;border-radius:10px;transition:background .2s;}
-.toggle input:checked + .toggle-track{background:#1a1a18;}
+.toggle input:checked+.toggle-track{background:#1a1a18;}
 .toggle-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none;}
-.toggle input:checked ~ .toggle-thumb{transform:translateX(16px);}
+.toggle input:checked~.toggle-thumb{transform:translateX(16px);}
+
+/* Photo section */
+.photo-mode-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:12px;}
+.photo-mode-btn{padding:8px 4px;border:1.5px solid #e5e3de;border-radius:7px;background:#fff;color:#999;font-size:11px;cursor:pointer;transition:all .15s;text-align:center;line-height:1.3;}
+.photo-mode-btn:hover{border-color:#aaa;color:#1a1a18;}
+.photo-mode-btn.active{border-color:#1a1a18;background:#1a1a18;color:#fff;}
+.photo-search-wrap{display:flex;gap:6px;margin-bottom:10px;}
+.photo-search{flex:1;padding:8px 10px;border:1.5px solid #e5e3de;border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;color:#1a1a18;background:#faf9f7;outline:none;}
+.photo-search:focus{border-color:#1a1a18;}
+.photo-search-btn{padding:8px 12px;background:#1a1a18;color:#fff;border:none;border-radius:7px;font-size:12px;cursor:pointer;white-space:nowrap;}
+.photo-search-btn:hover{background:#333;}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.photo-thumb{aspect-ratio:1/1;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .15s;position:relative;}
+.photo-thumb:hover{border-color:#aaa;}
+.photo-thumb.selected{border-color:#1a1a18;}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;}
+.photo-thumb-check{position:absolute;top:4px;right:4px;width:18px;height:18px;background:#1a1a18;border-radius:50%;display:none;align-items:center;justify-content:center;}
+.photo-thumb.selected .photo-thumb-check{display:flex;}
+.photo-author{font-size:10px;color:#bbb;margin-top:6px;}
+.photo-empty{font-size:12px;color:#bbb;text-align:center;padding:16px 0;}
+.photo-loading{font-size:12px;color:#bbb;text-align:center;padding:16px 0;}
+.photo-sub-opts{margin-top:10px;display:flex;flex-direction:column;gap:8px;}
+.photo-sub-label{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:#bbb;margin-bottom:5px;}
+
 .count-row{display:flex;align-items:center;}
 .cnt-btn{width:30px;height:30px;border:1.5px solid #e5e3de;background:#fff;color:#1a1a18;border-radius:7px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .cnt-btn:hover{border-color:#1a1a18;}
@@ -116,6 +140,50 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 <aside class="sidebar">
   <div class="sb"><div class="sb-title">Текст</div><textarea id="txt" placeholder="Вставьте текст: анонс, статью, инструкцию, описание продукта..."></textarea></div>
   <div class="sb"><div class="sb-title">Шаблон</div><div class="tpl-grid" id="tpl-grid"></div></div>
+
+  <!-- ФОТО -->
+  <div class="sb">
+    <div class="sb-title">Фото</div>
+    <div class="photo-mode-btns">
+      <div class="photo-mode-btn active" data-mode="none" onclick="setPhotoMode(this)">Без фото</div>
+      <div class="photo-mode-btn" data-mode="bg" onclick="setPhotoMode(this)">Фон</div>
+      <div class="photo-mode-btn" data-mode="content" onclick="setPhotoMode(this)">Контент</div>
+    </div>
+
+    <div id="photo-opts" style="display:none;">
+      <!-- Поиск -->
+      <div class="photo-search-wrap">
+        <input class="photo-search" id="photo-query" placeholder="Поиск фото..." onkeydown="if(event.key==='Enter')searchPhotos()">
+        <button class="photo-search-btn" onclick="searchPhotos()">Найти</button>
+      </div>
+      <div id="photo-grid" class="photo-grid"></div>
+      <div id="photo-author" class="photo-author"></div>
+
+      <!-- Доп. настройки фона -->
+      <div id="bg-opts" class="photo-sub-opts" style="display:none;">
+        <div class="ctrl-row" style="margin-top:4px"><span class="ctrl-label">Затемнение</span><span class="ctrl-val" id="dim-val">50%</span></div>
+        <input type="range" id="dim-range" min="0" max="90" value="50" oninput="updateDim()">
+      </div>
+
+      <!-- Доп. настройки контента -->
+      <div id="content-opts" class="photo-sub-opts" style="display:none;">
+        <div class="photo-sub-label">Расположение фото</div>
+        <div class="seg-btns" style="margin-bottom:10px;">
+          <div class="seg-btn active" data-layout="top" onclick="setContentLayout(this)">Сверху</div>
+          <div class="seg-btn" data-layout="bottom" onclick="setContentLayout(this)">Снизу</div>
+          <div class="seg-btn" data-layout="left" onclick="setContentLayout(this)">Слева</div>
+          <div class="seg-btn" data-layout="right" onclick="setContentLayout(this)">Справа</div>
+        </div>
+        <div class="photo-sub-label">На каких слайдах</div>
+        <div class="seg-btns">
+          <div class="seg-btn active" data-slides="all" onclick="setContentSlides(this)">Все</div>
+          <div class="seg-btn" data-slides="first-last" onclick="setContentSlides(this)">1-й и посл.</div>
+          <div class="seg-btn" data-slides="first" onclick="setContentSlides(this)">Только 1-й</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="sb">
     <div class="sb-title">Цвета</div>
     <div class="color-row"><span class="color-label">Фон</span><div class="color-input-wrap"><div class="color-swatch" id="sw-bg"><input type="color" id="bg-color" value="#0d0d0d" oninput="onColorChange('bg')"></div><input class="color-hex" id="bg-hex" value="#0d0d0d" maxlength="7" oninput="onHexInput('bg')"></div></div>
@@ -139,11 +207,7 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
     <input type="range" id="pad-range" min="5" max="14" value="9" oninput="updateCtrl()">
     <div class="toggle-row" style="margin-top:4px">
       <span class="toggle-label">Нумерация слайдов</span>
-      <label class="toggle">
-        <input type="checkbox" id="show-num" checked onchange="updateCtrl()">
-        <div class="toggle-track"></div>
-        <div class="toggle-thumb"></div>
-      </label>
+      <label class="toggle"><input type="checkbox" id="show-num" checked onchange="updateCtrl()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
     </div>
   </div>
   <div class="sb"><div class="sb-title">Слайдов</div><div class="count-row"><button class="cnt-btn" onclick="chCnt(-1)">−</button><div class="cnt-num" id="cnt">5</div><button class="cnt-btn" onclick="chCnt(1)">+</button><span style="font-size:12px;color:#bbb;margin-left:8px;">слайдов</span></div></div>
@@ -167,328 +231,208 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 </div>
 <div id="render-area"></div>
 <script>
-// ══════════════════════════════════════════════════════════════
-// 12 ШАБЛОНОВ — каждый со своей философией оформления
-// numPos: где номер ('tl'=top-left, 'tr'=top-right, 'bl'=bottom-left, 'br'=bottom-right, 'none'=нет по умолчанию)
-// textPos: где основной блок ('top','center','bottom')
-// deco: декоративный элемент ('none','grid','line-left','circle','corner-bracket','slash','underline-accent','dot-row','big-num')
-// ══════════════════════════════════════════════════════════════
+// ══ ШАБЛОНЫ ═══════════════════════════════════════════════════
 const TEMPLATES = {
-  noir: {
-    name:'Noir', bg:'#0d0d0d', tc:'#f0ede8', bc:'#777777', ac:'#d4f55c',
-    tf:"'Unbounded',sans-serif", bf:"'Inter',sans-serif", tw:900,
-    numPos:'tl', textPos:'bottom', deco:'grid',
-    prev:{bg:'#0d0d0d',c:'#d4f55c',f:"'Unbounded',sans-serif",t:'NOIR',s:'11px',w:700}
-  },
-  swiss: {
-    name:'Swiss', bg:'#ffffff', tc:'#000000', bc:'#555555', ac:'#e63322',
-    tf:"'Helvetica Neue',Arial,sans-serif", bf:"'Helvetica Neue',Arial,sans-serif", tw:900,
-    numPos:'tr', textPos:'top', deco:'line-left',
-    prev:{bg:'#fff',c:'#e63322',f:"Arial,sans-serif",t:'SWISS',s:'11px',w:900}
-  },
-  editorial: {
-    name:'Editorial', bg:'#f5ede0', tc:'#1a1714', bc:'#7a6a58', ac:'#b03020',
-    tf:"'Cormorant Garamond',serif", bf:"'Inter',sans-serif", tw:700, ts:true,
-    numPos:'br', textPos:'center', deco:'underline-accent',
-    prev:{bg:'#f5ede0',c:'#b03020',f:"'Cormorant Garamond',serif",t:'Editorial',s:'12px',w:700}
-  },
-  neon: {
-    name:'Neon', bg:'#07070f', tc:'#ffffff', bc:'#6699aa', ac:'#00ffe0',
-    tf:"'Syne',sans-serif", bf:"'Space Grotesk',sans-serif", tw:800,
-    numPos:'bl', textPos:'center', deco:'dot-row',
-    prev:{bg:'#07070f',c:'#00ffe0',f:"'Syne',sans-serif",t:'NEON',s:'12px',w:800}
-  },
-  bold: {
-    name:'Bold', bg:'#e8ff47', tc:'#0d0d0d', bc:'#3a3a2a', ac:'#0d0d0d',
-    tf:"'Bebas Neue',sans-serif", bf:"'Montserrat',sans-serif", tw:400,
-    numPos:'none', textPos:'bottom', deco:'big-num',
-    prev:{bg:'#e8ff47',c:'#0d0d0d',f:"'Bebas Neue',sans-serif",t:'BOLD',s:'15px',w:400}
-  },
-  midnight: {
-    name:'Midnight', bg:'#0e1525', tc:'#e8ecff', bc:'#5566aa', ac:'#6b8cff',
-    tf:"'Raleway',sans-serif", bf:"'Inter',sans-serif", tw:900,
-    numPos:'tl', textPos:'center', deco:'circle',
-    prev:{bg:'#0e1525',c:'#6b8cff',f:"'Raleway',sans-serif",t:'MIDNIGHT',s:'10px',w:900}
-  },
-  paper: {
-    name:'Paper', bg:'#fafaf7', tc:'#111111', bc:'#888888', ac:'#111111',
-    tf:"'DM Serif Display',serif", bf:"'Inter',sans-serif", tw:400,
-    numPos:'br', textPos:'bottom', deco:'none',
-    prev:{bg:'#fafaf7',c:'#333',f:"'DM Serif Display',serif",t:'Paper',s:'13px',w:400}
-  },
-  brutalist: {
-    name:'Brutalist', bg:'#f0f0ec', tc:'#000000', bc:'#444444', ac:'#000000',
-    tf:"'IBM Plex Mono',monospace", bf:"'IBM Plex Mono',monospace", tw:700,
-    numPos:'none', textPos:'top', deco:'corner-bracket',
-    prev:{bg:'#f0f0ec',c:'#000',f:"'IBM Plex Mono',monospace",t:'BRUT',s:'10px',w:700}
-  },
-  aurora: {
-    name:'Aurora', bg:'#0d1117', tc:'#d4c8ff', bc:'#7777aa', ac:'#a78bfa',
-    tf:"'Syne',sans-serif", bf:"'Inter',sans-serif", tw:800,
-    numPos:'tr', textPos:'bottom', deco:'slash',
-    prev:{bg:'#0d1117',c:'#a78bfa',f:"'Syne',sans-serif",t:'AURORA',s:'11px',w:800}
-  },
-  clay: {
-    name:'Clay', bg:'#e8ddd0', tc:'#2c1810', bc:'#8a6a58', ac:'#c0622a',
-    tf:"'Playfair Display',serif", bf:"'Inter',sans-serif", tw:700,
-    numPos:'tl', textPos:'top', deco:'none',
-    prev:{bg:'#e8ddd0',c:'#c0622a',f:"'Playfair Display',serif",t:'Clay',s:'13px',w:700}
-  },
-  y2k: {
-    name:'Y2K', bg:'#1a0030', tc:'#ff99ff', bc:'#aa66cc', ac:'#00ffff',
-    tf:"'Oswald',sans-serif", bf:"'Space Grotesk',sans-serif", tw:700,
-    numPos:'br', textPos:'center', deco:'dot-row',
-    prev:{bg:'#1a0030',c:'#00ffff',f:"'Oswald',sans-serif",t:'Y2K',s:'14px',w:700}
-  },
-  mono: {
-    name:'Terminal', bg:'#0a1200', tc:'#33ff33', bc:'#228822', ac:'#33ff33',
-    tf:"'IBM Plex Mono',monospace", bf:"'IBM Plex Mono',monospace", tw:700,
-    numPos:'tl', textPos:'top', deco:'none',
-    prev:{bg:'#0a1200',c:'#33ff33',f:"'IBM Plex Mono',monospace",t:'>_TERM',s:'9px',w:700}
-  },
+  noir:      {name:'Noir',      bg:'#0d0d0d',tc:'#f0ede8',bc:'#777',ac:'#d4f55c', tf:"'Unbounded',sans-serif",        bf:"'Inter',sans-serif",         tw:900, numPos:'tl',textPos:'bottom',deco:'grid',    prev:{bg:'#0d0d0d',c:'#d4f55c',f:"'Unbounded',sans-serif",   t:'NOIR',     s:'11px',w:700}},
+  swiss:     {name:'Swiss',     bg:'#ffffff',tc:'#000000',bc:'#555',ac:'#e63322', tf:"'Helvetica Neue',Arial,sans-serif",bf:"'Helvetica Neue',Arial,sans-serif",tw:900,numPos:'tr',textPos:'top',  deco:'line-left',prev:{bg:'#fff',  c:'#e63322',f:"Arial,sans-serif",          t:'SWISS',    s:'11px',w:900}},
+  editorial: {name:'Editorial', bg:'#f5ede0',tc:'#1a1714',bc:'#7a6a58',ac:'#b03020',tf:"'Cormorant Garamond',serif",  bf:"'Inter',sans-serif",         tw:700,ts:true,numPos:'br',textPos:'center',deco:'underline-accent',prev:{bg:'#f5ede0',c:'#b03020',f:"'Cormorant Garamond',serif",t:'Editorial',s:'12px',w:700}},
+  neon:      {name:'Neon',      bg:'#07070f',tc:'#ffffff',bc:'#6699aa',ac:'#00ffe0',tf:"'Syne',sans-serif",            bf:"'Space Grotesk',sans-serif",  tw:800, numPos:'bl',textPos:'center',deco:'dot-row',  prev:{bg:'#07070f',c:'#00ffe0',f:"'Syne',sans-serif",         t:'NEON',     s:'12px',w:800}},
+  bold:      {name:'Bold',      bg:'#e8ff47',tc:'#0d0d0d',bc:'#3a3a2a',ac:'#0d0d0d',tf:"'Bebas Neue',sans-serif",     bf:"'Montserrat',sans-serif",     tw:400, numPos:'none',textPos:'bottom',deco:'big-num', prev:{bg:'#e8ff47',c:'#0d0d0d',f:"'Bebas Neue',sans-serif",   t:'BOLD',     s:'15px',w:400}},
+  midnight:  {name:'Midnight',  bg:'#0e1525',tc:'#e8ecff',bc:'#5566aa',ac:'#6b8cff',tf:"'Raleway',sans-serif",        bf:"'Inter',sans-serif",          tw:900, numPos:'tl',textPos:'center',deco:'circle',  prev:{bg:'#0e1525',c:'#6b8cff',f:"'Raleway',sans-serif",       t:'MIDNIGHT', s:'10px',w:900}},
+  paper:     {name:'Paper',     bg:'#fafaf7',tc:'#111111',bc:'#888',ac:'#111111',   tf:"'DM Serif Display',serif",     bf:"'Inter',sans-serif",          tw:400, numPos:'br',textPos:'bottom',deco:'none',    prev:{bg:'#fafaf7',c:'#333',   f:"'DM Serif Display',serif",   t:'Paper',    s:'13px',w:400}},
+  brutalist: {name:'Brutalist', bg:'#f0f0ec',tc:'#000000',bc:'#444',ac:'#000000',  tf:"'IBM Plex Mono',monospace",    bf:"'IBM Plex Mono',monospace",   tw:700, numPos:'none',textPos:'top',  deco:'corner-bracket',prev:{bg:'#f0f0ec',c:'#000',f:"'IBM Plex Mono',monospace", t:'BRUT',     s:'10px',w:700}},
+  aurora:    {name:'Aurora',    bg:'#0d1117',tc:'#d4c8ff',bc:'#7777aa',ac:'#a78bfa',tf:"'Syne',sans-serif",            bf:"'Inter',sans-serif",          tw:800, numPos:'tr',textPos:'bottom',deco:'slash',   prev:{bg:'#0d1117',c:'#a78bfa',f:"'Syne',sans-serif",          t:'AURORA',   s:'11px',w:800}},
+  clay:      {name:'Clay',      bg:'#e8ddd0',tc:'#2c1810',bc:'#8a6a58',ac:'#c0622a',tf:"'Playfair Display',serif",    bf:"'Inter',sans-serif",          tw:700, numPos:'tl',textPos:'top',  deco:'none',    prev:{bg:'#e8ddd0',c:'#c0622a',f:"'Playfair Display',serif",   t:'Clay',     s:'13px',w:700}},
+  y2k:       {name:'Y2K',       bg:'#1a0030',tc:'#ff99ff',bc:'#aa66cc',ac:'#00ffff',tf:"'Oswald',sans-serif",          bf:"'Space Grotesk',sans-serif",  tw:700, numPos:'br',textPos:'center',deco:'dot-row', prev:{bg:'#1a0030',c:'#00ffff',f:"'Oswald',sans-serif",         t:'Y2K',      s:'14px',w:700}},
+  terminal:  {name:'Terminal',  bg:'#0a1200',tc:'#33ff33',bc:'#228822',ac:'#33ff33',tf:"'IBM Plex Mono',monospace",    bf:"'IBM Plex Mono',monospace",   tw:700, numPos:'tl',textPos:'top',  deco:'none',    prev:{bg:'#0a1200',c:'#33ff33',f:"'IBM Plex Mono',monospace",  t:'>_TERM',   s:'9px', w:700}},
 };
 
-// ══════════════════════════════════════════════════════════════
-// ШРИФТЫ
-// ══════════════════════════════════════════════════════════════
-const TITLE_FONTS = [
-  {k:'auto',l:'Авто',s:null,x:'Из шаблона'},
-  {k:'unbounded',l:'Unbounded',s:"'Unbounded',sans-serif",x:'Заголовок'},
-  {k:'bebas',l:'Bebas Neue',s:"'Bebas Neue',sans-serif",x:'Заголовок'},
-  {k:'oswald',l:'Oswald',s:"'Oswald',sans-serif",x:'Заголовок'},
-  {k:'syne',l:'Syne',s:"'Syne',sans-serif",x:'Заголовок'},
-  {k:'montserrat',l:'Montserrat',s:"'Montserrat',sans-serif",x:'Заголовок'},
-  {k:'playfair',l:'Playfair',s:"'Playfair Display',serif",x:'Заголовок'},
-  {k:'cormorant',l:'Cormorant',s:"'Cormorant Garamond',serif",x:'Заголовок'},
-  {k:'dm',l:'DM Serif',s:"'DM Serif Display',serif",x:'Заголовок'},
-  {k:'mono',l:'IBM Mono',s:"'IBM Plex Mono',monospace",x:'Заголовок'},
-  {k:'raleway',l:'Raleway',s:"'Raleway',sans-serif",x:'Заголовок'},
-];
-const BODY_FONTS = [
-  {k:'auto',l:'Авто',s:null,x:'Из шаблона'},
-  {k:'inter',l:'Inter',s:"'Inter',sans-serif",x:'Текст тела'},
-  {k:'grotesk',l:'Space Grotesk',s:"'Space Grotesk',sans-serif",x:'Текст тела'},
-  {k:'raleway',l:'Raleway',s:"'Raleway',sans-serif",x:'Текст тела'},
-  {k:'mono',l:'IBM Mono',s:"'IBM Plex Mono',monospace",x:'Текст тела'},
-  {k:'montserrat',l:'Montserrat',s:"'Montserrat',sans-serif",x:'Текст тела'},
-];
+const TITLE_FONTS=[{k:'auto',l:'Авто',s:null,x:'Из шаблона'},{k:'unbounded',l:'Unbounded',s:"'Unbounded',sans-serif",x:'Заголовок'},{k:'bebas',l:'Bebas Neue',s:"'Bebas Neue',sans-serif",x:'Заголовок'},{k:'oswald',l:'Oswald',s:"'Oswald',sans-serif",x:'Заголовок'},{k:'syne',l:'Syne',s:"'Syne',sans-serif",x:'Заголовок'},{k:'montserrat',l:'Montserrat',s:"'Montserrat',sans-serif",x:'Заголовок'},{k:'playfair',l:'Playfair',s:"'Playfair Display',serif",x:'Заголовок'},{k:'cormorant',l:'Cormorant',s:"'Cormorant Garamond',serif",x:'Заголовок'},{k:'dm',l:'DM Serif',s:"'DM Serif Display',serif",x:'Заголовок'},{k:'mono',l:'IBM Mono',s:"'IBM Plex Mono',monospace",x:'Заголовок'},{k:'raleway',l:'Raleway',s:"'Raleway',sans-serif",x:'Заголовок'}];
+const BODY_FONTS=[{k:'auto',l:'Авто',s:null,x:'Из шаблона'},{k:'inter',l:'Inter',s:"'Inter',sans-serif",x:'Текст тела'},{k:'grotesk',l:'Space Grotesk',s:"'Space Grotesk',sans-serif",x:'Текст тела'},{k:'raleway',l:'Raleway',s:"'Raleway',sans-serif",x:'Текст тела'},{k:'mono',l:'IBM Mono',s:"'IBM Plex Mono',monospace",x:'Текст тела'},{k:'montserrat',l:'Montserrat',s:"'Montserrat',sans-serif",x:'Текст тела'}];
 
-// ══════════════════════════════════════════════════════════════
-// LAYOUTS — средние слайды
-// ══════════════════════════════════════════════════════════════
-const MID_LAYOUTS = ['split','bigquote','list','feature'];
+const MID_LAYOUTS=['split','bigquote','list','feature'];
+function makePlan(total){const p=[];for(let i=0;i<total;i++){if(i===0||i===total-1){p.push('hero');continue;}const prev=p[i-1];const a=MID_LAYOUTS.filter(l=>l!==prev);p.push(a[Math.floor(Math.random()*a.length)]);}return p;}
 
-function makePlan(total) {
-  const plan = [];
-  for(let i=0;i<total;i++){
-    if(i===0||i===total-1){plan.push('hero');continue;}
-    const prev=plan[i-1];
-    const avail=MID_LAYOUTS.filter(l=>l!==prev);
-    plan.push(avail[Math.floor(Math.random()*avail.length)]);
-  }
-  return plan;
-}
-
-// ══════════════════════════════════════════════════════════════
-// SLIDE BUILDER
-// ══════════════════════════════════════════════════════════════
+// ══ SLIDE BUILDER ══════════════════════════════════════════════
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
 function cl(v,a,b){return Math.max(a,Math.min(b,v));}
+function autoFz(txt,cpl,lines,base,sc,mult){const len=(txt||'').length,cap=cpl*lines;let m=mult;if(len>cap*.5)m*=.9;if(len>cap*.75)m*=.86;if(len>cap)m*=.78;if(len>cap*1.3)m*=.7;return Math.round(base*sc*m);}
 
-function autoFz(txt, charsPerLine, lines, base, sc, mult) {
-  const len=(txt||'').length;
-  const cap=charsPerLine*lines;
-  let m=mult;
-  if(len>cap*0.5) m*=0.9;
-  if(len>cap*0.75) m*=0.86;
-  if(len>cap*1.0)  m*=0.78;
-  if(len>cap*1.3)  m*=0.7;
-  return Math.round(base*sc*m);
-}
-
-// Декоративные элементы
-function renderDeco(deco, W, sc, ac, tc, bg) {
-  const p=Math.round(W*0.09);
-  switch(deco) {
-    case 'grid':
-      return `<div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:${38*sc}px ${38*sc}px;pointer-events:none;z-index:0;"></div>`;
-    case 'line-left':
-      return `<div style="position:absolute;left:${p}px;top:${p}px;bottom:${p}px;width:${Math.round(4*sc)}px;background:${ac};z-index:0;border-radius:2px;"></div>`;
-    case 'circle':
-      return `<div style="position:absolute;right:${Math.round(-60*sc)}px;bottom:${Math.round(-60*sc)}px;width:${Math.round(280*sc)}px;height:${Math.round(280*sc)}px;border-radius:50%;border:${Math.round(40*sc)}px solid ${ac};opacity:.08;z-index:0;pointer-events:none;"></div>`;
-    case 'corner-bracket':
-      const bw=Math.round(3*sc), bs=Math.round(36*sc);
-      return `
-        <div style="position:absolute;top:${p}px;left:${p}px;width:${bs}px;height:${bs}px;border-top:${bw}px solid ${ac};border-left:${bw}px solid ${ac};z-index:0;"></div>
-        <div style="position:absolute;bottom:${p}px;right:${p}px;width:${bs}px;height:${bs}px;border-bottom:${bw}px solid ${ac};border-right:${bw}px solid ${ac};z-index:0;"></div>`;
-    case 'slash':
-      return `<div style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;z-index:0;pointer-events:none;">
-        <div style="position:absolute;top:${Math.round(-20*sc)}px;right:${Math.round(60*sc)}px;width:${Math.round(3*sc)}px;height:${Math.round(W*1.4)}px;background:${ac};opacity:.12;transform:rotate(15deg);transform-origin:top center;"></div>
-        <div style="position:absolute;top:${Math.round(-20*sc)}px;right:${Math.round(90*sc)}px;width:${Math.round(3*sc)}px;height:${Math.round(W*1.4)}px;background:${ac};opacity:.06;transform:rotate(15deg);transform-origin:top center;"></div>
-      </div>`;
-    case 'underline-accent':
-      return `<div style="position:absolute;bottom:0;left:0;right:0;height:${Math.round(8*sc)}px;background:${ac};z-index:0;"></div>`;
-    case 'dot-row':
-      const dots=Array.from({length:6},(_,i)=>`<div style="width:${Math.round(5*sc)}px;height:${Math.round(5*sc)}px;border-radius:50%;background:${ac};opacity:${i%2===0?0.5:0.2};"></div>`).join('');
-      return `<div style="position:absolute;top:${p}px;right:${p}px;display:flex;flex-direction:column;gap:${Math.round(6*sc)}px;z-index:0;">${dots}</div>`;
-    case 'big-num':
-      return ''; // рендерится отдельно через overlay
-    default:
-      return '';
-  }
-}
-
-function buildSlide(slide, idx, total, tplKey, layout, W, uo) {
-  const t = TEMPLATES[tplKey];
-  uo = uo||{};
-
-  const bgC    = uo.bgC    || t.bg;
-  const titleC = uo.titleC || t.tc;
-  const bodyC  = uo.bodyC  || t.bc;
-  const acC    = uo.accentC|| t.ac;
-  const tf     = uo.titleFont || t.tf;
-  const bf     = uo.bodyFont  || t.bf;
-  const tw     = t.tw;
-  const ti     = (!uo.titleFont && t.ts) ? 'italic' : 'normal';
-
-  const fzMult  = uo.fzMult || 1;
-  const posOver = uo.pos;   // пользовательское расположение или null
-  const padPct  = uo.padPct || 9;
-  const showNum = uo.showNum !== false;
-
-  const n   = String(idx+1).padStart(2,'0');
-  const tot = String(total).padStart(2,'0');
-  const p   = Math.round(W * padPct / 100);
-  const sc  = W / 400;
-
-  const h = esc(slide.headline||'');
-  const s = esc(slide.subhead||'');
-  const b = esc(slide.body||'');
-  const rawItems=(slide.body||'').split(/\n+/).map(x=>x.trim()).filter(x=>x.length>4);
-  const items=rawItems.length>=2?rawItems:[slide.subhead,slide.body].filter(Boolean);
-
-  const wrap=`width:${W}px;height:${W}px;background:${bgC};display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:${bf};hyphens:none;-webkit-hyphens:none;word-break:normal;overflow-wrap:break-word;`;
-
-  // Декор
-  const decoHTML = renderDeco(t.deco, W, sc, acC, titleC, bgC);
-
-  // Нумерация
-  const numStyle = `position:absolute;z-index:2;font-family:${bf};font-size:${Math.round(9*sc)}px;font-weight:500;color:${bodyC};opacity:.65;letter-spacing:.05em;`;
-  const numText  = `${n} / ${tot}`;
-  let numHTML = '';
-  if(showNum) {
-    const np = t.numPos;
-    if(np==='tl') numHTML=`<div style="${numStyle}top:${p}px;left:${p}px;">${numText}</div>`;
-    else if(np==='tr') numHTML=`<div style="${numStyle}top:${p}px;right:${p}px;">${numText}</div>`;
-    else if(np==='bl') numHTML=`<div style="${numStyle}bottom:${p}px;left:${p}px;">${numText}</div>`;
-    else if(np==='br') numHTML=`<div style="${numStyle}bottom:${p}px;right:${p}px;">${numText}</div>`;
-  }
-
-  // Big-num overlay (для bold шаблона)
-  const bigNumHTML = t.deco==='big-num'
-    ? `<div style="position:absolute;bottom:${Math.round(-10*sc)}px;right:${Math.round(p*0.5)}px;font-family:${tf};font-size:${Math.round(180*sc)}px;font-weight:900;color:${titleC};opacity:.06;line-height:1;z-index:0;pointer-events:none;">${idx+1}</div>`
-    : '';
-
-  // Расположение — берём пользовательское или дефолт шаблона
-  const pos = posOver || t.textPos;
-  const jMap = {top:'flex-start',center:'center',bottom:'flex-end'};
-  const justify = jMap[pos]||'center';
-
-  // Отступ для line-left дека
-  const leftOffset = t.deco==='line-left' ? Math.round(p*1.5+4*sc) : p;
-
-  const innerStyle=`position:absolute;inset:0;z-index:1;padding:${p}px ${p}px ${p}px ${leftOffset}px;display:flex;flex-direction:column;justify-content:${justify};`;
-
-  const divider=`<div style="width:${Math.round(40*sc)}px;height:${Math.round(3*sc)}px;background:${acC};border-radius:2px;margin:${Math.round(12*sc)}px 0;flex-shrink:0;"></div>`;
-
-  // ── HERO ─────────────────────────────────────────────────────
-  if(layout==='hero') {
-    const fz=cl(autoFz(slide.headline,14,3,40,sc,fzMult),Math.round(18*sc),Math.round(52*sc));
-    return `<div style="${wrap}">${decoHTML}${bigNumHTML}${numHTML}
-      <div style="${innerStyle}">
-        <div style="overflow:hidden;max-height:100%;">
-          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${titleC};line-height:1.08;hyphens:none;">${h}</div>
-          ${b||s?`<div style="font-size:${Math.round(13*sc)}px;color:${bodyC};line-height:1.65;font-weight:300;margin-top:${Math.round(14*sc)}px;border-top:1px solid ${acC}33;padding-top:${Math.round(12*sc)}px;">${b||s}</div>`:''}
-        </div>
-      </div>
-    </div>`;
-  }
-
-  // ── SPLIT ─────────────────────────────────────────────────────
-  if(layout==='split') {
-    const fz=cl(autoFz(slide.headline,16,2,30,sc,fzMult),Math.round(15*sc),Math.round(38*sc));
-    return `<div style="${wrap}">${decoHTML}${bigNumHTML}${numHTML}
-      <div style="${innerStyle}">
-        <div style="overflow:hidden;">
-          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${titleC};line-height:1.1;hyphens:none;">${h}</div>
-          ${divider}
-          ${s?`<div style="font-size:${Math.round(14*sc)}px;font-weight:600;color:${titleC};margin-bottom:${Math.round(8*sc)}px;line-height:1.35;">${s}</div>`:''}
-          ${b?`<div style="font-size:${Math.round(13*sc)}px;color:${bodyC};line-height:1.7;font-weight:300;">${b}</div>`:''}
-        </div>
-      </div>
-    </div>`;
-  }
-
-  // ── BIGQUOTE ──────────────────────────────────────────────────
-  if(layout==='bigquote') {
-    const fz=cl(autoFz(slide.headline,18,3,32,sc,fzMult),Math.round(14*sc),Math.round(42*sc));
-    return `<div style="${wrap}">${decoHTML}${bigNumHTML}${numHTML}
-      <div style="${innerStyle}">
-        <div style="overflow:hidden;">
-          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${titleC};line-height:1.12;hyphens:none;">${h}</div>
-          ${b||s?`<div style="font-size:${Math.round(13*sc)}px;color:${bodyC};line-height:1.65;font-weight:300;margin-top:${Math.round(14*sc)}px;">${b||s}</div>`:''}
-        </div>
-      </div>
-    </div>`;
-  }
-
-  // ── LIST ──────────────────────────────────────────────────────
-  if(layout==='list') {
-    const fz=cl(autoFz(slide.headline,18,2,24,sc,fzMult),Math.round(13*sc),Math.round(30*sc));
-    const listHTML=items.slice(0,4).map((item,i)=>`
-      <div style="display:flex;gap:${Math.round(10*sc)}px;align-items:flex-start;">
-        <div style="font-family:${tf};font-size:${Math.round(11*sc)}px;font-weight:900;color:${acC};line-height:1.4;min-width:${Math.round(16*sc)}px;flex-shrink:0;">${i+1}</div>
-        <div style="font-size:${Math.round(12*sc)}px;color:${titleC};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div>
-      </div>`).join('');
-    return `<div style="${wrap}">${decoHTML}${bigNumHTML}${numHTML}
-      <div style="${innerStyle}">
-        <div style="overflow:hidden;">
-          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${titleC};line-height:1.1;margin-bottom:${Math.round(16*sc)}px;hyphens:none;">${h}</div>
-          <div style="display:flex;flex-direction:column;gap:${Math.round(10*sc)}px;">${listHTML}</div>
-        </div>
-      </div>
-    </div>`;
-  }
-
-  // ── FEATURE ───────────────────────────────────────────────────
-  if(layout==='feature') {
-    const fz=cl(autoFz(slide.headline,14,2,28,sc,fzMult),Math.round(13*sc),Math.round(36*sc));
-    return `<div style="${wrap}">${decoHTML}${bigNumHTML}
-      <div style="position:absolute;top:0;left:0;right:0;height:40%;background:${acC};opacity:.1;z-index:0;pointer-events:none;"></div>
-      ${numHTML}
-      <div style="${innerStyle}">
-        <div style="overflow:hidden;">
-          <div style="font-size:${Math.round(9*sc)}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${acC};margin-bottom:${Math.round(8*sc)}px;">${s||'Детали'}</div>
-          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${titleC};line-height:1.1;hyphens:none;">${h}</div>
-          ${b?`<div style="font-size:${Math.round(13*sc)}px;color:${bodyC};line-height:1.7;font-weight:300;margin-top:${Math.round(12*sc)}px;">${b}</div>`:''}
-        </div>
-      </div>
-    </div>`;
-  }
-
+function renderDeco(deco,W,sc,ac,tc,bg){
+  const p=Math.round(W*.09);
+  if(deco==='grid') return `<div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:${38*sc}px ${38*sc}px;pointer-events:none;z-index:0;"></div>`;
+  if(deco==='line-left') return `<div style="position:absolute;left:${p}px;top:${p}px;bottom:${p}px;width:${Math.round(4*sc)}px;background:${ac};z-index:0;border-radius:2px;"></div>`;
+  if(deco==='circle') return `<div style="position:absolute;right:${Math.round(-60*sc)}px;bottom:${Math.round(-60*sc)}px;width:${Math.round(280*sc)}px;height:${Math.round(280*sc)}px;border-radius:50%;border:${Math.round(40*sc)}px solid ${ac};opacity:.08;z-index:0;pointer-events:none;"></div>`;
+  if(deco==='corner-bracket'){const bw=Math.round(3*sc),bs=Math.round(36*sc);return `<div style="position:absolute;top:${p}px;left:${p}px;width:${bs}px;height:${bs}px;border-top:${bw}px solid ${ac};border-left:${bw}px solid ${ac};z-index:0;"></div><div style="position:absolute;bottom:${p}px;right:${p}px;width:${bs}px;height:${bs}px;border-bottom:${bw}px solid ${ac};border-right:${bw}px solid ${ac};z-index:0;"></div>`;}
+  if(deco==='slash') return `<div style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;z-index:0;pointer-events:none;"><div style="position:absolute;top:${Math.round(-20*sc)}px;right:${Math.round(60*sc)}px;width:${Math.round(3*sc)}px;height:${Math.round(W*1.4)}px;background:${ac};opacity:.12;transform:rotate(15deg);transform-origin:top center;"></div><div style="position:absolute;top:${Math.round(-20*sc)}px;right:${Math.round(90*sc)}px;width:${Math.round(3*sc)}px;height:${Math.round(W*1.4)}px;background:${ac};opacity:.06;transform:rotate(15deg);transform-origin:top center;"></div></div>`;
+  if(deco==='underline-accent') return `<div style="position:absolute;bottom:0;left:0;right:0;height:${Math.round(8*sc)}px;background:${ac};z-index:0;"></div>`;
+  if(deco==='dot-row'){const dots=Array.from({length:6},(_,i)=>`<div style="width:${Math.round(5*sc)}px;height:${Math.round(5*sc)}px;border-radius:50%;background:${ac};opacity:${i%2===0?.5:.2};"></div>`).join('');return `<div style="position:absolute;top:${p}px;right:${p}px;display:flex;flex-direction:column;gap:${Math.round(6*sc)}px;z-index:0;">${dots}</div>`;}
   return '';
 }
 
-// ══════════════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════════════
+function buildSlide(slide,idx,total,tplKey,layout,W,uo,photoUrl){
+  const t=TEMPLATES[tplKey]; uo=uo||{};
+  const bgC=uo.bgC||t.bg, titleC=uo.titleC||t.tc, bodyC=uo.bodyC||t.bc, acC=uo.accentC||t.ac;
+  const tf=uo.titleFont||t.tf, bf=uo.bodyFont||t.bf, tw=t.tw;
+  const ti=(!uo.titleFont&&t.ts)?'italic':'normal';
+  const fzMult=uo.fzMult||1, pos=uo.pos||t.textPos, padPct=uo.padPct||9, showNum=uo.showNum!==false;
+  const photoMode=uo.photoMode||'none', dimOpacity=(uo.dimOpacity||50)/100;
+  const contentLayout=uo.contentLayout||'top', contentSlides=uo.contentSlides||'all';
+
+  const n=String(idx+1).padStart(2,'0'), tot=String(total).padStart(2,'0');
+  const p=Math.round(W*padPct/100), sc=W/400;
+  const h=esc(slide.headline||''), s=esc(slide.subhead||''), b=esc(slide.body||'');
+  const rawItems=(slide.body||'').split(/\n+/).map(x=>x.trim()).filter(x=>x.length>4);
+  const items=rawItems.length>=2?rawItems:[slide.subhead,slide.body].filter(Boolean);
+
+  // Показывать ли фото-контент на этом слайде
+  const isFirst=idx===0, isLast=idx===total-1;
+  const showPhotoContent = photoMode==='content' && photoUrl && (
+    contentSlides==='all' || (contentSlides==='first-last' && (isFirst||isLast)) || (contentSlides==='first' && isFirst)
+  );
+  const showPhotoBg = photoMode==='bg' && photoUrl;
+
+  const wrapStyle=`width:${W}px;height:${W}px;background:${bgC};display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:${bf};hyphens:none;-webkit-hyphens:none;word-break:normal;overflow-wrap:break-word;`;
+
+  // Фото-контент: слайд делится на две зоны
+  if(showPhotoContent){
+    const photoSize=Math.round(W*0.48);
+    const textSize=W-photoSize;
+    const isVertical=contentLayout==='top'||contentLayout==='bottom';
+
+    const photoDiv=`<div style="flex-shrink:0;${isVertical?`width:${W}px;height:${photoSize}px;`:`width:${photoSize}px;height:${W}px;`}background:url('${photoUrl}') center/cover;"></div>`;
+    const textDiv=`<div style="flex:1;background:${bgC};padding:${p}px;display:flex;flex-direction:column;justify-content:${pos==='top'?'flex-start':pos==='center'?'center':'flex-end'};overflow:hidden;position:relative;">
+      ${renderDeco(t.deco,W,sc,acC,titleC,bgC)}
+      ${showNum&&t.numPos!=='none'?`<div style="font-family:${bf};font-size:${Math.round(9*sc)}px;font-weight:500;color:${bodyC};opacity:.65;margin-bottom:${Math.round(8*sc)}px;">${n} / ${tot}</div>`:''}
+      <div style="font-family:${tf};font-style:${ti};font-size:${cl(autoFz(slide.headline,14,2,28,sc,fzMult),Math.round(14*sc),Math.round(36*sc))}px;font-weight:${tw};color:${titleC};line-height:1.1;hyphens:none;">${h}</div>
+      ${b||s?`<div style="font-size:${Math.round(12*sc)}px;color:${bodyC};line-height:1.6;font-weight:300;margin-top:${Math.round(10*sc)}px;">${b||s}</div>`:''}
+    </div>`;
+
+    let inner='';
+    if(isVertical){
+      if(contentLayout==='top') inner=`<div style="display:flex;flex-direction:column;width:${W}px;height:${W}px;">${photoDiv}${textDiv}</div>`;
+      else inner=`<div style="display:flex;flex-direction:column;width:${W}px;height:${W}px;">${textDiv}${photoDiv}</div>`;
+    } else {
+      if(contentLayout==='left') inner=`<div style="display:flex;width:${W}px;height:${W}px;">${photoDiv}${textDiv}</div>`;
+      else inner=`<div style="display:flex;width:${W}px;height:${W}px;">${textDiv}${photoDiv}</div>`;
+    }
+    return `<div style="${wrapStyle}">${inner}</div>`;
+  }
+
+  // Фон
+  const bgPhoto=showPhotoBg?`<div style="position:absolute;inset:0;background:url('${photoUrl}') center/cover;z-index:0;"></div><div style="position:absolute;inset:0;background:rgba(0,0,0,${dimOpacity});z-index:0;"></div>`:'';
+  const effectiveTitleC=showPhotoBg?'#ffffff':titleC;
+  const effectiveBodyC=showPhotoBg?'rgba(255,255,255,.7)':bodyC;
+  const effectiveAcC=showPhotoBg?'rgba(255,255,255,.5)':acC;
+
+  const decoHTML=showPhotoBg?'':renderDeco(t.deco,W,sc,acC,titleC,bgC);
+  const bigNum=t.deco==='big-num'?`<div style="position:absolute;bottom:${Math.round(-10*sc)}px;right:${Math.round(p*.5)}px;font-family:${tf};font-size:${Math.round(180*sc)}px;font-weight:900;color:${effectiveTitleC};opacity:.06;line-height:1;z-index:0;pointer-events:none;">${idx+1}</div>`:'';
+
+  const numS=`position:absolute;z-index:2;font-family:${bf};font-size:${Math.round(9*sc)}px;font-weight:500;color:${effectiveBodyC};opacity:.7;letter-spacing:.05em;`;
+  let numHTML='';
+  if(showNum){
+    const np=t.numPos,txt=`${n} / ${tot}`;
+    if(np==='tl') numHTML=`<div style="${numS}top:${p}px;left:${p}px;">${txt}</div>`;
+    else if(np==='tr') numHTML=`<div style="${numS}top:${p}px;right:${p}px;">${txt}</div>`;
+    else if(np==='bl') numHTML=`<div style="${numS}bottom:${p}px;left:${p}px;">${txt}</div>`;
+    else if(np==='br') numHTML=`<div style="${numS}bottom:${p}px;right:${p}px;">${txt}</div>`;
+  }
+
+  const jMap={top:'flex-start',center:'center',bottom:'flex-end'};
+  const justify=jMap[pos]||'center';
+  const leftOffset=t.deco==='line-left'?Math.round(p*1.5+4*sc):p;
+  const innerStyle=`position:absolute;inset:0;z-index:1;padding:${p}px ${p}px ${p}px ${leftOffset}px;display:flex;flex-direction:column;justify-content:${justify};`;
+  const divider=`<div style="width:${Math.round(40*sc)}px;height:${Math.round(3*sc)}px;background:${effectiveAcC};border-radius:2px;margin:${Math.round(12*sc)}px 0;flex-shrink:0;"></div>`;
+
+  if(layout==='hero'){
+    const fz=cl(autoFz(slide.headline,14,3,40,sc,fzMult),Math.round(18*sc),Math.round(52*sc));
+    return `<div style="${wrapStyle}">${bgPhoto}${decoHTML}${bigNum}${numHTML}<div style="${innerStyle}"><div style="overflow:hidden;max-height:100%;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${effectiveTitleC};line-height:1.08;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${Math.round(13*sc)}px;color:${effectiveBodyC};line-height:1.65;font-weight:300;margin-top:${Math.round(14*sc)}px;border-top:1px solid ${effectiveAcC}44;padding-top:${Math.round(12*sc)}px;">${b||s}</div>`:''}</div></div></div>`;
+  }
+  if(layout==='split'){
+    const fz=cl(autoFz(slide.headline,16,2,30,sc,fzMult),Math.round(15*sc),Math.round(38*sc));
+    return `<div style="${wrapStyle}">${bgPhoto}${decoHTML}${bigNum}${numHTML}<div style="${innerStyle}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${effectiveTitleC};line-height:1.1;hyphens:none;">${h}</div>${divider}${s?`<div style="font-size:${Math.round(14*sc)}px;font-weight:600;color:${effectiveTitleC};margin-bottom:${Math.round(8*sc)}px;line-height:1.35;">${s}</div>`:''}${b?`<div style="font-size:${Math.round(13*sc)}px;color:${effectiveBodyC};line-height:1.7;font-weight:300;">${b}</div>`:''}</div></div></div>`;
+  }
+  if(layout==='bigquote'){
+    const fz=cl(autoFz(slide.headline,18,3,32,sc,fzMult),Math.round(14*sc),Math.round(42*sc));
+    return `<div style="${wrapStyle}">${bgPhoto}${decoHTML}${bigNum}${numHTML}<div style="${innerStyle}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${effectiveTitleC};line-height:1.12;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${Math.round(13*sc)}px;color:${effectiveBodyC};line-height:1.65;font-weight:300;margin-top:${Math.round(14*sc)}px;">${b||s}</div>`:''}</div></div></div>`;
+  }
+  if(layout==='list'){
+    const fz=cl(autoFz(slide.headline,18,2,24,sc,fzMult),Math.round(13*sc),Math.round(30*sc));
+    const listHTML=items.slice(0,4).map((item,i)=>`<div style="display:flex;gap:${Math.round(10*sc)}px;align-items:flex-start;"><div style="font-family:${tf};font-size:${Math.round(11*sc)}px;font-weight:900;color:${effectiveAcC};line-height:1.4;min-width:${Math.round(16*sc)}px;flex-shrink:0;">${i+1}</div><div style="font-size:${Math.round(12*sc)}px;color:${effectiveTitleC};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div></div>`).join('');
+    return `<div style="${wrapStyle}">${bgPhoto}${decoHTML}${bigNum}${numHTML}<div style="${innerStyle}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${effectiveTitleC};line-height:1.1;margin-bottom:${Math.round(16*sc)}px;hyphens:none;">${h}</div><div style="display:flex;flex-direction:column;gap:${Math.round(10*sc)}px;">${listHTML}</div></div></div></div>`;
+  }
+  if(layout==='feature'){
+    const fz=cl(autoFz(slide.headline,14,2,28,sc,fzMult),Math.round(13*sc),Math.round(36*sc));
+    return `<div style="${wrapStyle}">${bgPhoto}${!showPhotoBg?`<div style="position:absolute;top:0;left:0;right:0;height:40%;background:${acC};opacity:.1;z-index:0;pointer-events:none;"></div>`:''}${decoHTML}${bigNum}${numHTML}<div style="${innerStyle}"><div style="overflow:hidden;"><div style="font-size:${Math.round(9*sc)}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${effectiveAcC};margin-bottom:${Math.round(8*sc)}px;">${s||'Детали'}</div><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${effectiveTitleC};line-height:1.1;hyphens:none;">${h}</div>${b?`<div style="font-size:${Math.round(13*sc)}px;color:${effectiveBodyC};line-height:1.7;font-weight:300;margin-top:${Math.round(12*sc)}px;">${b}</div>`:''}</div></div></div>`;
+  }
+  return '';
+}
+
+// ══ STATE ══════════════════════════════════════════════════════
 const SID=localStorage.getItem('sid')||(()=>{const id='s'+Math.random().toString(36).slice(2);localStorage.setItem('sid',id);return id;})();
 let tpl='noir',cnt=5,slides=[],layouts=[],progTimer;
 let uC={bgC:'#0d0d0d',titleC:'#f0ede8',bodyC:'#888888',accentC:'#d4f55c'};
 let uTF=null,uBF=null;
 let opts={fzMult:1,pos:null,padPct:9,showNum:true};
+let photoState={mode:'none',url:null,dimOpacity:50,contentLayout:'top',contentSlides:'all'};
 
-// ══ TEMPLATE GRID ══════════════════════════════════════════════
+// ══ PHOTO ══════════════════════════════════════════════════════
+function setPhotoMode(el){
+  document.querySelectorAll('.photo-mode-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  photoState.mode=el.dataset.mode;
+  const showOpts=photoState.mode!=='none';
+  document.getElementById('photo-opts').style.display=showOpts?'block':'none';
+  document.getElementById('bg-opts').style.display=photoState.mode==='bg'?'block':'none';
+  document.getElementById('content-opts').style.display=photoState.mode==='content'?'block':'none';
+  if(slides.length)renderSlides();
+}
+
+function setContentLayout(el){
+  document.querySelectorAll('#content-opts .seg-btn[data-layout]').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');photoState.contentLayout=el.dataset.layout;
+  if(slides.length)renderSlides();
+}
+
+function setContentSlides(el){
+  document.querySelectorAll('#content-opts .seg-btn[data-slides]').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');photoState.contentSlides=el.dataset.slides;
+  if(slides.length)renderSlides();
+}
+
+function updateDim(){
+  const v=document.getElementById('dim-range').value;
+  document.getElementById('dim-val').textContent=v+'%';
+  photoState.dimOpacity=parseInt(v);
+  if(slides.length)renderSlides();
+}
+
+async function searchPhotos(query){
+  const q=query||document.getElementById('photo-query').value.trim();
+  if(!q)return;
+  const grid=document.getElementById('photo-grid');
+  grid.innerHTML=`<div class="photo-loading" style="grid-column:1/-1;">Ищу фото...</div>`;
+  try{
+    const r=await fetch(`/photo?query=${encodeURIComponent(q)}`);
+    const data=await r.json();
+    if(!data.photos?.length){grid.innerHTML=`<div class="photo-empty" style="grid-column:1/-1;">Ничего не найдено</div>`;return;}
+    grid.innerHTML='';
+    data.photos.forEach(p=>{
+      const el=document.createElement('div');el.className='photo-thumb';
+      el.innerHTML=`<img src="${p.thumb}" loading="lazy"><div class="photo-thumb-check"><svg width="10" height="10" fill="white" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>`;
+      el.onclick=()=>{
+        document.querySelectorAll('.photo-thumb').forEach(x=>x.classList.remove('selected'));
+        el.classList.add('selected');
+        photoState.url=p.url;
+        document.getElementById('photo-author').textContent=`Фото: ${p.author} / Unsplash`;
+        if(slides.length)renderSlides();
+      };
+      grid.appendChild(el);
+    });
+  }catch(e){grid.innerHTML=`<div class="photo-empty" style="grid-column:1/-1;">Ошибка загрузки</div>`;}
+}
+
+// ══ TEMPLATES ══════════════════════════════════════════════════
 function renderTplGrid(){
   const g=document.getElementById('tpl-grid');g.innerHTML='';
   Object.entries(TEMPLATES).forEach(([key,t])=>{
@@ -501,93 +445,52 @@ function renderTplGrid(){
 
 function applyTplColors(k){
   const t=TEMPLATES[k];
-  const toHex=c=>c.startsWith('rgba')?`#${c.match(/\d+/g).slice(0,3).map(x=>parseInt(x).toString(16).padStart(2,'0')).join('')}`:c;
-  const cols={bg:t.bg,title:toHex(t.tc),body:toHex(t.bc),accent:t.ac};
-  Object.entries(cols).forEach(([k,v])=>{
-    document.getElementById(`${k}-color`).value=v;
-    document.getElementById(`${k}-hex`).value=v;
-    document.getElementById(`sw-${k}`).style.background=v;
-  });
+  const toH=c=>c.startsWith('rgba')?`#${c.match(/\d+/g).slice(0,3).map(x=>parseInt(x).toString(16).padStart(2,'0')).join('')}`:c;
+  const cols={bg:t.bg,title:toH(t.tc),body:toH(t.bc),accent:t.ac};
+  Object.entries(cols).forEach(([k,v])=>{document.getElementById(`${k}-color`).value=v;document.getElementById(`${k}-hex`).value=v;document.getElementById(`sw-${k}`).style.background=v;});
   uC={bgC:cols.bg,titleC:cols.title,bodyC:cols.body,accentC:cols.accent};
 }
 
-function onColorChange(k){
-  const v=document.getElementById(`${k}-color`).value;
-  document.getElementById(`${k}-hex`).value=v;
-  document.getElementById(`sw-${k}`).style.background=v;
-  uC[`${k}C`]=v;if(slides.length)renderSlides();
-}
-function onHexInput(k){
-  const v=document.getElementById(`${k}-hex`).value;
-  if(/^#[0-9a-fA-F]{6}$/.test(v)){
-    document.getElementById(`${k}-color`).value=v;
-    document.getElementById(`sw-${k}`).style.background=v;
-    uC[`${k}C`]=v;if(slides.length)renderSlides();
-  }
-}
+function onColorChange(k){const v=document.getElementById(`${k}-color`).value;document.getElementById(`${k}-hex`).value=v;document.getElementById(`sw-${k}`).style.background=v;uC[`${k}C`]=v;if(slides.length)renderSlides();}
+function onHexInput(k){const v=document.getElementById(`${k}-hex`).value;if(/^#[0-9a-fA-F]{6}$/.test(v)){document.getElementById(`${k}-color`).value=v;document.getElementById(`sw-${k}`).style.background=v;uC[`${k}C`]=v;if(slides.length)renderSlides();}}
 
-// ══ FONT PICKERS ═══════════════════════════════════════════════
 function renderFontList(fonts,id,activeKey,cb){
   const el=document.getElementById(id);el.innerHTML='';
-  fonts.forEach(f=>{
-    const opt=document.createElement('div');opt.className='font-opt'+(activeKey===f.k?' active':'');
-    const ss=f.s?`font-family:${f.s};font-size:15px;color:#1a1a18;line-height:1;`:'font-size:11px;color:#bbb;';
-    opt.innerHTML=`<span class="font-opt-label">${f.l}</span><span style="${ss}">${f.x}</span>`;
-    opt.onclick=()=>{cb(f.k,f.s);renderFontList(fonts,id,f.k,cb);};
-    el.appendChild(opt);
-  });
+  fonts.forEach(f=>{const opt=document.createElement('div');opt.className='font-opt'+(activeKey===f.k?' active':'');const ss=f.s?`font-family:${f.s};font-size:15px;color:#1a1a18;line-height:1;`:'font-size:11px;color:#bbb;';opt.innerHTML=`<span class="font-opt-label">${f.l}</span><span style="${ss}">${f.x}</span>`;opt.onclick=()=>{cb(f.k,f.s);renderFontList(fonts,id,f.k,cb);};el.appendChild(opt);});
 }
 function initFontPickers(){
   renderFontList(TITLE_FONTS,'title-fonts','auto',(k,s)=>{uTF=s;if(slides.length)renderSlides();});
   renderFontList(BODY_FONTS,'body-fonts','auto',(k,s)=>{uBF=s;if(slides.length)renderSlides();});
 }
 
-// ══ CONTROLS ═══════════════════════════════════════════════════
 function updateCtrl(){
-  const fz=document.getElementById('fz-range').value;
-  const pad=document.getElementById('pad-range').value;
+  const fz=document.getElementById('fz-range').value,pad=document.getElementById('pad-range').value;
   const padL={5:'Узкие',6:'Узкие',7:'Меньше',8:'Меньше',9:'Normal',10:'Больше',11:'Больше',12:'Широкие',13:'Широкие',14:'Широкие'};
-  document.getElementById('fz-val').textContent=fz+'%';
-  document.getElementById('pad-val').textContent=padL[pad]||pad;
-  opts.fzMult=fz/100;opts.padPct=parseInt(pad);
-  opts.showNum=document.getElementById('show-num').checked;
+  document.getElementById('fz-val').textContent=fz+'%';document.getElementById('pad-val').textContent=padL[pad]||pad;
+  opts.fzMult=fz/100;opts.padPct=parseInt(pad);opts.showNum=document.getElementById('show-num').checked;
   if(slides.length)renderSlides();
 }
-function setPos(el){
-  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');opts.pos=el.dataset.pos;if(slides.length)renderSlides();
-}
+function setPos(el){document.querySelectorAll('.seg-btn[data-pos]').forEach(b=>b.classList.remove('active'));el.classList.add('active');opts.pos=el.dataset.pos;if(slides.length)renderSlides();}
 function chCnt(d){cnt=Math.max(3,Math.min(8,cnt+d));document.getElementById('cnt').textContent=cnt;}
 
-// ══ TABS / LOADING ═════════════════════════════════════════════
 function switchTab(tab,btn){
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
   document.getElementById('tab-gen').style.display=tab==='gen'?'block':'none';
   document.getElementById('tab-hist').style.display=tab==='hist'?'block':'none';
   document.getElementById('main-ttl').textContent=tab==='gen'?'Предпросмотр':'История';
   document.getElementById('dl-btn').style.display=tab==='gen'?'flex':'none';
   if(tab==='hist')loadHist();
 }
-function setLoading(on){
-  const btn=document.getElementById('gen-btn');btn.disabled=on;
-  btn.innerHTML=on?'<div class="spin"></div><span>Генерирую...</span>':'<span>Сгенерировать</span>';
-}
+function setLoading(on){const btn=document.getElementById('gen-btn');btn.disabled=on;btn.innerHTML=on?'<div class="spin"></div><span>Генерирую...</span>':'<span>Сгенерировать</span>';}
 function startProg(){
-  document.getElementById('empty').style.display='none';
-  document.getElementById('slist').style.display='none';
-  document.getElementById('prog').style.display='flex';
+  document.getElementById('empty').style.display='none';document.getElementById('slist').style.display='none';document.getElementById('prog').style.display='flex';
   const fill=document.getElementById('prog-fill'),lbl=document.getElementById('prog-lbl');
   const msgs=['Анализирую текст...','Выделяю ключевые мысли...','Формирую слайды...','Почти готово...'];
   let p=0,mi=0;fill.style.width='0%';
   progTimer=setInterval(()=>{p=Math.min(p+Math.random()*6+2,88);fill.style.width=p+'%';if(mi<msgs.length-1&&p>(mi+1)*22){mi++;lbl.textContent=msgs[mi];}},350);
 }
-function stopProg(){
-  clearInterval(progTimer);document.getElementById('prog-fill').style.width='100%';
-  setTimeout(()=>{document.getElementById('prog').style.display='none';},300);
-}
+function stopProg(){clearInterval(progTimer);document.getElementById('prog-fill').style.width='100%';setTimeout(()=>{document.getElementById('prog').style.display='none';},300);}
 
-// ══ GENERATE ═══════════════════════════════════════════════════
 async function generate(){
   const text=document.getElementById('txt').value.trim();
   const err=document.getElementById('gen-err');err.style.display='none';
@@ -597,12 +500,26 @@ async function generate(){
     const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,style:tpl,slideCount:cnt,sessionId:SID})});
     const data=await res.json();if(!res.ok)throw new Error(data.error||'Ошибка сервера');
     stopProg();slides=data.slides;layouts=makePlan(slides.length);
+
+    // Автопоиск фото если режим выбран и фото не выбрано вручную
+    if(photoState.mode!=='none'&&!photoState.url&&data.photo_keyword){
+      document.getElementById('photo-query').value=data.photo_keyword;
+      await searchPhotos(data.photo_keyword);
+      // Автовыбор первого фото
+      const firstThumb=document.querySelector('.photo-thumb');
+      if(firstThumb){firstThumb.click();}
+    }
+
     renderSlides();document.getElementById('dl-btn').disabled=false;loadStats();
   }catch(e){stopProg();document.getElementById('empty').style.display='flex';err.textContent='Ошибка: '+e.message;err.style.display='block';}
   finally{setLoading(false);}
 }
 
-function getOpts(){return{...opts,...uC,titleFont:uTF,bodyFont:uBF,showNum:opts.showNum};}
+function getOpts(){
+  return{...opts,...uC,titleFont:uTF,bodyFont:uBF,showNum:opts.showNum,
+    photoMode:photoState.mode,dimOpacity:photoState.dimOpacity,
+    contentLayout:photoState.contentLayout,contentSlides:photoState.contentSlides};
+}
 
 function renderSlides(){
   const list=document.getElementById('slist');list.innerHTML='';list.style.display='flex';
@@ -611,24 +528,31 @@ function renderSlides(){
   slides.forEach((s,i)=>{
     const row=document.createElement('div');row.className='slide-row';row.style.animationDelay=(i*.07)+'s';
     row.innerHTML=`<div class="slide-idx">0${i+1}</div><div class="slide-card"></div>`;
-    row.querySelector('.slide-card').innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],390,so);
+    row.querySelector('.slide-card').innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],390,so,photoState.url);
     list.appendChild(row);
   });
 }
 
-// ══ DOWNLOAD ═══════════════════════════════════════════════════
 async function dlZip(){
   if(!slides.length)return;
   const btn=document.getElementById('dl-btn');
   btn.disabled=true;btn.innerHTML='<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.12)"></div> Рендерю...';
   const ra=document.getElementById('render-area');ra.innerHTML='';
   const so=getOpts();
-  slides.forEach((s,i)=>{const w=document.createElement('div');w.style.cssText='width:1080px;height:1080px;overflow:hidden;';w.innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],1080,so);ra.appendChild(w);});
-  await document.fonts.ready;await new Promise(r=>setTimeout(r,900));
+
+  // Для экспорта грузим full-size фото
+  let exportPhotoUrl=photoState.url;
+  if(exportPhotoUrl){
+    // Используем url который уже regular (хорошее качество)
+    exportPhotoUrl=exportPhotoUrl.replace('w=400','w=1080');
+  }
+
+  slides.forEach((s,i)=>{const w=document.createElement('div');w.style.cssText='width:1080px;height:1080px;overflow:hidden;';w.innerHTML=buildSlide(s,i,slides.length,tpl,layouts[i],1080,so,exportPhotoUrl);ra.appendChild(w);});
+  await document.fonts.ready;await new Promise(r=>setTimeout(r,1200));
   const zip=new JSZip();
   for(let i=0;i<ra.children.length;i++){
     btn.innerHTML=`<div class="spin" style="border-top-color:#1a1a18;border-color:rgba(0,0,0,.12)"></div> ${i+1}/${ra.children.length}`;
-    const canvas=await html2canvas(ra.children[i],{scale:1,useCORS:true,backgroundColor:null,width:1080,height:1080,logging:false});
+    const canvas=await html2canvas(ra.children[i],{scale:1,useCORS:true,allowTaint:true,backgroundColor:null,width:1080,height:1080,logging:false});
     const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));zip.file(`slide-${String(i+1).padStart(2,'0')}.png`,blob);
   }
   const zb=await zip.generateAsync({type:'blob'});
@@ -637,31 +561,17 @@ async function dlZip(){
   btn.innerHTML=`<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg> Скачать ZIP`;
 }
 
-// ══ STATS / HISTORY ════════════════════════════════════════════
-async function loadStats(){
-  try{const r=await fetch('/stats');const d=await r.json();document.getElementById('s-total').textContent=d.total;document.getElementById('s-today').textContent=d.today;document.getElementById('s-week').textContent=d.thisWeek;}catch{}
-}
+async function loadStats(){try{const r=await fetch('/stats');const d=await r.json();document.getElementById('s-total').textContent=d.total;document.getElementById('s-today').textContent=d.today;document.getElementById('s-week').textContent=d.thisWeek;}catch{}}
 async function loadHist(){
   const area=document.getElementById('hlist');
-  try{
-    const r=await fetch(`/history?sessionId=${SID}`);const data=await r.json();
+  try{const r=await fetch(`/history?sessionId=${SID}`);const data=await r.json();
     if(!data.length){area.innerHTML='<div class="hist-empty">История пуста</div>';return;}
     area.innerHTML='';
-    data.forEach(item=>{
-      const el=document.createElement('div');el.className='hist-item';
-      const date=new Date(item.created_at).toLocaleDateString('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-      el.innerHTML=`<div class="hist-meta"><div class="hist-date">${date}</div><div class="hist-pill">${item.slide_count} сл · ${item.style}</div></div><div class="hist-txt">${esc(item.input_text.slice(0,120))}${item.input_text.length>120?'...':''}</div>`;
-      el.onclick=()=>{slides=item.slides;tpl=item.style;renderTplGrid();applyTplColors(item.style);layouts=makePlan(slides.length);switchTab('gen',document.querySelector('.nav-btn'));renderSlides();document.getElementById('dl-btn').disabled=false;};
-      area.appendChild(el);
-    });
+    data.forEach(item=>{const el=document.createElement('div');el.className='hist-item';const date=new Date(item.created_at).toLocaleDateString('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});el.innerHTML=`<div class="hist-meta"><div class="hist-date">${date}</div><div class="hist-pill">${item.slide_count} сл · ${item.style}</div></div><div class="hist-txt">${esc(item.input_text.slice(0,120))}${item.input_text.length>120?'...':''}</div>`;el.onclick=()=>{slides=item.slides;tpl=item.style;renderTplGrid();applyTplColors(item.style);layouts=makePlan(slides.length);switchTab('gen',document.querySelector('.nav-btn'));renderSlides();document.getElementById('dl-btn').disabled=false;};area.appendChild(el);});
   }catch{area.innerHTML='<div class="hist-empty">Ошибка</div>';}
 }
 
-// ══ INIT ═══════════════════════════════════════════════════════
-renderTplGrid();
-applyTplColors('noir');
-initFontPickers();
-loadStats();
+renderTplGrid();applyTplColors('noir');initFontPickers();loadStats();
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')generate();});
 </script>
 </body>
