@@ -116,8 +116,8 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 .grid-area{flex:1;overflow-y:auto;padding:16px;}
 .empty-hint{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px;color:#ccc;text-align:center;}
 .empty-hint p{font-size:13px;}.empty-hint p+p{font-size:11px;opacity:.6;}
-.slides-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
-.gi{border-radius:10px;overflow:hidden;cursor:pointer;box-shadow:0 1px 8px rgba(0,0,0,.1);transition:all .17s;position:relative;aspect-ratio:4/5;}
+.slides-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;align-items:start;}
+.gi{border-radius:10px;overflow:hidden;cursor:pointer;box-shadow:0 1px 8px rgba(0,0,0,.1);transition:all .17s;position:relative;line-height:0;font-size:0;}
 .gi:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.18);}
 .gi-num{position:absolute;bottom:7px;right:9px;font-size:10px;font-weight:700;color:rgba(255,255,255,.65);font-family:'Unbounded',sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.7);}
 
@@ -248,6 +248,7 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
           <button onclick="srchP()">Найти</button>
         </div>
         <div class="pgrid" id="pgrid"></div>
+        <button onclick="srchP()" style="width:100%;margin-top:4px;padding:6px;border:1.5px solid #e5e3de;border-radius:6px;background:#fff;color:#999;font-size:11px;cursor:pointer;transition:all .12s;" onmouseover="this.style.borderColor='#1a1a18';this.style.color='#1a1a18'" onmouseout="this.style.borderColor='#e5e3de';this.style.color='#999'">Другие фото ↻</button>
         <div class="pcr" id="pcr"></div>
         <div id="bg-opts" style="display:none;margin-top:6px;">
           <div class="sr"><span style="font-size:10px;color:#888;">Затемнение</span><span class="sv" id="dim-v">50%</span></div>
@@ -427,10 +428,13 @@ function setPM(el){
   if(slides.length)renderGrid();
 }
 function uDim(){const v=document.getElementById('dim-r').value;document.getElementById('dim-v').textContent=v+'%';pSt.dimOpacity=parseInt(v);if(slides.length)renderGrid();}
-async function srchP(){
-  const q=document.getElementById('pq').value.trim();if(!q)return;
+async function srchP(forceQ){
+  const q=forceQ||document.getElementById('pq').value.trim();if(!q)return;
+  document.getElementById('pq').value=q;
   const g=document.getElementById('pgrid');g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:8px;font-size:10px;color:#aaa;">Ищу...</div>`;
-  try{const r=await fetch(`/photo?query=${encodeURIComponent(q)}`);const d=await r.json();
+  // Случайная страница для разнообразия
+  const page=Math.floor(Math.random()*5)+1;
+  try{const r=await fetch(`/photo?query=${encodeURIComponent(q)}&page=${page}`);const d=await r.json();
     if(!d.photos?.length){g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:8px;font-size:10px;color:#bbb;">Ничего</div>`;return;}
     g.innerHTML='';
     d.photos.forEach(ph=>{const el=document.createElement('div');el.className='pt';el.innerHTML=`<img src="${ph.thumb}" loading="lazy"><div class="pck"><svg width="6" height="6" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg></div>`;el.onclick=()=>{document.querySelectorAll('.pt').forEach(x=>x.classList.remove('on'));el.classList.add('on');pSt.url=ph.url;document.getElementById('pcr').textContent=`${ph.author} / Unsplash`;if(slides.length)renderGrid();};g.appendChild(el);});
@@ -447,7 +451,13 @@ async function generate(){
     const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,style:tpl,slideCount:cnt,sessionId:SID})});
     const data=await res.json();if(!res.ok)throw new Error(data.error||'Ошибка сервера');
     stopProg();slides=data.slides;layouts=makePlan(slides.length);
-    if(pSt.mode!=='none'&&!pSt.url&&data.photo_keyword){document.getElementById('pq').value=data.photo_keyword;await srchP();const ft=document.querySelector('.pt');if(ft)ft.click();}
+    // Автопоиск всегда — даже если режим "без фото", фото будут готовы для переключения
+    if(data.photo_keyword){
+      document.getElementById('pq').value=data.photo_keyword;
+      await srchP(data.photo_keyword);
+      // Автовыбор первого фото только если режим фото включён
+      if(pSt.mode!=='none'){const ft=document.querySelector('.pt');if(ft)ft.click();}
+    }
     renderGrid();document.getElementById('btn-dl').disabled=false;
   }catch(e){stopProg();err.textContent='Ошибка: '+e.message;err.style.display='block';}
   finally{setLoading(false);}
@@ -457,7 +467,18 @@ function renderGrid(){
   document.getElementById('ehint').style.display='none';
   const g=document.getElementById('sgrid');g.innerHTML='';g.style.display='grid';
   const so=getO();
-  slides.forEach((s,i)=>{const item=document.createElement('div');item.className='gi';item.innerHTML=bld(s,i,slides.length,tpl,layouts[i],320,so,pSt.url);const nb=document.createElement('div');nb.className='gi-num';nb.textContent=`${i+1}/${slides.length}`;item.appendChild(nb);item.onclick=()=>openM(i);g.appendChild(item);});
+  // Определяем ширину колонки из сетки
+  const gridW=g.offsetWidth||800;
+  const cols=Math.max(1,Math.floor(gridW/260));
+  const gap=14;
+  const cardW=Math.floor((gridW-(cols-1)*gap)/cols);
+  slides.forEach((s,i)=>{
+    const item=document.createElement('div');item.className='gi';
+    item.style.width=cardW+'px';
+    item.innerHTML=bld(s,i,slides.length,tpl,layouts[i],cardW,so,pSt.url);
+    const nb=document.createElement('div');nb.className='gi-num';nb.textContent=`${i+1}/${slides.length}`;
+    item.appendChild(nb);item.onclick=()=>openM(i);g.appendChild(item);
+  });
 }
 function openM(i){modalIdx=i;document.getElementById('modal').classList.add('open');document.body.style.overflow='hidden';renderM();}
 function closeM(){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
