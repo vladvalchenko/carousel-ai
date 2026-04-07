@@ -106,7 +106,7 @@ app.get('/photo', async (req, res) => {
   const key = UNSPLASH_KEY || 'R3nbfOFMFe3e7b2TStilkFRyMMelTR-XfuYSlWGPU1I';
 
   try {
-    const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=12&page=${page}&orientation=squarish`;
+    const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=24&page=${page}&orientation=portrait`;
     const response = await fetch(url, {
       headers: { 'Authorization': `Client-ID ${key}` }
     });
