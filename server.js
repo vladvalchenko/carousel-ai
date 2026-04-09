@@ -41,11 +41,22 @@ app.post('/generate', async (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   if (!checkRate(ip)) return res.status(429).json({ error: 'Лимит запросов. Попробуй через час.' });
 
-  const { text, style = 'noir', slideCount = 5, sessionId = 'anon' } = req.body;
+  const { text, style = 'noir', slideCount = 5, sessionId = 'anon', tone = 'expert' } = req.body;
   if (!text || text.trim().length < 10) return res.status(400).json({ error: 'Текст слишком короткий.' });
   if (!API_KEY) return res.status(500).json({ error: 'OPENAI_API_KEY не настроен.' });
 
+  const toneInstructions = {
+    expert: 'Пиши авторитетно и профессионально. Используй конкретные цифры, факты, термины. Заголовки — утверждения эксперта.',
+    friendly: 'Пиши просто и по-человечески, как будто объясняешь другу. Избегай сложных слов. Заголовки — разговорные, близкие.',
+    provocative: 'Пиши провокационно и остро. Используй риторические вопросы, неожиданные утверждения, разрушай стереотипы. Заголовки — цепляющие и спорные.',
+    minimal: 'Пиши максимально кратко. Только суть, никакой воды. Заголовки — 3-5 слов. Тело — 1 предложение.'
+  };
+
+  const toneText = toneInstructions[tone] || toneInstructions.expert;
+
   const prompt = `Ты — редактор Instagram-каруселей. Твоя задача — вытащить САМОЕ ЦЕННОЕ из текста и упаковать это в ${slideCount} слайдов.
+
+ТОНАЛЬНОСТЬ: ${toneText}
 
 ПРАВИЛА:
 - headline: 3-6 слов, КОНКРЕТНО — цифра, факт, глагол действия, провокация. НЕ "Всё что нужно знать". Примеры: "Один раз настроил — работает само", "5 фич о которых никто не говорит"
