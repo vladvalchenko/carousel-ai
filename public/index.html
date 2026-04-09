@@ -137,6 +137,18 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 .mclose:hover{background:rgba(255,255,255,.25);}
 .mcnt{font-size:10px;color:rgba(255,255,255,.4);font-family:'Unbounded',sans-serif;}
 
+/* Tone seg - wrap */
+#tone-seg{flex-wrap:wrap;}
+#tone-seg .seg-b{flex:1 1 40%;min-width:0;font-size:10px;padding:6px 2px;}
+
+/* Watermark */
+.wm-upload{border:1.5px dashed #e5e3de;border-radius:8px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all .15s;color:#aaa;font-size:12px;}
+.wm-upload:hover{border-color:#1a1a18;color:#1a1a18;}
+.wm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;}
+.wm-pos{height:32px;border:1.5px solid #e5e3de;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .12s;color:#aaa;}
+.wm-pos:hover{border-color:#aaa;color:#1a1a18;}
+.wm-pos.on{border-color:#1a1a18;background:#1a1a18;color:#fff;}
+
 #render-area{position:fixed;left:-9999px;top:0;pointer-events:none;}
 </style>
 </head>
@@ -160,6 +172,16 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
       <div class="sec-title">Текст</div>
       <textarea id="txt" placeholder="Вставьте текст: анонс, статью, описание продукта..."></textarea>
       <div id="gen-err" style="display:none" class="err"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">Тональность</div>
+      <div class="seg" id="tone-seg">
+        <div class="seg-b on" data-v="expert" onclick="setSeg('tone-seg',this,'tone')" title="Факты, цифры, авторитет">Экспертный</div>
+        <div class="seg-b" data-v="friendly" onclick="setSeg('tone-seg',this,'tone')" title="Простой язык, близко к читателю">Дружелюбный</div>
+        <div class="seg-b" data-v="provocative" onclick="setSeg('tone-seg',this,'tone')" title="Провокации, острые вопросы">Провокационный</div>
+        <div class="seg-b" data-v="minimal" onclick="setSeg('tone-seg',this,'tone')" title="Коротко, без воды">Минималистичный</div>
+      </div>
     </div>
 
     <div class="sec">
@@ -232,6 +254,42 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
         <button class="cnt-b" onclick="chCnt(-1)">−</button>
         <div class="cnt-n" id="cnt">5</div>
         <button class="cnt-b" onclick="chCnt(1)">+</button>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">Водяной знак</div>
+      <div class="wm-upload" id="wm-upload-area" onclick="document.getElementById('wm-input').click()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 16V8m-4 4l4-4 4 4"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+        <span id="wm-upload-label">Загрузить логотип</span>
+        <span style="font-size:10px;color:#bbb;">PNG с прозрачностью</span>
+      </div>
+      <input type="file" id="wm-input" accept="image/png,image/svg+xml,image/jpeg,image/webp" style="display:none" onchange="onWmUpload(this)">
+
+      <div id="wm-opts" style="display:none;margin-top:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:11px;color:#555;">Логотип загружен</span>
+          <button onclick="removeWm()" style="font-size:10px;color:#c0392b;border:none;background:none;cursor:pointer;padding:0;">Удалить</button>
+        </div>
+
+        <span class="fl">Расположение</span>
+        <div class="wm-grid">
+          <div class="wm-pos on" data-pos="tl" onclick="setWmPos(this)">↖</div>
+          <div class="wm-pos" data-pos="tc" onclick="setWmPos(this)">↑</div>
+          <div class="wm-pos" data-pos="tr" onclick="setWmPos(this)">↗</div>
+          <div class="wm-pos" data-pos="cl" onclick="setWmPos(this)">←</div>
+          <div class="wm-pos" data-pos="cc" onclick="setWmPos(this)">·</div>
+          <div class="wm-pos" data-pos="cr" onclick="setWmPos(this)">→</div>
+          <div class="wm-pos" data-pos="bl" onclick="setWmPos(this)">↙</div>
+          <div class="wm-pos" data-pos="bc" onclick="setWmPos(this)">↓</div>
+          <div class="wm-pos" data-pos="br" onclick="setWmPos(this)">↘</div>
+        </div>
+
+        <div class="sr" style="margin-top:10px;"><span style="font-size:10px;color:#888;">Размер</span><span class="sv" id="wm-size-v">20%</span></div>
+        <input type="range" id="wm-size-r" min="5" max="50" value="20" oninput="uWm()">
+
+        <div class="sr"><span style="font-size:10px;color:#888;">Прозрачность</span><span class="sv" id="wm-op-v">90%</span></div>
+        <input type="range" id="wm-op-r" min="10" max="100" value="90" oninput="uWm()">
       </div>
     </div>
 
@@ -385,6 +443,8 @@ let uC={bgC:'#0d0d0d',titleC:'#f0ede8',bodyC:'#888888',accentC:'#d4f55c'};
 let uTF=null,uBF=null;
 let opts={fzMult:1,pos:'center',padPct:9,showNum:true};
 let pSt={mode:'none',url:null,dimOpacity:50,contentLayout:'top',contentSlides:'all'};
+let tone='expert';
+let wmState={url:null,pos:'br',size:20,opacity:90};
 
 function renderTplGrid(){
   const g=document.getElementById('tpl-grid');g.innerHTML='';
@@ -416,6 +476,41 @@ function setSeg(id,el,k){
   if(k==='pos'){opts.pos=el.dataset.v;}
   else if(k==='cL'){pSt.contentLayout=el.dataset.v;}
   else if(k==='cS'){pSt.contentSlides=el.dataset.v;}
+  else if(k==='tone'){tone=el.dataset.v;}
+  if(slides.length)renderGrid();
+}
+
+// Watermark
+function onWmUpload(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    wmState.url=e.target.result;
+    document.getElementById('wm-upload-label').textContent=file.name.slice(0,20);
+    document.getElementById('wm-upload-area').style.borderStyle='solid';
+    document.getElementById('wm-opts').style.display='block';
+    if(slides.length)renderGrid();
+  };
+  reader.readAsDataURL(file);
+}
+function removeWm(){
+  wmState.url=null;
+  document.getElementById('wm-input').value='';
+  document.getElementById('wm-upload-label').textContent='Загрузить логотип';
+  document.getElementById('wm-upload-area').style.borderStyle='dashed';
+  document.getElementById('wm-opts').style.display='none';
+  if(slides.length)renderGrid();
+}
+function setWmPos(el){
+  document.querySelectorAll('.wm-pos').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');wmState.pos=el.dataset.pos;
+  if(slides.length)renderGrid();
+}
+function uWm(){
+  wmState.size=parseInt(document.getElementById('wm-size-r').value);
+  wmState.opacity=parseInt(document.getElementById('wm-op-r').value);
+  document.getElementById('wm-size-v').textContent=wmState.size+'%';
+  document.getElementById('wm-op-v').textContent=wmState.opacity+'%';
   if(slides.length)renderGrid();
 }
 function chCnt(d){cnt=Math.max(3,Math.min(8,cnt+d));document.getElementById('cnt').textContent=cnt;}
@@ -448,7 +543,7 @@ async function generate(){
   if(text.length<10){err.textContent='Введите текст.';err.style.display='block';return;}
   setLoading(true);startProg();
   try{
-    const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,style:tpl,slideCount:cnt,sessionId:SID})});
+    const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,style:tpl,slideCount:cnt,sessionId:SID,tone})});
     const data=await res.json();if(!res.ok)throw new Error(data.error||'Ошибка сервера');
     stopProg();slides=data.slides;layouts=makePlan(slides.length);
     // Автопоиск всегда — даже если режим "без фото", фото будут готовы для переключения
@@ -462,6 +557,26 @@ async function generate(){
   }catch(e){stopProg();err.textContent='Ошибка: '+e.message;err.style.display='block';}
   finally{setLoading(false);}
 }
+function wmHTML(W){
+  if(!wmState.url)return'';
+  const H=Math.round(W*1.25);
+  const sz=Math.round(W*wmState.size/100);
+  const op=wmState.opacity/100;
+  const pad=Math.round(W*0.04);
+  const pos=wmState.pos;
+  let top='auto',left='auto',right='auto',bottom='auto',transform='';
+  if(pos==='tl'){top=pad+'px';left=pad+'px';}
+  else if(pos==='tc'){top=pad+'px';left='50%';transform='translateX(-50%)';}
+  else if(pos==='tr'){top=pad+'px';right=pad+'px';}
+  else if(pos==='cl'){top='50%';left=pad+'px';transform='translateY(-50%)';}
+  else if(pos==='cc'){top='50%';left='50%';transform='translate(-50%,-50%)';}
+  else if(pos==='cr'){top='50%';right=pad+'px';transform='translateY(-50%)';}
+  else if(pos==='bl'){bottom=pad+'px';left=pad+'px';}
+  else if(pos==='bc'){bottom=pad+'px';left='50%';transform='translateX(-50%)';}
+  else if(pos==='br'){bottom=pad+'px';right=pad+'px';}
+  return `<img src="${wmState.url}" style="position:absolute;top:${top};left:${left};right:${right};bottom:${bottom};transform:${transform};width:${sz}px;height:auto;opacity:${op};z-index:10;pointer-events:none;object-fit:contain;">`;
+}
+
 function getO(){return{...opts,...uC,titleFont:uTF,bodyFont:uBF,showNum:opts.showNum,photoMode:pSt.mode,dimOpacity:pSt.dimOpacity,contentLayout:pSt.contentLayout,contentSlides:pSt.contentSlides};}
 function renderGrid(){
   document.getElementById('ehint').style.display='none';
@@ -475,7 +590,7 @@ function renderGrid(){
   slides.forEach((s,i)=>{
     const item=document.createElement('div');item.className='gi';
     item.style.width=cardW+'px';
-    item.innerHTML=bld(s,i,slides.length,tpl,layouts[i],cardW,so,pSt.url);
+    item.innerHTML=bld(s,i,slides.length,tpl,layouts[i],cardW,so,pSt.url)+wmHTML(cardW);
     const nb=document.createElement('div');nb.className='gi-num';nb.textContent=`${i+1}/${slides.length}`;
     item.appendChild(nb);item.onclick=()=>openM(i);g.appendChild(item);
   });
@@ -484,7 +599,7 @@ function openM(i){modalIdx=i;document.getElementById('modal').classList.add('ope
 function closeM(){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
 function renderM(){
   const so=getO();const maxH=window.innerHeight-140;const W=Math.round(Math.min(window.innerWidth-100,maxH*0.8,500));
-  document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url);
+  document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url)+wmHTML(W);
   document.getElementById('mslide').style.width=W+'px';
   const dots=document.getElementById('mdots');dots.innerHTML='';
   slides.forEach((_,i)=>{const d=document.createElement('div');d.className='mdot'+(i===modalIdx?' on':'');d.onclick=()=>{modalIdx=i;renderM();};dots.appendChild(d);});
@@ -503,7 +618,7 @@ document.addEventListener('keydown',e=>{
 async function dlZip(){
   if(!slides.length)return;const btn=document.getElementById('btn-dl');btn.disabled=true;btn.innerHTML='<div class="spin"></div> Рендерю...';
   const ra=document.getElementById('render-area');ra.innerHTML='';const so=getO();
-  slides.forEach((s,i)=>{const w=document.createElement('div');w.style.cssText='width:1080px;height:1350px;overflow:hidden;';w.innerHTML=bld(s,i,slides.length,tpl,layouts[i],1080,so,pSt.url);ra.appendChild(w);});
+  slides.forEach((s,i)=>{const w=document.createElement('div');w.style.cssText='width:1080px;height:1350px;overflow:hidden;position:relative;';w.innerHTML=bld(s,i,slides.length,tpl,layouts[i],1080,so,pSt.url)+wmHTML(1080);ra.appendChild(w);});
   await document.fonts.ready;await new Promise(r=>setTimeout(r,1000));
   const zip=new JSZip();
   for(let i=0;i<ra.children.length;i++){btn.innerHTML=`<div class="spin"></div> ${i+1}/${ra.children.length}`;const canvas=await html2canvas(ra.children[i],{scale:1,useCORS:true,allowTaint:true,backgroundColor:null,width:1080,height:1350,logging:false});const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));zip.file(`slide-${String(i+1).padStart(2,'0')}.png`,blob);}
