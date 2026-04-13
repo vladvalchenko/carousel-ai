@@ -359,6 +359,7 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
       <button class="marr" id="mnext" onclick="navM(1)">&#8594;</button>
     </div>
     <div class="mcnt" id="mcnt"></div>
+    <div id="edit-hint" style="display:none;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.02em;">Кликните на текст чтобы отредактировать</div>
   </div>
 </div>
 <div id="render-area"></div>
@@ -597,6 +598,7 @@ function renderGrid(){
 }
 function openM(i){modalIdx=i;document.getElementById('modal').classList.add('open');document.body.style.overflow='hidden';renderM();}
 function closeM(){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
+
 function renderM(){
   const so=getO();const maxH=window.innerHeight-140;const W=Math.round(Math.min(window.innerWidth-100,maxH*0.8,500));
   document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url,wmHTML(W));
@@ -606,8 +608,90 @@ function renderM(){
   document.getElementById('mcnt').textContent=`${modalIdx+1} / ${slides.length}`;
   document.getElementById('mprev').disabled=modalIdx===0;
   document.getElementById('mnext').disabled=modalIdx===slides.length-1;
+
+  // Подсказка редактирования
+  const hint = document.getElementById('edit-hint');
+  if(hint) hint.style.display = 'block';
+  setTimeout(()=>{ if(hint) hint.style.display='none'; }, 2500);
+
+  // Делаем текстовые элементы редактируемыми
+  attachEditors(W);
 }
-function navM(d){modalIdx=Math.max(0,Math.min(slides.length-1,modalIdx+d));renderM();}
+
+function attachEditors(W){
+  const slide = document.getElementById('mslide');
+  const s = slides[modalIdx];
+
+  // Ищем текстовые узлы по содержимому
+  const allDivs = slide.querySelectorAll('div');
+  allDivs.forEach(el => {
+    const txt = el.textContent.trim();
+    if(!txt || el.children.length > 0) return; // только листовые узлы с текстом
+    const isHeadline = txt === s.headline;
+    const isSubhead  = s.subhead && txt === s.subhead;
+    const isBody     = s.body && txt === s.body;
+    if(!isHeadline && !isSubhead && !isBody) return;
+
+    el.style.cursor = 'text';
+    el.title = 'Кликните для редактирования';
+
+    el.addEventListener('mouseenter', () => {
+      el.style.outline = '2px solid rgba(255,255,255,0.5)';
+      el.style.outlineOffset = '4px';
+      el.style.borderRadius = '3px';
+    });
+    el.addEventListener('mouseleave', () => {
+      if(!el.isContentEditable) { el.style.outline=''; el.style.outlineOffset=''; }
+    });
+
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      if(el.isContentEditable) return;
+
+      // Блокируем навигацию пока редактируем
+      el.contentEditable = 'true';
+      el.style.outline = '2px solid rgba(255,255,255,0.8)';
+      el.style.outlineOffset = '4px';
+      el.style.borderRadius = '3px';
+      el.style.minWidth = '40px';
+      el.focus();
+
+      // Выделяем весь текст
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      function save(){
+        if(!el.isContentEditable) return;
+        const newTxt = el.textContent.trim();
+        if(isHeadline) slides[modalIdx].headline = newTxt;
+        else if(isSubhead) slides[modalIdx].subhead = newTxt;
+        else if(isBody) slides[modalIdx].body = newTxt;
+        el.contentEditable = 'false';
+        el.style.outline = '';
+        el.style.outlineOffset = '';
+        // Обновляем превью в сетке
+        renderGrid();
+      }
+
+      el.addEventListener('blur', save, {once:true});
+      el.addEventListener('keydown', e2 => {
+        if(e2.key === 'Enter' && !e2.shiftKey){ e2.preventDefault(); el.blur(); }
+        if(e2.key === 'Escape'){ el.textContent = isHeadline?s.headline:isSubhead?s.subhead:s.body; el.blur(); }
+        // Блокируем стрелки навигации пока в режиме редактирования
+        if(['ArrowLeft','ArrowRight'].includes(e2.key)) e2.stopPropagation();
+      });
+    });
+  });
+}
+
+function navM(d){
+  // Не навигируем если что-то редактируется
+  if(document.querySelector('[contenteditable="true"]')) return;
+  modalIdx=Math.max(0,Math.min(slides.length-1,modalIdx+d));renderM();
+}
 let txS=null;
 document.getElementById('modal').addEventListener('touchstart',e=>{txS=e.touches[0].clientX;},{passive:true});
 document.getElementById('modal').addEventListener('touchend',e=>{if(txS===null)return;const dx=e.changedTouches[0].clientX-txS;if(Math.abs(dx)>40)navM(dx<0?1:-1);txS=null;},{passive:true});
