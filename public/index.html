@@ -124,7 +124,7 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 /* MODAL */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;align-items:center;justify-content:center;}
 .modal.open{display:flex;}
-.modal-in{position:relative;display:flex;gap:20px;align-items:flex-start;background:#fff;border-radius:16px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.3);max-width:92vw;}
+.modal-in{position:relative;display:flex;gap:20px;align-items:flex-start;background:#fff;border-radius:16px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.3);max-width:94vw;max-height:94vh;}
 .modal-left{display:flex;flex-direction:column;align-items:center;gap:12px;}
 .modal-slide{border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.12);}
 .modal-nav{display:flex;align-items:center;gap:12px;}
@@ -137,9 +137,8 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 .mclose{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:#f0ede8;border:none;color:#1a1a18;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .mclose:hover{background:#e5e3de;}
 .mcnt{font-size:10px;color:#bbb;font-family:'Unbounded',sans-serif;}
-
 /* Edit panel */
-.edit-panel{width:220px;display:flex;flex-direction:column;border:1.5px solid #e8e6e1;border-radius:10px;overflow:hidden;flex-shrink:0;}
+.edit-panel{width:220px;flex-shrink:0;display:flex;flex-direction:column;border:1.5px solid #e8e6e1;border-radius:10px;overflow:hidden;}
 .ep-hdr{padding:11px 14px;background:#f7f6f3;border-bottom:1px solid #ede9e3;display:flex;align-items:center;justify-content:space-between;}
 .ep-title{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#888;}
 .ep-badge{font-size:9px;padding:2px 7px;border-radius:20px;background:#fdf0ef;color:#c0392b;border:1px solid #f5c6c2;display:none;}
@@ -369,8 +368,6 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 <div class="modal" id="modal" onclick="if(event.target===this)closeM()">
   <div class="modal-in" onclick="event.stopPropagation()">
     <button class="mclose" onclick="closeM()">✕</button>
-
-    <!-- Слайд + навигация -->
     <div class="modal-left">
       <div class="modal-slide" id="mslide"></div>
       <div class="modal-nav">
@@ -391,9 +388,9 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
         <label class="ef-lbl">Заголовок</label>
         <input class="ef-inp" id="ef-headline" oninput="onEfInput()">
       </div>
-      <div class="ef">
+      <div class="ef" id="ef-subhead-wrap">
         <label class="ef-lbl">Подзаголовок</label>
-        <input class="ef-inp" id="ef-subhead" oninput="onEfInput()">
+        <input class="ef-inp" id="ef-subhead" oninput="onEfInput()" placeholder="Не задан">
       </div>
       <div class="ef">
         <label class="ef-lbl">Основной текст</label>
@@ -463,7 +460,11 @@ function bld(slide,idx,total,tk,layout,W,uo,photoUrl,wm){
     return`<div style="${wr}">${inner}${wm||''}</div>`;
   }
   const bgP=sPB?`<div style="position:absolute;inset:0;background:url('${photoUrl}') center/cover;z-index:0;"></div><div style="position:absolute;inset:0;background:rgba(0,0,0,${dO});z-index:0;"></div>`:'';
-  const eT=sPB?'#fff':tC,eB=sPB?'rgba(255,255,255,.7)':bC,eA=sPB?'rgba(255,255,255,.5)':aC;
+  // При фото-фоне: если пользователь задал свои цвета — используем их, иначе белые
+  const hasUserColors = uo.titleC || uo.bodyC || uo.accentC;
+  const eT = sPB ? (uo.titleC  || '#ffffff') : tC;
+  const eB = sPB ? (uo.bodyC   || 'rgba(255,255,255,.7)') : bC;
+  const eA = sPB ? (uo.accentC || 'rgba(255,255,255,.5)') : aC;
   const dH=sPB?'':mkDeco(t.deco,W,sc,aC);
   const bN=t.deco==='big-num'?`<div style="position:absolute;bottom:${-10*sc}px;right:${p*.5}px;font-family:${tf};font-size:${180*sc}px;font-weight:900;color:${eT};opacity:.06;line-height:1;z-index:0;pointer-events:none;">${idx+1}</div>`:'';
   const nS=`position:absolute;z-index:2;font-family:${bf};font-size:${9*sc}px;font-weight:500;color:${eB};opacity:.7;letter-spacing:.05em;`;
@@ -472,7 +473,7 @@ function bld(slide,idx,total,tk,layout,W,uo,photoUrl,wm){
   const jus=jm[pos]||'center',lo=t.deco==='line-left'?Math.round(p*1.5+4*sc):p;
   const inn=`position:absolute;inset:0;z-index:1;padding:${p}px ${p}px ${p}px ${lo}px;display:flex;flex-direction:column;justify-content:${jus};`;
   const div=`<div style="width:${40*sc}px;height:${3*sc}px;background:${eA};border-radius:2px;margin:${12*sc}px 0;flex-shrink:0;"></div>`;
-  if(layout==='hero'){const fz=cl(aFz(slide.headline,14,3,40,sc,fm),18*sc,52*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;max-height:100%;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.08;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;border-top:1px solid ${eA}44;padding-top:${12*sc}px;">${b||s}</div>`:''}</div></div>${wm||''}</div>`;}
+  if(layout==='hero'){const fz=cl(aFz(slide.headline,14,3,40,sc,fm),18*sc,52*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;max-height:100%;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.08;hyphens:none;">${h}</div>${s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;border-top:1px solid ${eA}44;padding-top:${12*sc}px;">${s}</div>`:''}${b?`<div style="font-size:${12*sc}px;color:${eB};line-height:1.65;font-weight:300;${s?'':'margin-top:'+Math.round(14*sc)+'px;border-top:1px solid '+eA+'44;padding-top:'+Math.round(12*sc)+'px;'}">${b}</div>`:''}</div></div>${wm||''}</div>`;}
   if(layout==='split'){const fz=cl(aFz(slide.headline,16,2,30,sc,fm),15*sc,38*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${div}${s?`<div style="font-size:${14*sc}px;font-weight:600;color:${eT};margin-bottom:${8*sc}px;line-height:1.35;">${s}</div>`:''}${b?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.7;font-weight:300;">${b}</div>`:''}</div></div>${wm||''}</div>`;}
   if(layout==='bigquote'){const fz=cl(aFz(slide.headline,18,3,32,sc,fm),14*sc,42*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.12;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;">${b||s}</div>`:''}</div></div>${wm||''}</div>`;}
   if(layout==='list'){const fz=cl(aFz(slide.headline,18,2,24,sc,fm),13*sc,30*sc);const lH=items.slice(0,4).map((item,i)=>`<div style="display:flex;gap:${10*sc}px;align-items:flex-start;"><div style="font-family:${tf};font-size:${11*sc}px;font-weight:900;color:${eA};line-height:1.4;min-width:${16*sc}px;flex-shrink:0;">${i+1}</div><div style="font-size:${12*sc}px;color:${eT};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div></div>`).join('');return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;margin-bottom:${16*sc}px;hyphens:none;">${h}</div><div style="display:flex;flex-direction:column;gap:${10*sc}px;">${lH}</div></div></div>${wm||''}</div>`;}
@@ -643,7 +644,9 @@ function openM(i){modalIdx=i;document.getElementById('modal').classList.add('ope
 function closeM(){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
 
 function renderM(){
-  const so=getO();const maxH=window.innerHeight-160;const W=Math.round(Math.min(window.innerWidth-320,maxH*0.8,420));
+  const so=getO();
+  const maxH=window.innerHeight-80;
+  const W=Math.round(Math.min((window.innerWidth-320)*0.9,maxH*0.8,420));
   document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url,wmHTML(W));
   document.getElementById('mslide').style.width=W+'px';
   const dots=document.getElementById('mdots');dots.innerHTML='';
@@ -669,12 +672,12 @@ function applyEdit(){
   slides[modalIdx].subhead=document.getElementById('ef-subhead').value;
   slides[modalIdx].body=document.getElementById('ef-body').value;
   document.getElementById('ep-badge').classList.remove('show');
-  // Обновляем слайд и сетку
-  const so=getO();const maxH=window.innerHeight-160;const W=Math.round(Math.min(window.innerWidth-320,maxH*0.8,420));
+  const so=getO();
+  const maxH=window.innerHeight-80;
+  const W=Math.round(Math.min((window.innerWidth-320)*0.9,maxH*0.8,420));
   document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url,wmHTML(W));
   renderGrid();
 }
-
 
 function navM(d){
   modalIdx=Math.max(0,Math.min(slides.length-1,modalIdx+d));renderM();
