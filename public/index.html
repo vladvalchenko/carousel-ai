@@ -127,7 +127,7 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 .modal-in{position:relative;display:flex;gap:20px;align-items:flex-start;background:#fff;border-radius:16px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.3);max-width:94vw;}
 .modal-left{display:flex;flex-direction:column;align-items:center;gap:12px;}
 .modal-slide{border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.12);}
-.modal-nav{display:flex;align-items:center;gap:12px;}
+.modal-nav{display:flex;align-items:center;gap:16px;}
 .marr{width:34px;height:34px;border-radius:50%;background:#f0ede8;border:none;color:#1a1a18;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;}
 .marr:hover{background:#e5e3de;}
 .marr:disabled{opacity:.25;cursor:default;}
@@ -251,7 +251,7 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
       <div class="sec-title">Размер и отступы</div>
       <div class="sr"><span style="font-size:10px;color:#888;">Размер заголовка</span><span class="sv" id="fz-v">100%</span></div>
       <input type="range" id="fz-r" min="65" max="150" value="100" oninput="uCtrl()">
-      <div class="sr"><span style="font-size:10px;color:#888;">Размер текста</span><span class="sv" id="bfz-v">100%</span></div>
+      <div class="slr"><span class="sll">Размер текста</span><span class="slv" id="bfz-v">100%</span></div>
       <input type="range" id="bfz-r" min="60" max="140" value="100" oninput="uCtrl()">
       <div class="sr"><span style="font-size:10px;color:#888;">Отступы</span><span class="sv" id="pad-v">Normal</span></div>
       <input type="range" id="pad-r" min="5" max="14" value="9" oninput="uCtrl()">
@@ -381,37 +381,17 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
       <div class="mcnt" id="mcnt"></div>
     </div>
     <div class="edit-panel">
-      <div class="ep-hdr">
-        <span class="ep-title" id="ep-title">Слайд 1</span>
-        <span class="ep-badge" id="ep-badge">Изменено</span>
-      </div>
+      <div class="ep-hdr"><span class="ep-title" id="ep-title">Слайд 1</span><span class="ep-badge" id="ep-badge">Изменено</span></div>
+      <div class="ef"><label class="ef-lbl">Заголовок</label><input class="ef-inp" id="ef-headline" oninput="onEfInput()"></div>
+      <div class="ef" id="ef-subhead-row"><label class="ef-lbl">Подзаголовок</label><input class="ef-inp" id="ef-subhead" oninput="onEfInput()"></div>
+      <div class="ef"><label class="ef-lbl">Основной текст</label><textarea class="ef-ta" id="ef-body" oninput="onEfInput()"></textarea></div>
       <div class="ef">
-        <label class="ef-lbl">Заголовок</label>
-        <input class="ef-inp" id="ef-headline" oninput="onEfInput()">
-      </div>
-      <div class="ef" id="ef-subhead-row">
-        <label class="ef-lbl">Подзаголовок</label>
-        <input class="ef-inp" id="ef-subhead" oninput="onEfInput()">
-      </div>
-      <div class="ef">
-        <label class="ef-lbl">Основной текст</label>
-        <textarea class="ef-ta" id="ef-body" oninput="onEfInput()"></textarea>
-      </div>
-      <div class="ef">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-          <span class="ef-lbl" style="margin:0;">Размер заголовка</span>
-          <span style="font-size:10px;font-weight:600;color:#1a1a18;" id="ef-fz-val">100%</span>
-        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;"><span class="ef-lbl" style="margin:0;">Размер заголовка</span><span style="font-size:10px;font-weight:600;color:#1a1a18;" id="ef-fz-val">100%</span></div>
         <input type="range" class="ef-range" id="ef-fz" min="60" max="160" value="100" oninput="onEfSize()">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0 4px;">
-          <span class="ef-lbl" style="margin:0;">Размер текста</span>
-          <span style="font-size:10px;font-weight:600;color:#1a1a18;" id="ef-bfz-val">100%</span>
-        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0 4px;"><span class="ef-lbl" style="margin:0;">Размер текста</span><span style="font-size:10px;font-weight:600;color:#1a1a18;" id="ef-bfz-val">100%</span></div>
         <input type="range" class="ef-range" id="ef-bfz" min="60" max="140" value="100" oninput="onEfSize()">
       </div>
-      <div class="ef">
-        <button class="ef-apply" onclick="applyEdit()">Применить изменения</button>
-      </div>
+      <div class="ef"><button class="ef-apply" onclick="applyEdit()">Применить изменения</button></div>
     </div>
   </div>
 </div>
@@ -457,8 +437,8 @@ function bld(slide,idx,total,tk,layout,W,uo,photoUrl,wm){
   const n=String(idx+1).padStart(2,'0'),tot=String(total).padStart(2,'0');
   const p=Math.round(W*pp/100),sc=W/400;
   const h=esc(slide.headline||''),s=esc(slide.subhead||''),b=esc(slide.body||'');
-  const ri=(slide.body||'').split(/\n+/).map(x=>x.trim()).filter(x=>x.length>4);
-  const items=ri.length>=2?ri:[slide.subhead,slide.body].filter(Boolean);
+  const ri=(slide.body||'').split(/[.!?]\s+|\n+/).map(x=>x.trim()).filter(x=>x.length>8);
+  const items=ri.length>=2?ri:[(slide.body||'')].filter(Boolean);
   const isF=idx===0,isL=idx===total-1;
   const sPC=pm==='content'&&photoUrl&&(cS==='all'||(cS==='first-last'&&(isF||isL))||(cS==='first'&&isF));
   const sPB=pm==='bg'&&photoUrl;
@@ -482,10 +462,10 @@ function bld(slide,idx,total,tk,layout,W,uo,photoUrl,wm){
   const jus=jm[pos]||'center',lo=t.deco==='line-left'?Math.round(p*1.5+4*sc):p;
   const inn=`position:absolute;inset:0;z-index:1;padding:${p}px ${p}px ${p}px ${lo}px;display:flex;flex-direction:column;justify-content:${jus};`;
   const div=`<div style="width:${40*sc}px;height:${3*sc}px;background:${eA};border-radius:2px;margin:${12*sc}px 0;flex-shrink:0;"></div>`;
-  if(layout==='hero'){const fz=cl(aFz(slide.headline,14,3,40,sc,fm),18*sc,52*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;max-height:100%;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.08;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;border-top:1px solid ${eA}44;padding-top:${12*sc}px;">${b||s}</div>`:''}</div></div>${wm||''}</div>`;}
+  if(layout==='hero'){const fz=cl(aFz(slide.headline,14,3,40,sc,fm),18*sc,52*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;max-height:100%;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.08;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${Math.round(13*sc*bfm)}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;border-top:1px solid ${eA}44;padding-top:${12*sc}px;">${b||s}</div>`:''}</div></div>${wm||''}</div>`;}
   if(layout==='split'){const fz=cl(aFz(slide.headline,16,2,30,sc,fm),15*sc,38*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${div}${s?`<div style="font-size:${14*sc}px;font-weight:600;color:${eT};margin-bottom:${8*sc}px;line-height:1.35;">${s}</div>`:''}${b?`<div style="font-size:${Math.round(13*sc*bfm)}px;color:${eB};line-height:1.7;font-weight:300;">${b}</div>`:''}</div></div>${wm||''}</div>`;}
-  if(layout==='bigquote'){const fz=cl(aFz(slide.headline,18,3,32,sc,fm),14*sc,42*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.12;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;">${b||s}</div>`:''}</div></div>${wm||''}</div>`;}
-  if(layout==='list'){const fz=cl(aFz(slide.headline,18,2,24,sc,fm),13*sc,30*sc);const lH=items.slice(0,4).map((item,i)=>`<div style="display:flex;gap:${10*sc}px;align-items:flex-start;"><div style="font-family:${tf};font-size:${11*sc}px;font-weight:900;color:${eA};line-height:1.4;min-width:${16*sc}px;flex-shrink:0;">${i+1}</div><div style="font-size:${12*sc}px;color:${eT};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div></div>`).join('');return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;margin-bottom:${16*sc}px;hyphens:none;">${h}</div><div style="display:flex;flex-direction:column;gap:${10*sc}px;">${lH}</div></div></div>${wm||''}</div>`;}
+  if(layout==='bigquote'){const fz=cl(aFz(slide.headline,18,3,32,sc,fm),14*sc,42*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.12;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${Math.round(13*sc*bfm)}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;">${b||s}</div>`:''}</div></div>${wm||''}</div>`;}
+  if(layout==='list'){const fz=cl(aFz(slide.headline,18,2,24,sc,fm),13*sc,30*sc);const lH=items.slice(0,4).map((item,i)=>`<div style="display:flex;gap:${10*sc}px;align-items:flex-start;"><div style="font-family:${tf};font-size:${11*sc}px;font-weight:900;color:${eA};line-height:1.4;min-width:${16*sc}px;flex-shrink:0;">${i+1}</div><div style="font-size:${Math.round(12*sc*bfm)}px;color:${eT};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div></div>`).join('');return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;margin-bottom:${16*sc}px;hyphens:none;">${h}</div><div style="display:flex;flex-direction:column;gap:${10*sc}px;">${lH}</div></div></div>${wm||''}</div>`;}
   if(layout==='feature'){const fz=cl(aFz(slide.headline,14,2,28,sc,fm),13*sc,36*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-size:${9*sc}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${eA};margin-bottom:${8*sc}px;">${s||'Детали'}</div><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${b?`<div style="font-size:${Math.round(13*sc*bfm)}px;color:${eB};line-height:1.7;font-weight:300;margin-top:${12*sc}px;">${b}</div>`:''}</div></div>${wm||''}</div>`;}
   return'';
 }
@@ -666,7 +646,6 @@ function renderM(){
   document.getElementById('mcnt').textContent=`${modalIdx+1} / ${slides.length}`;
   document.getElementById('mprev').disabled=modalIdx===0;
   document.getElementById('mnext').disabled=modalIdx===slides.length-1;
-  // Заполняем поля
   const s=slides[modalIdx];
   const isHero=layouts[modalIdx]==='hero';
   document.getElementById('ep-title').textContent='Слайд '+(modalIdx+1);
@@ -674,24 +653,20 @@ function renderM(){
   document.getElementById('ef-subhead').value=s.subhead||'';
   document.getElementById('ef-body').value=s.body||'';
   document.getElementById('ep-badge').classList.remove('show');
-  const subRow=document.getElementById('ef-subhead-row');
-  if(subRow)subRow.style.display=isHero?'none':'block';
-  const fzEl=document.getElementById('ef-fz');
-  const bfzEl=document.getElementById('ef-bfz');
+  const sr=document.getElementById('ef-subhead-row');if(sr)sr.style.display=isHero?'none':'block';
+  const fzEl=document.getElementById('ef-fz'),bfzEl=document.getElementById('ef-bfz');
   if(fzEl){fzEl.value=Math.round((s._fzMult||1)*100);document.getElementById('ef-fz-val').textContent=fzEl.value+'%';}
   if(bfzEl){bfzEl.value=Math.round((s._bfzMult||1)*100);document.getElementById('ef-bfz-val').textContent=bfzEl.value+'%';}
 }
 function onEfInput(){document.getElementById('ep-badge').classList.add('show');}
 function onEfSize(){
-  const fz=document.getElementById('ef-fz').value;
-  const bfz=document.getElementById('ef-bfz').value;
+  const fz=document.getElementById('ef-fz').value,bfz=document.getElementById('ef-bfz').value;
   document.getElementById('ef-fz-val').textContent=fz+'%';
   document.getElementById('ef-bfz-val').textContent=bfz+'%';
   slides[modalIdx]._fzMult=parseInt(fz)/100;
   slides[modalIdx]._bfzMult=parseInt(bfz)/100;
   document.getElementById('ep-badge').classList.add('show');
-  const so=getO();
-  const maxH=window.innerHeight-80;
+  const so=getO(),maxH=window.innerHeight-80;
   const W=Math.round(Math.min((window.innerWidth-320)*0.9,maxH*0.78,400));
   document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url,wmHTML(W));
 }
