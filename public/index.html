@@ -122,37 +122,20 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 .gi-num{position:absolute;bottom:7px;right:9px;font-size:10px;font-weight:700;color:rgba(255,255,255,.65);font-family:'Unbounded',sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.7);}
 
 /* MODAL */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;align-items:center;justify-content:center;}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;display:none;align-items:center;justify-content:center;}
 .modal.open{display:flex;}
-.modal-in{position:relative;display:flex;gap:20px;align-items:flex-start;background:#fff;border-radius:16px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.3);max-width:94vw;}
-.modal-left{display:flex;flex-direction:column;align-items:center;gap:12px;}
-.modal-slide{border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.12);}
+.modal-in{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.modal-slide{border-radius:10px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);}
 .modal-nav{display:flex;align-items:center;gap:16px;}
-.marr{width:34px;height:34px;border-radius:50%;background:#f0ede8;border:none;color:#1a1a18;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;}
-.marr:hover{background:#e5e3de;}
-.marr:disabled{opacity:.25;cursor:default;}
+.marr{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;}
+.marr:hover{background:rgba(255,255,255,.22);}
+.marr:disabled{opacity:.2;cursor:default;}
 .mdots{display:flex;gap:5px;align-items:center;}
-.mdot{width:5px;height:5px;border-radius:50%;background:#d5d3ce;cursor:pointer;transition:all .18s;}
-.mdot.on{background:#1a1a18;transform:scale(1.3);}
-.mclose{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:#f0ede8;border:none;color:#1a1a18;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;}
-.mclose:hover{background:#e5e3de;}
-.mcnt{font-size:10px;color:#bbb;font-family:'Unbounded',sans-serif;}
-.edit-panel{width:220px;flex-shrink:0;border:1.5px solid #e8e6e1;border-radius:10px;overflow:hidden;}
-.ep-hdr{padding:11px 14px;background:#f7f6f3;border-bottom:1px solid #ede9e3;display:flex;align-items:center;justify-content:space-between;}
-.ep-title{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#888;}
-.ep-badge{font-size:9px;padding:2px 7px;border-radius:20px;background:#fdf0ef;color:#c0392b;border:1px solid #f5c6c2;display:none;}
-.ep-badge.show{display:block;}
-.ef{padding:10px 14px;border-bottom:1px solid #f0ede8;}
-.ef:last-child{border-bottom:none;}
-.ef-lbl{font-size:9px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#bbb;margin-bottom:5px;display:block;}
-.ef-inp{width:100%;border:1.5px solid #e8e6e1;border-radius:6px;padding:7px 9px;font-size:12px;color:#1a1a18;font-family:'Inter',sans-serif;outline:none;background:#fff;transition:border-color .15s;}
-.ef-inp:focus{border-color:#1a1a18;}
-.ef-ta{width:100%;border:1.5px solid #e8e6e1;border-radius:6px;padding:7px 9px;font-size:12px;color:#1a1a18;font-family:'Inter',sans-serif;outline:none;resize:none;height:68px;line-height:1.55;background:#fff;transition:border-color .15s;}
-.ef-ta:focus{border-color:#1a1a18;}
-.ef-range{width:100%;height:2px;background:#e8e6e1;border-radius:2px;appearance:none;cursor:pointer;margin:4px 0 2px;}
-.ef-range::-webkit-slider-thumb{appearance:none;width:13px;height:13px;border-radius:50%;background:#1a1a18;cursor:pointer;}
-.ef-apply{width:100%;padding:11px;background:#1a1a18;color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;font-family:'Unbounded',sans-serif;letter-spacing:.04em;cursor:pointer;transition:background .15s;}
-.ef-apply:hover{background:#333;}
+.mdot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .18s;cursor:pointer;}
+.mdot.on{background:#fff;transform:scale(1.3);}
+.mclose{position:absolute;top:-12px;right:-12px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.mclose:hover{background:rgba(255,255,255,.25);}
+.mcnt{font-size:10px;color:rgba(255,255,255,.4);font-family:'Unbounded',sans-serif;}
 
 /* Tone seg - wrap */
 #tone-seg{flex-wrap:wrap;}
@@ -251,7 +234,7 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
       <div class="sec-title">Размер и отступы</div>
       <div class="sr"><span style="font-size:10px;color:#888;">Размер заголовка</span><span class="sv" id="fz-v">100%</span></div>
       <input type="range" id="fz-r" min="65" max="150" value="100" oninput="uCtrl()">
-      <div class="slr"><span class="sll">Размер текста</span><span class="slv" id="bfz-v">100%</span></div>
+      <div class="sr"><span style="font-size:10px;color:#888;">Размер текста</span><span class="sv" id="bfz-v">100%</span></div>
       <input type="range" id="bfz-r" min="60" max="140" value="100" oninput="uCtrl()">
       <div class="sr"><span style="font-size:10px;color:#888;">Отступы</span><span class="sv" id="pad-v">Normal</span></div>
       <input type="range" id="pad-r" min="5" max="14" value="9" oninput="uCtrl()">
@@ -371,28 +354,14 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 <div class="modal" id="modal" onclick="if(event.target===this)closeM()">
   <div class="modal-in" onclick="event.stopPropagation()">
     <button class="mclose" onclick="closeM()">✕</button>
-    <div class="modal-left">
-      <div class="modal-slide" id="mslide"></div>
-      <div class="modal-nav">
-        <button class="marr" id="mprev" onclick="navM(-1)">&#8592;</button>
-        <div class="mdots" id="mdots"></div>
-        <button class="marr" id="mnext" onclick="navM(1)">&#8594;</button>
-      </div>
-      <div class="mcnt" id="mcnt"></div>
+    <div class="modal-slide" id="mslide"></div>
+    <div class="modal-nav">
+      <button class="marr" id="mprev" onclick="navM(-1)">&#8592;</button>
+      <div class="mdots" id="mdots"></div>
+      <button class="marr" id="mnext" onclick="navM(1)">&#8594;</button>
     </div>
-    <div class="edit-panel">
-      <div class="ep-hdr"><span class="ep-title" id="ep-title">Слайд 1</span><span class="ep-badge" id="ep-badge">Изменено</span></div>
-      <div class="ef"><label class="ef-lbl">Заголовок</label><input class="ef-inp" id="ef-headline" oninput="onEfInput()"></div>
-      <div class="ef" id="ef-subhead-row"><label class="ef-lbl">Подзаголовок</label><input class="ef-inp" id="ef-subhead" oninput="onEfInput()"></div>
-      <div class="ef"><label class="ef-lbl">Основной текст</label><textarea class="ef-ta" id="ef-body" oninput="onEfInput()"></textarea></div>
-      <div class="ef">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;"><span class="ef-lbl" style="margin:0;">Размер заголовка</span><span style="font-size:10px;font-weight:600;color:#1a1a18;" id="ef-fz-val">100%</span></div>
-        <input type="range" class="ef-range" id="ef-fz" min="60" max="160" value="100" oninput="onEfSize()">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0 4px;"><span class="ef-lbl" style="margin:0;">Размер текста</span><span style="font-size:10px;font-weight:600;color:#1a1a18;" id="ef-bfz-val">100%</span></div>
-        <input type="range" class="ef-range" id="ef-bfz" min="60" max="140" value="100" oninput="onEfSize()">
-      </div>
-      <div class="ef"><button class="ef-apply" onclick="applyEdit()">Применить изменения</button></div>
-    </div>
+    <div class="mcnt" id="mcnt"></div>
+    <div id="edit-hint" style="display:none;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.02em;">Кликните на текст чтобы отредактировать</div>
   </div>
 </div>
 <div id="render-area"></div>
@@ -429,154 +398,56 @@ function mkDeco(d,W,sc,ac){
   return'';
 }
 function bld(slide,idx,total,tk,layout,W,uo,photoUrl,wm){
-  const t=TEMPLATES[tk]; uo=uo||{};
-  const bgC=uo.bgC||t.bg, tC=uo.titleC||t.tc, bC=uo.bodyC||t.bc, aC=uo.accentC||t.ac;
-  const tf=uo.titleFont||t.tf, bf=uo.bodyFont||t.bf, tw=t.tw;
-  const ti=(!uo.titleFont&&t.ts)?'italic':'normal';
-
-  // Мультипликаторы: глобальный (из сайдбара) × per-slide (из модала)
-  const fm=(uo.fzMult||1)*(slide._fzMult||1);
-  const bm=(uo.bfzMult||1)*(slide._bfzMult||1);
-
-  const pos=uo.pos||t.textPos, pp=uo.padPct||9, sn=uo.showNum!==false;
-  const pm=uo.photoMode||'none', dO=(uo.dimOpacity||50)/100;
-  const cL=uo.contentLayout||'top', cS=uo.contentSlides||'all';
-
-  const n=String(idx+1).padStart(2,'0'), tot=String(total).padStart(2,'0');
-  const p=Math.round(W*pp/100), sc=W/400;
+  const t=TEMPLATES[tk];uo=uo||{};
+  const bgC=uo.bgC||t.bg,tC=uo.titleC||t.tc,bC=uo.bodyC||t.bc,aC=uo.accentC||t.ac;
+  const tf=uo.titleFont||t.tf,bf=uo.bodyFont||t.bf,tw=t.tw,ti=(!uo.titleFont&&t.ts)?'italic':'normal';
+  const fm=uo.fzMult||1,pos=uo.pos||t.textPos,pp=uo.padPct||9,sn=uo.showNum!==false;
+  const pm=uo.photoMode||'none',dO=(uo.dimOpacity||50)/100,cL=uo.contentLayout||'top',cS=uo.contentSlides||'all';
+  const n=String(idx+1).padStart(2,'0'),tot=String(total).padStart(2,'0');
+  const p=Math.round(W*pp/100),sc=W/400;
+  const h=esc(slide.headline||''),s=esc(slide.subhead||''),b=esc(slide.body||'');
+  const ri=(slide.body||'').split(/\n+/).map(x=>x.trim()).filter(x=>x.length>4);
+  const items=ri.length>=2?ri:[slide.subhead,slide.body].filter(Boolean);
+  const isF=idx===0,isL=idx===total-1;
+  const sPC=pm==='content'&&photoUrl&&(cS==='all'||(cS==='first-last'&&(isF||isL))||(cS==='first'&&isF));
+  const sPB=pm==='bg'&&photoUrl;
   const H=Math.round(W*1.25);
-
-  const h=esc(slide.headline||'');
-  const s=esc(slide.subhead||'');
-  const b=esc(slide.body||'');
-
-  // Для list: разбиваем body на пункты по переносам строк
-  const rawItems=(slide.body||'').split(/\n+/).map(x=>x.trim()).filter(x=>x.length>3);
-  const items=rawItems.length>=2 ? rawItems : [slide.body].filter(Boolean);
-
-  const isFirst=idx===0, isLast=idx===total-1, isHero=layout==='hero';
-  const showSubhead=s && !isFirst && !isLast; // подзаголовок только на средних
-
-  const showPC=pm==='content'&&photoUrl&&(cS==='all'||(cS==='first-last'&&(isFirst||isLast))||(cS==='first'&&isFirst));
-  const showPB=pm==='bg'&&photoUrl;
-
-  // Цвета: при фото-фоне берём пользовательские (или белые по умолчанию)
-  const eT=showPB?(uo.titleC||'#ffffff'):tC;
-  const eB=showPB?(uo.bodyC||'rgba(255,255,255,0.7)'):bC;
-  const eA=showPB?(uo.accentC||'rgba(255,255,255,0.5)'):aC;
-
-  const wr=`width:${W}px;height:${H}px;background:${bgC};display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:${bf};hyphens:none;-webkit-hyphens:none;word-break:normal;`;
-
-  // Фото-контент (разделённый layout)
-  if(showPC){
-    const ps=Math.round(H*0.45), iv=cL==='top'||cL==='bottom';
-    const photoDiv=`<div style="flex-shrink:0;${iv?`width:${W}px;height:${ps}px;`:`width:${Math.round(W*0.48)}px;height:${H}px;`}background:url('${photoUrl}') center/cover;"></div>`;
+  const wr=`width:${W}px;height:${H}px;background:${bgC};display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:${bf};hyphens:none;-webkit-hyphens:none;word-break:normal;overflow-wrap:break-word;`;
+  if(sPC){
+    const ps=Math.round(W*.48),iv=cL==='top'||cL==='bottom';
+    const pd=`<div style="flex-shrink:0;${iv?`width:${W}px;height:${ps}px;`:`width:${ps}px;height:${H}px;`}background:url('${photoUrl}') center/cover;"></div>`;
     const jm={top:'flex-start',center:'center',bottom:'flex-end'};
-    const textDiv=`<div style="flex:1;background:${bgC};padding:${p}px;display:flex;flex-direction:column;justify-content:${jm[pos]||'center'};overflow:hidden;position:relative;">
-      ${mkDeco(t.deco,W,sc,aC)}
-      ${sn&&t.numPos!=='none'?`<div style="font-size:${Math.round(9*sc)}px;color:${bC};opacity:.65;margin-bottom:${Math.round(8*sc)}px;">${n} / ${tot}</div>`:''}
-      <div style="font-family:${tf};font-style:${ti};font-size:${cl(aFz(slide.headline,14,2,28,sc,fm),Math.round(14*sc),Math.round(36*sc))}px;font-weight:${tw};color:${tC};line-height:1.1;">${h}</div>
-      ${b?`<div style="font-size:${Math.round(13*sc*bm)}px;color:${bC};line-height:1.6;font-weight:300;margin-top:${Math.round(10*sc)}px;">${b}</div>`:''}
-    </div>`;
-    const inner=iv?(cL==='top'?`<div style="display:flex;flex-direction:column;width:${W}px;height:${H}px;">${photoDiv}${textDiv}</div>`:`<div style="display:flex;flex-direction:column;width:${W}px;height:${H}px;">${textDiv}${photoDiv}</div>`):(cL==='left'?`<div style="display:flex;width:${W}px;height:${H}px;">${photoDiv}${textDiv}</div>`:`<div style="display:flex;width:${W}px;height:${H}px;">${textDiv}${photoDiv}</div>`);
-    return `<div style="${wr}">${inner}${wm||''}</div>`;
+    const td=`<div style="flex:1;background:${bgC};padding:${p}px;display:flex;flex-direction:column;justify-content:${jm[pos]||'center'};overflow:hidden;position:relative;">${mkDeco(t.deco,W,sc,aC)}${sn&&t.numPos!=='none'?`<div style="font-family:${bf};font-size:${9*sc}px;font-weight:500;color:${bC};opacity:.65;margin-bottom:${8*sc}px;">${n} / ${tot}</div>`:''}<div style="font-family:${tf};font-style:${ti};font-size:${cl(aFz(slide.headline,14,2,28,sc,fm),14*sc,36*sc)}px;font-weight:${tw};color:${tC};line-height:1.1;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${12*sc}px;color:${bC};line-height:1.6;font-weight:300;margin-top:${10*sc}px;">${b||s}</div>`:''}</div>`;
+    let inner=iv?(cL==='top'?`<div style="display:flex;flex-direction:column;width:${W}px;height:${H}px;">${pd}${td}</div>`:`<div style="display:flex;flex-direction:column;width:${W}px;height:${H}px;">${td}${pd}</div>`):(cL==='left'?`<div style="display:flex;width:${W}px;height:${H}px;">${pd}${td}</div>`:`<div style="display:flex;width:${W}px;height:${H}px;">${td}${pd}</div>`);
+    return`<div style="${wr}">${inner}${wm||''}</div>`;
   }
-
-  // Фото-фон
-  const bgPhoto=showPB?`<div style="position:absolute;inset:0;background:url('${photoUrl}') center/cover;z-index:0;"></div><div style="position:absolute;inset:0;background:rgba(0,0,0,${dO});z-index:0;"></div>`:'';
-
-  // Декор (не показываем при фото-фоне)
-  const decoHTML=showPB?'':mkDeco(t.deco,W,sc,aC);
-  const bigNum=t.deco==='big-num'?`<div style="position:absolute;bottom:${-10*sc}px;right:${p*.5}px;font-family:${tf};font-size:${180*sc}px;font-weight:900;color:${eT};opacity:.06;line-height:1;z-index:0;pointer-events:none;">${idx+1}</div>`:'';
-
-  // Нумерация
-  const ns=`position:absolute;z-index:2;font-family:${bf};font-size:${Math.round(9*sc)}px;font-weight:500;color:${eB};opacity:.7;letter-spacing:.05em;`;
-  let numHTML='';
-  if(sn){const np=t.numPos,txt=`${n} / ${tot}`;
-    if(np==='tl')numHTML=`<div style="${ns}top:${p}px;left:${p}px;">${txt}</div>`;
-    else if(np==='tr')numHTML=`<div style="${ns}top:${p}px;right:${p}px;">${txt}</div>`;
-    else if(np==='bl')numHTML=`<div style="${ns}bottom:${p}px;left:${p}px;">${txt}</div>`;
-    else if(np==='br')numHTML=`<div style="${ns}bottom:${p}px;right:${p}px;">${txt}</div>`;
-  }
-
-  // Отступ слева при line-left декоре
-  const lp=t.deco==='line-left'?Math.round(p*1.5+4*sc):p;
-  const jMap={top:'flex-start',center:'center',bottom:'flex-end'};
-  const inn=`position:absolute;inset:0;z-index:1;padding:${p}px ${p}px ${p}px ${lp}px;display:flex;flex-direction:column;justify-content:${jMap[pos]||'center'};`;
-  const div2=`<div style="width:${Math.round(40*sc)}px;height:${Math.round(3*sc)}px;background:${eA};border-radius:2px;margin:${Math.round(12*sc)}px 0;flex-shrink:0;"></div>`;
-
-  // ── HERO (первый и последний): заголовок + тело, БЕЗ подзаголовка ──────
-  if(layout==='hero'){
-    const fz=cl(aFz(slide.headline,14,3,40,sc,fm),Math.round(18*sc),Math.round(52*sc));
-    return `<div style="${wr}">${bgPhoto}${decoHTML}${bigNum}${numHTML}
-      <div style="${inn}">
-        <div style="overflow:hidden;max-height:100%;">
-          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.08;hyphens:none;">${h}</div>
-          ${b?`<div style="font-size:${Math.round(13*sc*bm)}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${Math.round(14*sc)}px;border-top:1px solid ${eA}44;padding-top:${Math.round(12*sc)}px;">${b}</div>`:''}
-        </div>
-      </div>${wm||''}</div>`;
-  }
-
-  // ── SPLIT: подзаголовок (если есть) → разделитель → тело ──────────────
-  if(layout==='split'){
-    const fz=cl(aFz(slide.headline,16,2,30,sc,fm),Math.round(15*sc),Math.round(38*sc));
-    return `<div style="${wr}">${bgPhoto}${decoHTML}${bigNum}${numHTML}
-      <div style="${inn}">
-        <div style="overflow:hidden;">
-          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>
-          ${div2}
-          ${showSubhead?`<div style="font-size:${Math.round(14*sc)}px;font-weight:600;color:${eT};margin-bottom:${Math.round(8*sc)}px;line-height:1.35;">${s}</div>`:''}
-          ${b?`<div style="font-size:${Math.round(13*sc*bm)}px;color:${eB};line-height:1.7;font-weight:300;">${b}</div>`:''}
-        </div>
-      </div>${wm||''}</div>`;
-  }
-
-  // ── BIGQUOTE: заголовок + подзаголовок + тело ─────────────────────────
-  if(layout==='bigquote'){
-    const fz=cl(aFz(slide.headline,18,3,32,sc,fm),Math.round(14*sc),Math.round(42*sc));
-    return `<div style="${wr}">${bgPhoto}${decoHTML}${bigNum}${numHTML}
-      <div style="${inn}">
-        <div style="overflow:hidden;">
-          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.12;hyphens:none;">${h}</div>
-          ${showSubhead?`<div style="font-size:${Math.round(13*sc)}px;font-weight:600;color:${eT};margin-top:${Math.round(10*sc)}px;">${s}</div>`:''}
-          ${b?`<div style="font-size:${Math.round(13*sc*bm)}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${Math.round(10*sc)}px;">${b}</div>`:''}
-        </div>
-      </div>${wm||''}</div>`;
-  }
-
-  // ── LIST: заголовок + подзаголовок + пункты из body ───────────────────
-  if(layout==='list'){
-    const fz=cl(aFz(slide.headline,18,2,24,sc,fm),Math.round(13*sc),Math.round(30*sc));
-    const listHTML=items.slice(0,4).map((item,i)=>`
-      <div style="display:flex;gap:${Math.round(10*sc)}px;align-items:flex-start;">
-        <div style="font-family:${tf};font-size:${Math.round(11*sc)}px;font-weight:900;color:${eA};line-height:1.4;min-width:${Math.round(16*sc)}px;flex-shrink:0;">${i+1}</div>
-        <div style="font-size:${Math.round(12*sc*bm)}px;color:${eT};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div>
-      </div>`).join('');
-    return `<div style="${wr}">${bgPhoto}${decoHTML}${bigNum}${numHTML}
-      <div style="${inn}">
-        <div style="overflow:hidden;">
-          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>
-          ${showSubhead?`<div style="font-size:${Math.round(12*sc)}px;font-weight:600;color:${eA};margin:${Math.round(8*sc)}px 0;">${s}</div>`:''}
-          <div style="display:flex;flex-direction:column;gap:${Math.round(10*sc)}px;margin-top:${Math.round(12*sc)}px;">${listHTML}</div>
-        </div>
-      </div>${wm||''}</div>`;
-  }
-
-  // ── FEATURE: подзаголовок как метка + заголовок + тело ────────────────
-  if(layout==='feature'){
-    const fz=cl(aFz(slide.headline,14,2,28,sc,fm),Math.round(13*sc),Math.round(36*sc));
-    return `<div style="${wr}">${bgPhoto}${decoHTML}${bigNum}${numHTML}
-      <div style="${inn}">
-        <div style="overflow:hidden;">
-          ${showSubhead?`<div style="font-size:${Math.round(9*sc)}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${eA};margin-bottom:${Math.round(8*sc)}px;">${s}</div>`:''}
-          <div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>
-          ${b?`<div style="font-size:${Math.round(13*sc*bm)}px;color:${eB};line-height:1.7;font-weight:300;margin-top:${Math.round(12*sc)}px;">${b}</div>`:''}
-        </div>
-      </div>${wm||''}</div>`;
-  }
-
-  return '';
+  const bgP=sPB?`<div style="position:absolute;inset:0;background:url('${photoUrl}') center/cover;z-index:0;"></div><div style="position:absolute;inset:0;background:rgba(0,0,0,${dO});z-index:0;"></div>`:'';
+  const eT=sPB?'#fff':tC,eB=sPB?'rgba(255,255,255,.7)':bC,eA=sPB?'rgba(255,255,255,.5)':aC;
+  const dH=sPB?'':mkDeco(t.deco,W,sc,aC);
+  const bN=t.deco==='big-num'?`<div style="position:absolute;bottom:${-10*sc}px;right:${p*.5}px;font-family:${tf};font-size:${180*sc}px;font-weight:900;color:${eT};opacity:.06;line-height:1;z-index:0;pointer-events:none;">${idx+1}</div>`:'';
+  const nS=`position:absolute;z-index:2;font-family:${bf};font-size:${9*sc}px;font-weight:500;color:${eB};opacity:.7;letter-spacing:.05em;`;
+  let nH='';if(sn){const np=t.numPos,txt=`${n} / ${tot}`;if(np==='tl')nH=`<div style="${nS}top:${p}px;left:${p}px;">${txt}</div>`;else if(np==='tr')nH=`<div style="${nS}top:${p}px;right:${p}px;">${txt}</div>`;else if(np==='bl')nH=`<div style="${nS}bottom:${p}px;left:${p}px;">${txt}</div>`;else if(np==='br')nH=`<div style="${nS}bottom:${p}px;right:${p}px;">${txt}</div>`;}
+  const jm={top:'flex-start',center:'center',bottom:'flex-end'};
+  const jus=jm[pos]||'center',lo=t.deco==='line-left'?Math.round(p*1.5+4*sc):p;
+  const inn=`position:absolute;inset:0;z-index:1;padding:${p}px ${p}px ${p}px ${lo}px;display:flex;flex-direction:column;justify-content:${jus};`;
+  const div=`<div style="width:${40*sc}px;height:${3*sc}px;background:${eA};border-radius:2px;margin:${12*sc}px 0;flex-shrink:0;"></div>`;
+  if(layout==='hero'){const fz=cl(aFz(slide.headline,14,3,40,sc,fm),18*sc,52*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;max-height:100%;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.08;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;border-top:1px solid ${eA}44;padding-top:${12*sc}px;">${b||s}</div>`:''}</div></div>${wm||''}</div>`;}
+  if(layout==='split'){const fz=cl(aFz(slide.headline,16,2,30,sc,fm),15*sc,38*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${div}${s?`<div style="font-size:${14*sc}px;font-weight:600;color:${eT};margin-bottom:${8*sc}px;line-height:1.35;">${s}</div>`:''}${b?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.7;font-weight:300;">${b}</div>`:''}</div></div>${wm||''}</div>`;}
+  if(layout==='bigquote'){const fz=cl(aFz(slide.headline,18,3,32,sc,fm),14*sc,42*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.12;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;">${b||s}</div>`:''}</div></div>${wm||''}</div>`;}
+  if(layout==='list'){const fz=cl(aFz(slide.headline,18,2,24,sc,fm),13*sc,30*sc);const lH=items.slice(0,4).map((item,i)=>`<div style="display:flex;gap:${10*sc}px;align-items:flex-start;"><div style="font-family:${tf};font-size:${11*sc}px;font-weight:900;color:${eA};line-height:1.4;min-width:${16*sc}px;flex-shrink:0;">${i+1}</div><div style="font-size:${12*sc}px;color:${eT};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div></div>`).join('');return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;margin-bottom:${16*sc}px;hyphens:none;">${h}</div><div style="display:flex;flex-direction:column;gap:${10*sc}px;">${lH}</div></div></div>${wm||''}</div>`;}
+  if(layout==='feature'){const fz=cl(aFz(slide.headline,14,2,28,sc,fm),13*sc,36*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-size:${9*sc}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${eA};margin-bottom:${8*sc}px;">${s||'Детали'}</div><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${b?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.7;font-weight:300;margin-top:${12*sc}px;">${b}</div>`:''}</div></div>${wm||''}</div>`;}
+  return'';
 }
+
+// STATE
+const SID=localStorage.getItem('sid')||(()=>{const id='s'+Math.random().toString(36).slice(2);localStorage.setItem('sid',id);return id;})();
+let tpl='noir',cnt=5,slides=[],layouts=[],progTimer,modalIdx=0;
+let uC={bgC:'#0d0d0d',titleC:'#f0ede8',bodyC:'#888888',accentC:'#d4f55c'};
+let uTF=null,uBF=null;
+let opts={fzMult:1,bfzMult:1,pos:'center',padPct:9,showNum:true};
+let pSt={mode:'none',url:null,dimOpacity:50,contentLayout:'top',contentSlides:'all'};
+let tone='expert';
+let wmState={url:null,pos:'br',size:20,opacity:90};
 
 function renderTplGrid(){
   const g=document.getElementById('tpl-grid');g.innerHTML='';
@@ -600,7 +471,7 @@ function uCtrl(){
   const fz=document.getElementById('fz-r').value,pad=document.getElementById('pad-r').value;
   const pL={5:'Узкие',6:'Узкие',7:'Меньше',8:'Меньше',9:'Normal',10:'Больше',11:'Больше',12:'Широкие',13:'Широкие',14:'Широкие'};
   document.getElementById('fz-v').textContent=fz+'%';document.getElementById('pad-v').textContent=pL[pad]||pad;
-  const bfzEl=document.getElementById('bfz-r');if(bfzEl){const bfz=bfzEl.value;opts.bfzMult=bfz/100;const bfzV=document.getElementById('bfz-v');if(bfzV)bfzV.textContent=bfz+'%';}opts.fzMult=fz/100;opts.padPct=parseInt(pad);opts.showNum=document.getElementById('show-num').checked;
+  opts.fzMult=fz/100;opts.padPct=parseInt(pad);opts.showNum=document.getElementById('show-num').checked;
   if(slides.length)renderGrid();
 }
 function setSeg(id,el,k){
@@ -709,7 +580,7 @@ function wmHTML(W){
   return `<img src="${wmState.url}" style="${style}">`;
 }
 
-function getO(){return{...opts,...uC,titleFont:uTF,bodyFont:uBF,showNum:opts.showNum,photoMode:pSt.mode,dimOpacity:pSt.dimOpacity,contentLayout:pSt.contentLayout,contentSlides:pSt.contentSlides,bfzMult:opts.bfzMult||1};}
+function getO(){return{...opts,...uC,titleFont:uTF,bodyFont:uBF,showNum:opts.showNum,photoMode:pSt.mode,dimOpacity:pSt.dimOpacity,contentLayout:pSt.contentLayout,contentSlides:pSt.contentSlides};}
 function renderGrid(){
   document.getElementById('ehint').style.display='none';
   const g=document.getElementById('sgrid');g.innerHTML='';g.style.display='grid';
@@ -722,7 +593,6 @@ function renderGrid(){
   slides.forEach((s,i)=>{
     const item=document.createElement('div');item.className='gi';
     item.style.width=cardW+'px';
-    item.style.height=Math.round(cardW*1.25)+'px';
     item.innerHTML=bld(s,i,slides.length,tpl,layouts[i],cardW,so,pSt.url,wmHTML(cardW));
     const nb=document.createElement('div');nb.className='gi-num';nb.textContent=`${i+1}/${slides.length}`;
     item.appendChild(nb);item.onclick=()=>openM(i);g.appendChild(item);
@@ -732,9 +602,7 @@ function openM(i){modalIdx=i;document.getElementById('modal').classList.add('ope
 function closeM(){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
 
 function renderM(){
-  const so=getO();
-  const maxH=window.innerHeight-80;
-  const W=Math.round(Math.min((window.innerWidth-320)*0.9,maxH*0.78,400));
+  const so=getO();const maxH=window.innerHeight-140;const W=Math.round(Math.min(window.innerWidth-100,maxH*0.8,500));
   document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url,wmHTML(W));
   document.getElementById('mslide').style.width=W+'px';
   const dots=document.getElementById('mdots');dots.innerHTML='';
@@ -742,37 +610,13 @@ function renderM(){
   document.getElementById('mcnt').textContent=`${modalIdx+1} / ${slides.length}`;
   document.getElementById('mprev').disabled=modalIdx===0;
   document.getElementById('mnext').disabled=modalIdx===slides.length-1;
-  const s=slides[modalIdx];const isHero=layouts[modalIdx]==='hero';
-  document.getElementById('ep-title').textContent='Слайд '+(modalIdx+1);
-  document.getElementById('ef-headline').value=s.headline||'';
-  document.getElementById('ef-subhead').value=s.subhead||'';
-  document.getElementById('ef-body').value=s.body||'';
-  document.getElementById('ep-badge').classList.remove('show');
-  const sr=document.getElementById('ef-subhead-row');if(sr)sr.style.display=isHero?'none':'block';
-  const fzEl=document.getElementById('ef-fz'),bfzEl=document.getElementById('ef-bfz');
-  if(fzEl){fzEl.value=Math.round((s._fzMult||1)*100);document.getElementById('ef-fz-val').textContent=fzEl.value+'%';}
-  if(bfzEl){bfzEl.value=Math.round((s._bfzMult||1)*100);document.getElementById('ef-bfz-val').textContent=bfzEl.value+'%';}
+
+  // Подсказка редактирования
+  const hint = document.getElementById('edit-hint');
+  if(hint) hint.style.display = 'block';
+  setTimeout(()=>{ if(hint) hint.style.display='none'; }, 2500);
 }
-function onEfInput(){document.getElementById('ep-badge').classList.add('show');}
-function onEfSize(){
-  const fz=document.getElementById('ef-fz').value,bfz=document.getElementById('ef-bfz').value;
-  document.getElementById('ef-fz-val').textContent=fz+'%';
-  document.getElementById('ef-bfz-val').textContent=bfz+'%';
-  slides[modalIdx]._fzMult=parseInt(fz)/100;slides[modalIdx]._bfzMult=parseInt(bfz)/100;
-  document.getElementById('ep-badge').classList.add('show');
-  const so=getO(),maxH=window.innerHeight-80;
-  const W=Math.round(Math.min((window.innerWidth-320)*0.9,maxH*0.78,400));
-  document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url,wmHTML(W));
-}
-function applyEdit(){
-  slides[modalIdx].headline=document.getElementById('ef-headline').value;
-  slides[modalIdx].subhead=document.getElementById('ef-subhead').value;
-  slides[modalIdx].body=document.getElementById('ef-body').value;
-  slides[modalIdx]._fzMult=parseInt(document.getElementById('ef-fz').value)/100;
-  slides[modalIdx]._bfzMult=parseInt(document.getElementById('ef-bfz').value)/100;
-  document.getElementById('ep-badge').classList.remove('show');
-  renderM();renderGrid();
-}
+
 
 function navM(d){modalIdx=Math.max(0,Math.min(slides.length-1,modalIdx+d));renderM();
 }
