@@ -359,7 +359,6 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
       <button class="marr" id="mnext" onclick="navM(1)">&#8594;</button>
     </div>
     <div class="mcnt" id="mcnt"></div>
-    <div id="edit-hint" style="display:none;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.02em;">Кликните на текст чтобы отредактировать</div>
   </div>
 </div>
 <div id="render-area"></div>
@@ -395,7 +394,7 @@ function mkDeco(d,W,sc,ac){
   if(d==='dot-row'){const dots=Array.from({length:6},(_,i)=>`<div style="width:${5*sc}px;height:${5*sc}px;border-radius:50%;background:${ac};opacity:${i%2===0?.5:.2};"></div>`).join('');return`<div style="position:absolute;top:${p}px;right:${p}px;display:flex;flex-direction:column;gap:${6*sc}px;z-index:0;">${dots}</div>`;}
   return'';
 }
-function bld(slide,idx,total,tk,layout,W,uo,photoUrl,wm){
+function bld(slide,idx,total,tk,layout,W,uo,photoUrl){
   const t=TEMPLATES[tk];uo=uo||{};
   const bgC=uo.bgC||t.bg,tC=uo.titleC||t.tc,bC=uo.bodyC||t.bc,aC=uo.accentC||t.ac;
   const tf=uo.titleFont||t.tf,bf=uo.bodyFont||t.bf,tw=t.tw,ti=(!uo.titleFont&&t.ts)?'italic':'normal';
@@ -417,7 +416,7 @@ function bld(slide,idx,total,tk,layout,W,uo,photoUrl,wm){
     const jm={top:'flex-start',center:'center',bottom:'flex-end'};
     const td=`<div style="flex:1;background:${bgC};padding:${p}px;display:flex;flex-direction:column;justify-content:${jm[pos]||'center'};overflow:hidden;position:relative;">${mkDeco(t.deco,W,sc,aC)}${sn&&t.numPos!=='none'?`<div style="font-family:${bf};font-size:${9*sc}px;font-weight:500;color:${bC};opacity:.65;margin-bottom:${8*sc}px;">${n} / ${tot}</div>`:''}<div style="font-family:${tf};font-style:${ti};font-size:${cl(aFz(slide.headline,14,2,28,sc,fm),14*sc,36*sc)}px;font-weight:${tw};color:${tC};line-height:1.1;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${12*sc}px;color:${bC};line-height:1.6;font-weight:300;margin-top:${10*sc}px;">${b||s}</div>`:''}</div>`;
     let inner=iv?(cL==='top'?`<div style="display:flex;flex-direction:column;width:${W}px;height:${H}px;">${pd}${td}</div>`:`<div style="display:flex;flex-direction:column;width:${W}px;height:${H}px;">${td}${pd}</div>`):(cL==='left'?`<div style="display:flex;width:${W}px;height:${H}px;">${pd}${td}</div>`:`<div style="display:flex;width:${W}px;height:${H}px;">${td}${pd}</div>`);
-    return`<div style="${wr}">${inner}${wm||''}</div>`;
+    return`<div style="${wr}">${inner}</div>`;
   }
   const bgP=sPB?`<div style="position:absolute;inset:0;background:url('${photoUrl}') center/cover;z-index:0;"></div><div style="position:absolute;inset:0;background:rgba(0,0,0,${dO});z-index:0;"></div>`:'';
   const eT=sPB?'#fff':tC,eB=sPB?'rgba(255,255,255,.7)':bC,eA=sPB?'rgba(255,255,255,.5)':aC;
@@ -429,11 +428,11 @@ function bld(slide,idx,total,tk,layout,W,uo,photoUrl,wm){
   const jus=jm[pos]||'center',lo=t.deco==='line-left'?Math.round(p*1.5+4*sc):p;
   const inn=`position:absolute;inset:0;z-index:1;padding:${p}px ${p}px ${p}px ${lo}px;display:flex;flex-direction:column;justify-content:${jus};`;
   const div=`<div style="width:${40*sc}px;height:${3*sc}px;background:${eA};border-radius:2px;margin:${12*sc}px 0;flex-shrink:0;"></div>`;
-  if(layout==='hero'){const fz=cl(aFz(slide.headline,14,3,40,sc,fm),18*sc,52*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;max-height:100%;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.08;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;border-top:1px solid ${eA}44;padding-top:${12*sc}px;">${b||s}</div>`:''}</div></div>${wm||''}</div>`;}
-  if(layout==='split'){const fz=cl(aFz(slide.headline,16,2,30,sc,fm),15*sc,38*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${div}${s?`<div style="font-size:${14*sc}px;font-weight:600;color:${eT};margin-bottom:${8*sc}px;line-height:1.35;">${s}</div>`:''}${b?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.7;font-weight:300;">${b}</div>`:''}</div></div>${wm||''}</div>`;}
-  if(layout==='bigquote'){const fz=cl(aFz(slide.headline,18,3,32,sc,fm),14*sc,42*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.12;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;">${b||s}</div>`:''}</div></div>${wm||''}</div>`;}
-  if(layout==='list'){const fz=cl(aFz(slide.headline,18,2,24,sc,fm),13*sc,30*sc);const lH=items.slice(0,4).map((item,i)=>`<div style="display:flex;gap:${10*sc}px;align-items:flex-start;"><div style="font-family:${tf};font-size:${11*sc}px;font-weight:900;color:${eA};line-height:1.4;min-width:${16*sc}px;flex-shrink:0;">${i+1}</div><div style="font-size:${12*sc}px;color:${eT};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div></div>`).join('');return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;margin-bottom:${16*sc}px;hyphens:none;">${h}</div><div style="display:flex;flex-direction:column;gap:${10*sc}px;">${lH}</div></div></div>${wm||''}</div>`;}
-  if(layout==='feature'){const fz=cl(aFz(slide.headline,14,2,28,sc,fm),13*sc,36*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-size:${9*sc}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${eA};margin-bottom:${8*sc}px;">${s||'Детали'}</div><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${b?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.7;font-weight:300;margin-top:${12*sc}px;">${b}</div>`:''}</div></div>${wm||''}</div>`;}
+  if(layout==='hero'){const fz=cl(aFz(slide.headline,14,3,40,sc,fm),18*sc,52*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;max-height:100%;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.08;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;border-top:1px solid ${eA}44;padding-top:${12*sc}px;">${b||s}</div>`:''}</div></div></div>`;}
+  if(layout==='split'){const fz=cl(aFz(slide.headline,16,2,30,sc,fm),15*sc,38*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${div}${s?`<div style="font-size:${14*sc}px;font-weight:600;color:${eT};margin-bottom:${8*sc}px;line-height:1.35;">${s}</div>`:''}${b?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.7;font-weight:300;">${b}</div>`:''}</div></div></div>`;}
+  if(layout==='bigquote'){const fz=cl(aFz(slide.headline,18,3,32,sc,fm),14*sc,42*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.12;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;">${b||s}</div>`:''}</div></div></div>`;}
+  if(layout==='list'){const fz=cl(aFz(slide.headline,18,2,24,sc,fm),13*sc,30*sc);const lH=items.slice(0,4).map((item,i)=>`<div style="display:flex;gap:${10*sc}px;align-items:flex-start;"><div style="font-family:${tf};font-size:${11*sc}px;font-weight:900;color:${eA};line-height:1.4;min-width:${16*sc}px;flex-shrink:0;">${i+1}</div><div style="font-size:${12*sc}px;color:${eT};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div></div>`).join('');return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;margin-bottom:${16*sc}px;hyphens:none;">${h}</div><div style="display:flex;flex-direction:column;gap:${10*sc}px;">${lH}</div></div></div></div>`;}
+  if(layout==='feature'){const fz=cl(aFz(slide.headline,14,2,28,sc,fm),13*sc,36*sc);return`<div style="${wr}">${bgP}${!sPB?`<div style="position:absolute;top:0;left:0;right:0;height:40%;background:${aC};opacity:.1;z-index:0;pointer-events:none;"></div>`:''}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-size:${9*sc}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${eA};margin-bottom:${8*sc}px;">${s||'Детали'}</div><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${b?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.7;font-weight:300;margin-top:${12*sc}px;">${b}</div>`:''}</div></div></div>`;}
   return'';
 }
 
@@ -565,17 +564,17 @@ function wmHTML(W){
   const op=wmState.opacity/100;
   const pad=Math.round(W*0.04);
   const pos=wmState.pos;
-  let style=`position:absolute;width:${sz}px;height:auto;opacity:${op};z-index:10;pointer-events:none;object-fit:contain;`;
-  if(pos==='tl')style+=`top:${pad}px;left:${pad}px;`;
-  else if(pos==='tc')style+=`top:${pad}px;left:50%;transform:translateX(-50%);`;
-  else if(pos==='tr')style+=`top:${pad}px;right:${pad}px;`;
-  else if(pos==='cl')style+=`top:50%;left:${pad}px;transform:translateY(-50%);`;
-  else if(pos==='cc')style+=`top:50%;left:50%;transform:translate(-50%,-50%);`;
-  else if(pos==='cr')style+=`top:50%;right:${pad}px;transform:translateY(-50%);`;
-  else if(pos==='bl')style+=`bottom:${pad}px;left:${pad}px;`;
-  else if(pos==='bc')style+=`bottom:${pad}px;left:50%;transform:translateX(-50%);`;
-  else if(pos==='br')style+=`bottom:${pad}px;right:${pad}px;`;
-  return `<img src="${wmState.url}" style="${style}">`;
+  let top='auto',left='auto',right='auto',bottom='auto',transform='';
+  if(pos==='tl'){top=pad+'px';left=pad+'px';}
+  else if(pos==='tc'){top=pad+'px';left='50%';transform='translateX(-50%)';}
+  else if(pos==='tr'){top=pad+'px';right=pad+'px';}
+  else if(pos==='cl'){top='50%';left=pad+'px';transform='translateY(-50%)';}
+  else if(pos==='cc'){top='50%';left='50%';transform='translate(-50%,-50%)';}
+  else if(pos==='cr'){top='50%';right=pad+'px';transform='translateY(-50%)';}
+  else if(pos==='bl'){bottom=pad+'px';left=pad+'px';}
+  else if(pos==='bc'){bottom=pad+'px';left='50%';transform='translateX(-50%)';}
+  else if(pos==='br'){bottom=pad+'px';right=pad+'px';}
+  return `<img src="${wmState.url}" style="position:absolute;top:${top};left:${left};right:${right};bottom:${bottom};transform:${transform};width:${sz}px;height:auto;opacity:${op};z-index:10;pointer-events:none;object-fit:contain;">`;
 }
 
 function getO(){return{...opts,...uC,titleFont:uTF,bodyFont:uBF,showNum:opts.showNum,photoMode:pSt.mode,dimOpacity:pSt.dimOpacity,contentLayout:pSt.contentLayout,contentSlides:pSt.contentSlides};}
@@ -591,107 +590,24 @@ function renderGrid(){
   slides.forEach((s,i)=>{
     const item=document.createElement('div');item.className='gi';
     item.style.width=cardW+'px';
-    item.innerHTML=bld(s,i,slides.length,tpl,layouts[i],cardW,so,pSt.url,wmHTML(cardW));
+    item.innerHTML=bld(s,i,slides.length,tpl,layouts[i],cardW,so,pSt.url)+wmHTML(cardW);
     const nb=document.createElement('div');nb.className='gi-num';nb.textContent=`${i+1}/${slides.length}`;
     item.appendChild(nb);item.onclick=()=>openM(i);g.appendChild(item);
   });
 }
 function openM(i){modalIdx=i;document.getElementById('modal').classList.add('open');document.body.style.overflow='hidden';renderM();}
 function closeM(){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
-
 function renderM(){
   const so=getO();const maxH=window.innerHeight-140;const W=Math.round(Math.min(window.innerWidth-100,maxH*0.8,500));
-  document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url,wmHTML(W));
+  document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url)+wmHTML(W);
   document.getElementById('mslide').style.width=W+'px';
   const dots=document.getElementById('mdots');dots.innerHTML='';
   slides.forEach((_,i)=>{const d=document.createElement('div');d.className='mdot'+(i===modalIdx?' on':'');d.onclick=()=>{modalIdx=i;renderM();};dots.appendChild(d);});
   document.getElementById('mcnt').textContent=`${modalIdx+1} / ${slides.length}`;
   document.getElementById('mprev').disabled=modalIdx===0;
   document.getElementById('mnext').disabled=modalIdx===slides.length-1;
-
-  // Подсказка редактирования
-  const hint = document.getElementById('edit-hint');
-  if(hint) hint.style.display = 'block';
-  setTimeout(()=>{ if(hint) hint.style.display='none'; }, 2500);
-
-  // Делаем текстовые элементы редактируемыми
-  attachEditors(W);
 }
-
-function attachEditors(W){
-  const slide = document.getElementById('mslide');
-  const s = slides[modalIdx];
-
-  // Ищем текстовые узлы по содержимому
-  const allDivs = slide.querySelectorAll('div');
-  allDivs.forEach(el => {
-    const txt = el.textContent.trim();
-    if(!txt || el.children.length > 0) return; // только листовые узлы с текстом
-    const isHeadline = txt === s.headline;
-    const isSubhead  = s.subhead && txt === s.subhead;
-    const isBody     = s.body && txt === s.body;
-    if(!isHeadline && !isSubhead && !isBody) return;
-
-    el.style.cursor = 'text';
-    el.title = 'Кликните для редактирования';
-
-    el.addEventListener('mouseenter', () => {
-      el.style.outline = '2px solid rgba(255,255,255,0.5)';
-      el.style.outlineOffset = '4px';
-      el.style.borderRadius = '3px';
-    });
-    el.addEventListener('mouseleave', () => {
-      if(!el.isContentEditable) { el.style.outline=''; el.style.outlineOffset=''; }
-    });
-
-    el.addEventListener('click', e => {
-      e.stopPropagation();
-      if(el.isContentEditable) return;
-
-      // Блокируем навигацию пока редактируем
-      el.contentEditable = 'true';
-      el.style.outline = '2px solid rgba(255,255,255,0.8)';
-      el.style.outlineOffset = '4px';
-      el.style.borderRadius = '3px';
-      el.style.minWidth = '40px';
-      el.focus();
-
-      // Выделяем весь текст
-      const range = document.createRange();
-      range.selectNodeContents(el);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-
-      function save(){
-        if(!el.isContentEditable) return;
-        const newTxt = el.textContent.trim();
-        if(isHeadline) slides[modalIdx].headline = newTxt;
-        else if(isSubhead) slides[modalIdx].subhead = newTxt;
-        else if(isBody) slides[modalIdx].body = newTxt;
-        el.contentEditable = 'false';
-        el.style.outline = '';
-        el.style.outlineOffset = '';
-        // Обновляем превью в сетке
-        renderGrid();
-      }
-
-      el.addEventListener('blur', save, {once:true});
-      el.addEventListener('keydown', e2 => {
-        if(e2.key === 'Enter' && !e2.shiftKey){ e2.preventDefault(); el.blur(); }
-        if(e2.key === 'Escape'){ el.textContent = isHeadline?s.headline:isSubhead?s.subhead:s.body; el.blur(); }
-        // Блокируем стрелки навигации пока в режиме редактирования
-        if(['ArrowLeft','ArrowRight'].includes(e2.key)) e2.stopPropagation();
-      });
-    });
-  });
-}
-
-function navM(d){
-  // Не навигируем если что-то редактируется
-  if(document.querySelector('[contenteditable="true"]')) return;
-  modalIdx=Math.max(0,Math.min(slides.length-1,modalIdx+d));renderM();
-}
+function navM(d){modalIdx=Math.max(0,Math.min(slides.length-1,modalIdx+d));renderM();}
 let txS=null;
 document.getElementById('modal').addEventListener('touchstart',e=>{txS=e.touches[0].clientX;},{passive:true});
 document.getElementById('modal').addEventListener('touchend',e=>{if(txS===null)return;const dx=e.changedTouches[0].clientX-txS;if(Math.abs(dx)>40)navM(dx<0?1:-1);txS=null;},{passive:true});
@@ -702,7 +618,7 @@ document.addEventListener('keydown',e=>{
 async function dlZip(){
   if(!slides.length)return;const btn=document.getElementById('btn-dl');btn.disabled=true;btn.innerHTML='<div class="spin"></div> Рендерю...';
   const ra=document.getElementById('render-area');ra.innerHTML='';const so=getO();
-  slides.forEach((s,i)=>{const w=document.createElement('div');w.style.cssText='width:1080px;height:1350px;overflow:hidden;position:relative;';w.innerHTML=bld(s,i,slides.length,tpl,layouts[i],1080,so,pSt.url,wmHTML(1080));ra.appendChild(w);});
+  slides.forEach((s,i)=>{const w=document.createElement('div');w.style.cssText='width:1080px;height:1350px;overflow:hidden;position:relative;';w.innerHTML=bld(s,i,slides.length,tpl,layouts[i],1080,so,pSt.url)+wmHTML(1080);ra.appendChild(w);});
   await document.fonts.ready;await new Promise(r=>setTimeout(r,1000));
   const zip=new JSZip();
   for(let i=0;i<ra.children.length;i++){btn.innerHTML=`<div class="spin"></div> ${i+1}/${ra.children.length}`;const canvas=await html2canvas(ra.children[i],{scale:1,useCORS:true,allowTaint:true,backgroundColor:null,width:1080,height:1350,logging:false});const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));zip.file(`slide-${String(i+1).padStart(2,'0')}.png`,blob);}
