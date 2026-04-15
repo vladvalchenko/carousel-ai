@@ -122,20 +122,37 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 .gi-num{position:absolute;bottom:7px;right:9px;font-size:10px;font-weight:700;color:rgba(255,255,255,.65);font-family:'Unbounded',sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.7);}
 
 /* MODAL */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;display:none;align-items:center;justify-content:center;}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;align-items:center;justify-content:center;}
 .modal.open{display:flex;}
-.modal-in{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;}
-.modal-slide{border-radius:10px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);}
-.modal-nav{display:flex;align-items:center;gap:16px;}
-.marr{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;}
-.marr:hover{background:rgba(255,255,255,.22);}
-.marr:disabled{opacity:.2;cursor:default;}
+.modal-in{position:relative;display:flex;gap:20px;align-items:flex-start;background:#fff;border-radius:16px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.3);max-width:92vw;}
+.modal-left{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.modal-slide{border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.12);}
+.modal-nav{display:flex;align-items:center;gap:12px;}
+.marr{width:34px;height:34px;border-radius:50%;background:#f0ede8;border:none;color:#1a1a18;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;}
+.marr:hover{background:#e5e3de;}
+.marr:disabled{opacity:.25;cursor:default;}
 .mdots{display:flex;gap:5px;align-items:center;}
-.mdot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .18s;cursor:pointer;}
-.mdot.on{background:#fff;transform:scale(1.3);}
-.mclose{position:absolute;top:-12px;right:-12px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.mclose:hover{background:rgba(255,255,255,.25);}
-.mcnt{font-size:10px;color:rgba(255,255,255,.4);font-family:'Unbounded',sans-serif;}
+.mdot{width:5px;height:5px;border-radius:50%;background:#d5d3ce;cursor:pointer;transition:all .18s;}
+.mdot.on{background:#1a1a18;transform:scale(1.3);}
+.mclose{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:#f0ede8;border:none;color:#1a1a18;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.mclose:hover{background:#e5e3de;}
+.mcnt{font-size:10px;color:#bbb;font-family:'Unbounded',sans-serif;}
+
+/* Edit panel */
+.edit-panel{width:220px;display:flex;flex-direction:column;border:1.5px solid #e8e6e1;border-radius:10px;overflow:hidden;flex-shrink:0;}
+.ep-hdr{padding:11px 14px;background:#f7f6f3;border-bottom:1px solid #ede9e3;display:flex;align-items:center;justify-content:space-between;}
+.ep-title{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#888;}
+.ep-badge{font-size:9px;padding:2px 7px;border-radius:20px;background:#fdf0ef;color:#c0392b;border:1px solid #f5c6c2;display:none;}
+.ep-badge.show{display:block;}
+.ef{padding:10px 14px;border-bottom:1px solid #f0ede8;}
+.ef:last-child{border-bottom:none;}
+.ef-lbl{font-size:9px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#bbb;margin-bottom:5px;display:block;}
+.ef-inp{width:100%;border:1.5px solid #e8e6e1;border-radius:6px;padding:7px 9px;font-size:12px;color:#1a1a18;font-family:'Inter',sans-serif;outline:none;background:#fff;transition:border-color .15s;}
+.ef-inp:focus{border-color:#1a1a18;}
+.ef-ta{width:100%;border:1.5px solid #e8e6e1;border-radius:6px;padding:7px 9px;font-size:12px;color:#1a1a18;font-family:'Inter',sans-serif;outline:none;resize:none;height:68px;line-height:1.55;background:#fff;transition:border-color .15s;}
+.ef-ta:focus{border-color:#1a1a18;}
+.ef-apply{width:100%;padding:11px;background:#1a1a18;color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;font-family:'Unbounded',sans-serif;letter-spacing:.04em;cursor:pointer;transition:background .15s;}
+.ef-apply:hover{background:#333;}
 
 /* Tone seg - wrap */
 #tone-seg{flex-wrap:wrap;}
@@ -352,13 +369,40 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;b
 <div class="modal" id="modal" onclick="if(event.target===this)closeM()">
   <div class="modal-in" onclick="event.stopPropagation()">
     <button class="mclose" onclick="closeM()">✕</button>
-    <div class="modal-slide" id="mslide"></div>
-    <div class="modal-nav">
-      <button class="marr" id="mprev" onclick="navM(-1)">&#8592;</button>
-      <div class="mdots" id="mdots"></div>
-      <button class="marr" id="mnext" onclick="navM(1)">&#8594;</button>
+
+    <!-- Слайд + навигация -->
+    <div class="modal-left">
+      <div class="modal-slide" id="mslide"></div>
+      <div class="modal-nav">
+        <button class="marr" id="mprev" onclick="navM(-1)">&#8592;</button>
+        <div class="mdots" id="mdots"></div>
+        <button class="marr" id="mnext" onclick="navM(1)">&#8594;</button>
+      </div>
+      <div class="mcnt" id="mcnt"></div>
     </div>
-    <div class="mcnt" id="mcnt"></div>
+
+    <!-- Панель редактирования -->
+    <div class="edit-panel">
+      <div class="ep-hdr">
+        <span class="ep-title" id="ep-title">Слайд 1</span>
+        <span class="ep-badge" id="ep-badge">Изменено</span>
+      </div>
+      <div class="ef">
+        <label class="ef-lbl">Заголовок</label>
+        <input class="ef-inp" id="ef-headline" oninput="onEfInput()">
+      </div>
+      <div class="ef">
+        <label class="ef-lbl">Подзаголовок</label>
+        <input class="ef-inp" id="ef-subhead" oninput="onEfInput()">
+      </div>
+      <div class="ef">
+        <label class="ef-lbl">Основной текст</label>
+        <textarea class="ef-ta" id="ef-body" oninput="onEfInput()"></textarea>
+      </div>
+      <div class="ef">
+        <button class="ef-apply" onclick="applyEdit()">Применить изменения</button>
+      </div>
+    </div>
   </div>
 </div>
 <div id="render-area"></div>
@@ -394,7 +438,7 @@ function mkDeco(d,W,sc,ac){
   if(d==='dot-row'){const dots=Array.from({length:6},(_,i)=>`<div style="width:${5*sc}px;height:${5*sc}px;border-radius:50%;background:${ac};opacity:${i%2===0?.5:.2};"></div>`).join('');return`<div style="position:absolute;top:${p}px;right:${p}px;display:flex;flex-direction:column;gap:${6*sc}px;z-index:0;">${dots}</div>`;}
   return'';
 }
-function bld(slide,idx,total,tk,layout,W,uo,photoUrl){
+function bld(slide,idx,total,tk,layout,W,uo,photoUrl,wm){
   const t=TEMPLATES[tk];uo=uo||{};
   const bgC=uo.bgC||t.bg,tC=uo.titleC||t.tc,bC=uo.bodyC||t.bc,aC=uo.accentC||t.ac;
   const tf=uo.titleFont||t.tf,bf=uo.bodyFont||t.bf,tw=t.tw,ti=(!uo.titleFont&&t.ts)?'italic':'normal';
@@ -416,7 +460,7 @@ function bld(slide,idx,total,tk,layout,W,uo,photoUrl){
     const jm={top:'flex-start',center:'center',bottom:'flex-end'};
     const td=`<div style="flex:1;background:${bgC};padding:${p}px;display:flex;flex-direction:column;justify-content:${jm[pos]||'center'};overflow:hidden;position:relative;">${mkDeco(t.deco,W,sc,aC)}${sn&&t.numPos!=='none'?`<div style="font-family:${bf};font-size:${9*sc}px;font-weight:500;color:${bC};opacity:.65;margin-bottom:${8*sc}px;">${n} / ${tot}</div>`:''}<div style="font-family:${tf};font-style:${ti};font-size:${cl(aFz(slide.headline,14,2,28,sc,fm),14*sc,36*sc)}px;font-weight:${tw};color:${tC};line-height:1.1;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${12*sc}px;color:${bC};line-height:1.6;font-weight:300;margin-top:${10*sc}px;">${b||s}</div>`:''}</div>`;
     let inner=iv?(cL==='top'?`<div style="display:flex;flex-direction:column;width:${W}px;height:${H}px;">${pd}${td}</div>`:`<div style="display:flex;flex-direction:column;width:${W}px;height:${H}px;">${td}${pd}</div>`):(cL==='left'?`<div style="display:flex;width:${W}px;height:${H}px;">${pd}${td}</div>`:`<div style="display:flex;width:${W}px;height:${H}px;">${td}${pd}</div>`);
-    return`<div style="${wr}">${inner}</div>`;
+    return`<div style="${wr}">${inner}${wm||''}</div>`;
   }
   const bgP=sPB?`<div style="position:absolute;inset:0;background:url('${photoUrl}') center/cover;z-index:0;"></div><div style="position:absolute;inset:0;background:rgba(0,0,0,${dO});z-index:0;"></div>`:'';
   const eT=sPB?'#fff':tC,eB=sPB?'rgba(255,255,255,.7)':bC,eA=sPB?'rgba(255,255,255,.5)':aC;
@@ -428,11 +472,11 @@ function bld(slide,idx,total,tk,layout,W,uo,photoUrl){
   const jus=jm[pos]||'center',lo=t.deco==='line-left'?Math.round(p*1.5+4*sc):p;
   const inn=`position:absolute;inset:0;z-index:1;padding:${p}px ${p}px ${p}px ${lo}px;display:flex;flex-direction:column;justify-content:${jus};`;
   const div=`<div style="width:${40*sc}px;height:${3*sc}px;background:${eA};border-radius:2px;margin:${12*sc}px 0;flex-shrink:0;"></div>`;
-  if(layout==='hero'){const fz=cl(aFz(slide.headline,14,3,40,sc,fm),18*sc,52*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;max-height:100%;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.08;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;border-top:1px solid ${eA}44;padding-top:${12*sc}px;">${b||s}</div>`:''}</div></div></div>`;}
-  if(layout==='split'){const fz=cl(aFz(slide.headline,16,2,30,sc,fm),15*sc,38*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${div}${s?`<div style="font-size:${14*sc}px;font-weight:600;color:${eT};margin-bottom:${8*sc}px;line-height:1.35;">${s}</div>`:''}${b?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.7;font-weight:300;">${b}</div>`:''}</div></div></div>`;}
-  if(layout==='bigquote'){const fz=cl(aFz(slide.headline,18,3,32,sc,fm),14*sc,42*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.12;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;">${b||s}</div>`:''}</div></div></div>`;}
-  if(layout==='list'){const fz=cl(aFz(slide.headline,18,2,24,sc,fm),13*sc,30*sc);const lH=items.slice(0,4).map((item,i)=>`<div style="display:flex;gap:${10*sc}px;align-items:flex-start;"><div style="font-family:${tf};font-size:${11*sc}px;font-weight:900;color:${eA};line-height:1.4;min-width:${16*sc}px;flex-shrink:0;">${i+1}</div><div style="font-size:${12*sc}px;color:${eT};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div></div>`).join('');return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;margin-bottom:${16*sc}px;hyphens:none;">${h}</div><div style="display:flex;flex-direction:column;gap:${10*sc}px;">${lH}</div></div></div></div>`;}
-  if(layout==='feature'){const fz=cl(aFz(slide.headline,14,2,28,sc,fm),13*sc,36*sc);return`<div style="${wr}">${bgP}${!sPB?`<div style="position:absolute;top:0;left:0;right:0;height:40%;background:${aC};opacity:.1;z-index:0;pointer-events:none;"></div>`:''}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-size:${9*sc}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${eA};margin-bottom:${8*sc}px;">${s||'Детали'}</div><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${b?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.7;font-weight:300;margin-top:${12*sc}px;">${b}</div>`:''}</div></div></div>`;}
+  if(layout==='hero'){const fz=cl(aFz(slide.headline,14,3,40,sc,fm),18*sc,52*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;max-height:100%;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.08;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;border-top:1px solid ${eA}44;padding-top:${12*sc}px;">${b||s}</div>`:''}</div></div>${wm||''}</div>`;}
+  if(layout==='split'){const fz=cl(aFz(slide.headline,16,2,30,sc,fm),15*sc,38*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${div}${s?`<div style="font-size:${14*sc}px;font-weight:600;color:${eT};margin-bottom:${8*sc}px;line-height:1.35;">${s}</div>`:''}${b?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.7;font-weight:300;">${b}</div>`:''}</div></div>${wm||''}</div>`;}
+  if(layout==='bigquote'){const fz=cl(aFz(slide.headline,18,3,32,sc,fm),14*sc,42*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.12;hyphens:none;">${h}</div>${b||s?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.65;font-weight:300;margin-top:${14*sc}px;">${b||s}</div>`:''}</div></div>${wm||''}</div>`;}
+  if(layout==='list'){const fz=cl(aFz(slide.headline,18,2,24,sc,fm),13*sc,30*sc);const lH=items.slice(0,4).map((item,i)=>`<div style="display:flex;gap:${10*sc}px;align-items:flex-start;"><div style="font-family:${tf};font-size:${11*sc}px;font-weight:900;color:${eA};line-height:1.4;min-width:${16*sc}px;flex-shrink:0;">${i+1}</div><div style="font-size:${12*sc}px;color:${eT};line-height:1.6;font-weight:300;opacity:.88;hyphens:none;">${esc(item)}</div></div>`).join('');return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;margin-bottom:${16*sc}px;hyphens:none;">${h}</div><div style="display:flex;flex-direction:column;gap:${10*sc}px;">${lH}</div></div></div>${wm||''}</div>`;}
+  if(layout==='feature'){const fz=cl(aFz(slide.headline,14,2,28,sc,fm),13*sc,36*sc);return`<div style="${wr}">${bgP}${dH}${bN}${nH}<div style="${inn}"><div style="overflow:hidden;"><div style="font-size:${9*sc}px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${eA};margin-bottom:${8*sc}px;">${s||'Детали'}</div><div style="font-family:${tf};font-style:${ti};font-size:${fz}px;font-weight:${tw};color:${eT};line-height:1.1;hyphens:none;">${h}</div>${b?`<div style="font-size:${13*sc}px;color:${eB};line-height:1.7;font-weight:300;margin-top:${12*sc}px;">${b}</div>`:''}</div></div>${wm||''}</div>`;}
   return'';
 }
 
@@ -564,17 +608,17 @@ function wmHTML(W){
   const op=wmState.opacity/100;
   const pad=Math.round(W*0.04);
   const pos=wmState.pos;
-  let top='auto',left='auto',right='auto',bottom='auto',transform='';
-  if(pos==='tl'){top=pad+'px';left=pad+'px';}
-  else if(pos==='tc'){top=pad+'px';left='50%';transform='translateX(-50%)';}
-  else if(pos==='tr'){top=pad+'px';right=pad+'px';}
-  else if(pos==='cl'){top='50%';left=pad+'px';transform='translateY(-50%)';}
-  else if(pos==='cc'){top='50%';left='50%';transform='translate(-50%,-50%)';}
-  else if(pos==='cr'){top='50%';right=pad+'px';transform='translateY(-50%)';}
-  else if(pos==='bl'){bottom=pad+'px';left=pad+'px';}
-  else if(pos==='bc'){bottom=pad+'px';left='50%';transform='translateX(-50%)';}
-  else if(pos==='br'){bottom=pad+'px';right=pad+'px';}
-  return `<img src="${wmState.url}" style="position:absolute;top:${top};left:${left};right:${right};bottom:${bottom};transform:${transform};width:${sz}px;height:auto;opacity:${op};z-index:10;pointer-events:none;object-fit:contain;">`;
+  let style=`position:absolute;width:${sz}px;height:auto;opacity:${op};z-index:10;pointer-events:none;object-fit:contain;`;
+  if(pos==='tl')style+=`top:${pad}px;left:${pad}px;`;
+  else if(pos==='tc')style+=`top:${pad}px;left:50%;transform:translateX(-50%);`;
+  else if(pos==='tr')style+=`top:${pad}px;right:${pad}px;`;
+  else if(pos==='cl')style+=`top:50%;left:${pad}px;transform:translateY(-50%);`;
+  else if(pos==='cc')style+=`top:50%;left:50%;transform:translate(-50%,-50%);`;
+  else if(pos==='cr')style+=`top:50%;right:${pad}px;transform:translateY(-50%);`;
+  else if(pos==='bl')style+=`bottom:${pad}px;left:${pad}px;`;
+  else if(pos==='bc')style+=`bottom:${pad}px;left:50%;transform:translateX(-50%);`;
+  else if(pos==='br')style+=`bottom:${pad}px;right:${pad}px;`;
+  return `<img src="${wmState.url}" style="${style}">`;
 }
 
 function getO(){return{...opts,...uC,titleFont:uTF,bodyFont:uBF,showNum:opts.showNum,photoMode:pSt.mode,dimOpacity:pSt.dimOpacity,contentLayout:pSt.contentLayout,contentSlides:pSt.contentSlides};}
@@ -590,24 +634,51 @@ function renderGrid(){
   slides.forEach((s,i)=>{
     const item=document.createElement('div');item.className='gi';
     item.style.width=cardW+'px';
-    item.innerHTML=bld(s,i,slides.length,tpl,layouts[i],cardW,so,pSt.url)+wmHTML(cardW);
+    item.innerHTML=bld(s,i,slides.length,tpl,layouts[i],cardW,so,pSt.url,wmHTML(cardW));
     const nb=document.createElement('div');nb.className='gi-num';nb.textContent=`${i+1}/${slides.length}`;
     item.appendChild(nb);item.onclick=()=>openM(i);g.appendChild(item);
   });
 }
 function openM(i){modalIdx=i;document.getElementById('modal').classList.add('open');document.body.style.overflow='hidden';renderM();}
 function closeM(){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
+
 function renderM(){
-  const so=getO();const maxH=window.innerHeight-140;const W=Math.round(Math.min(window.innerWidth-100,maxH*0.8,500));
-  document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url)+wmHTML(W);
+  const so=getO();const maxH=window.innerHeight-160;const W=Math.round(Math.min(window.innerWidth-320,maxH*0.8,420));
+  document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url,wmHTML(W));
   document.getElementById('mslide').style.width=W+'px';
   const dots=document.getElementById('mdots');dots.innerHTML='';
   slides.forEach((_,i)=>{const d=document.createElement('div');d.className='mdot'+(i===modalIdx?' on':'');d.onclick=()=>{modalIdx=i;renderM();};dots.appendChild(d);});
   document.getElementById('mcnt').textContent=`${modalIdx+1} / ${slides.length}`;
   document.getElementById('mprev').disabled=modalIdx===0;
   document.getElementById('mnext').disabled=modalIdx===slides.length-1;
+  // Заполняем поля редактирования
+  const s=slides[modalIdx];
+  document.getElementById('ep-title').textContent=`Слайд ${modalIdx+1}`;
+  document.getElementById('ef-headline').value=s.headline||'';
+  document.getElementById('ef-subhead').value=s.subhead||'';
+  document.getElementById('ef-body').value=s.body||'';
+  document.getElementById('ep-badge').classList.remove('show');
 }
-function navM(d){modalIdx=Math.max(0,Math.min(slides.length-1,modalIdx+d));renderM();}
+
+function onEfInput(){
+  document.getElementById('ep-badge').classList.add('show');
+}
+
+function applyEdit(){
+  slides[modalIdx].headline=document.getElementById('ef-headline').value;
+  slides[modalIdx].subhead=document.getElementById('ef-subhead').value;
+  slides[modalIdx].body=document.getElementById('ef-body').value;
+  document.getElementById('ep-badge').classList.remove('show');
+  // Обновляем слайд и сетку
+  const so=getO();const maxH=window.innerHeight-160;const W=Math.round(Math.min(window.innerWidth-320,maxH*0.8,420));
+  document.getElementById('mslide').innerHTML=bld(slides[modalIdx],modalIdx,slides.length,tpl,layouts[modalIdx],W,so,pSt.url,wmHTML(W));
+  renderGrid();
+}
+
+
+function navM(d){
+  modalIdx=Math.max(0,Math.min(slides.length-1,modalIdx+d));renderM();
+}
 let txS=null;
 document.getElementById('modal').addEventListener('touchstart',e=>{txS=e.touches[0].clientX;},{passive:true});
 document.getElementById('modal').addEventListener('touchend',e=>{if(txS===null)return;const dx=e.changedTouches[0].clientX-txS;if(Math.abs(dx)>40)navM(dx<0?1:-1);txS=null;},{passive:true});
@@ -618,7 +689,7 @@ document.addEventListener('keydown',e=>{
 async function dlZip(){
   if(!slides.length)return;const btn=document.getElementById('btn-dl');btn.disabled=true;btn.innerHTML='<div class="spin"></div> Рендерю...';
   const ra=document.getElementById('render-area');ra.innerHTML='';const so=getO();
-  slides.forEach((s,i)=>{const w=document.createElement('div');w.style.cssText='width:1080px;height:1350px;overflow:hidden;position:relative;';w.innerHTML=bld(s,i,slides.length,tpl,layouts[i],1080,so,pSt.url)+wmHTML(1080);ra.appendChild(w);});
+  slides.forEach((s,i)=>{const w=document.createElement('div');w.style.cssText='width:1080px;height:1350px;overflow:hidden;position:relative;';w.innerHTML=bld(s,i,slides.length,tpl,layouts[i],1080,so,pSt.url,wmHTML(1080));ra.appendChild(w);});
   await document.fonts.ready;await new Promise(r=>setTimeout(r,1000));
   const zip=new JSZip();
   for(let i=0;i<ra.children.length;i++){btn.innerHTML=`<div class="spin"></div> ${i+1}/${ra.children.length}`;const canvas=await html2canvas(ra.children[i],{scale:1,useCORS:true,allowTaint:true,backgroundColor:null,width:1080,height:1350,logging:false});const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));zip.file(`slide-${String(i+1).padStart(2,'0')}.png`,blob);}
