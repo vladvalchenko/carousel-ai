@@ -1,25 +1,11 @@
 const express = require('express');
 const cors = require('cors');
-const Database = require('better-sqlite3');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.OPENAI_API_KEY;
 const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY;
-
-const db = new Database(path.join(__dirname, 'db.sqlite'));
-db.exec(`
-  CREATE TABLE IF NOT EXISTS generations (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    session_id TEXT NOT NULL,
-    input_text TEXT NOT NULL,
-    style TEXT NOT NULL,
-    slide_count INTEGER NOT NULL,
-    slides_json TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`);
 
 app.use(cors());
 app.use(express.json());
@@ -41,7 +27,7 @@ app.post('/generate', async (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   if (!checkRate(ip)) return res.status(429).json({ error: 'Лимит запросов. Попробуй через час.' });
 
-  const { text, style = 'noir', slideCount = 5, sessionId = 'anon', tone = 'expert' } = req.body;
+  const { text, style = 'noir', slideCount = 5, tone = 'expert' } = req.body;
   if (!text || text.trim().length < 10) return res.status(400).json({ error: 'Текст слишком короткий.' });
   if (!API_KEY) return res.status(500).json({ error: 'OPENAI_API_KEY не настроен.' });
 
@@ -99,9 +85,6 @@ ${text.trim()}`;
     const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
     if (!Array.isArray(parsed.slides)) throw new Error('Неверный формат');
 
-    db.prepare(`INSERT INTO generations (session_id, input_text, style, slide_count, slides_json) VALUES (?, ?, ?, ?, ?)`)
-      .run(sessionId, text.trim().slice(0, 500), style, slideCount, JSON.stringify(parsed.slides));
-
     res.json({ slides: parsed.slides, photo_keyword: parsed.photo_keyword || '' });
 
   } catch (e) {
@@ -140,18 +123,5 @@ app.get('/photo', async (req, res) => {
   }
 });
 
-app.get('/history', (req, res) => {
-  const { sessionId = 'anon' } = req.query;
-  const rows = db.prepare(`SELECT id, input_text, style, slide_count, slides_json, created_at FROM generations WHERE session_id = ? ORDER BY created_at DESC LIMIT 20`).all(sessionId);
-  res.json(rows.map(r => ({ ...r, slides: JSON.parse(r.slides_json) })));
-});
 
-app.get('/stats', (req, res) => {
-  const total = db.prepare('SELECT COUNT(*) as cnt FROM generations').get().cnt;
-  const today = db.prepare(`SELECT COUNT(*) as cnt FROM generations WHERE date(created_at) = date('now')`).get().cnt;
-  const thisWeek = db.prepare(`SELECT COUNT(*) as cnt FROM generations WHERE created_at >= datetime('now', '-7 days')`).get().cnt;
-  res.json({ total, today, thisWeek });
-});
-
-app.get('/health', (_, res) => res.json({ ok: true }));
 app.listen(PORT, () => console.log(`Carousel AI running on port ${PORT}`));
