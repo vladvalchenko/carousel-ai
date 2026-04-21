@@ -145,6 +145,9 @@ select{width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:5px;fon
 .mclose:hover{background:rgba(255,255,255,.25);}
 .mcnt{font-size:10px;color:rgba(255,255,255,.45);font-family:'Unbounded',sans-serif;}
 #render-area{position:fixed;left:-9999px;top:0;pointer-events:none;}
+.btn-new-gen{width:100%;padding:9px;background:#fff;color:#2d3748;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:0;}
+.btn-new-gen:hover{background:#f7fafc;border-color:#a0aec0;}
+.phase{transition:opacity .15s;}
 </style>
 </head>
 <body>
@@ -154,37 +157,50 @@ select{width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:5px;fon
   <!-- SIDEBAR -->
   <aside class="sb">
 
-    <div class="sec">
-      <span class="sec-lbl">Текст</span>
-      <textarea id="txt" placeholder="Вставьте текст: анонс, статью, описание продукта..."></textarea>
-      <div id="gen-err"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
-        <span style="font-size:11px;color:#718096;">Количество слайдов</span>
-        <div class="cnt-row">
-          <button class="cnt-b" onclick="chCnt(-1)">−</button>
-          <div class="cnt-n" id="cnt">5</div>
-          <button class="cnt-b" onclick="chCnt(1)">+</button>
+    <!-- ФАЗА 1 -->
+    <div id="phase1">
+      <div class="sec">
+        <span class="sec-lbl">Текст</span>
+        <textarea id="txt" placeholder="Вставьте текст: анонс, статью, описание продукта..."></textarea>
+        <div id="gen-err"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:11px;color:#718096;">Количество слайдов</span>
+          <div class="cnt-row">
+            <button class="cnt-b" onclick="chCnt(-1)">−</button>
+            <div class="cnt-n" id="cnt">5</div>
+            <button class="cnt-b" onclick="chCnt(1)">+</button>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="sec">
-      <span class="sec-lbl">Тональность</span>
-      <div class="tone-grid" id="tone-seg">
-        <div class="tb on" data-v="expert" onclick="setSeg('tone-seg',this,'tone')">Экспертный</div>
-        <div class="tb" data-v="friendly" onclick="setSeg('tone-seg',this,'tone')">Дружелюбный</div>
-        <div class="tb" data-v="provocative" onclick="setSeg('tone-seg',this,'tone')">Провокационный</div>
-        <div class="tb" data-v="minimal" onclick="setSeg('tone-seg',this,'tone')">Минималистичный</div>
+      <div class="sec">
+        <span class="sec-lbl">Тональность</span>
+        <div class="tone-grid" id="tone-seg">
+          <div class="tb on" data-v="expert" onclick="setSeg('tone-seg',this,'tone')">Экспертный</div>
+          <div class="tb" data-v="friendly" onclick="setSeg('tone-seg',this,'tone')">Дружелюбный</div>
+          <div class="tb" data-v="provocative" onclick="setSeg('tone-seg',this,'tone')">Провокационный</div>
+          <div class="tb" data-v="minimal" onclick="setSeg('tone-seg',this,'tone')">Минималистичный</div>
+        </div>
+      </div>
+      <div class="sec">
+        <button class="btn-gen" id="btn-gen" onclick="generate()">Сгенерировать</button>
       </div>
     </div>
 
-    <div class="sec">
-      <span class="sec-lbl">Шаблон</span>
-      <div class="tpl-grid" id="tpl-grid"></div>
-    </div>
+    <!-- ФАЗА 2 -->
+    <div id="phase2" style="display:none;">
+      <div class="sec">
+        <button class="btn-new-gen" onclick="resetToPhase1()">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Новая генерация
+        </button>
+      </div>
+      <div class="sec">
+        <span class="sec-lbl">Шаблон</span>
+        <div class="tpl-grid" id="tpl-grid"></div>
+      </div>
 
-    <div class="sec">
-      <span class="sec-lbl">Фото</span>
+      <div class="sec">
+        <span class="sec-lbl">Фото</span>
       <div class="pmb-row">
         <div class="pmb on" data-mode="none" onclick="setPM(this)">Без фото</div>
         <div class="pmb" data-mode="bg" onclick="setPM(this)">Фон</div>
@@ -216,10 +232,6 @@ select{width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:5px;fon
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="sec">
-      <button class="btn-gen" id="btn-gen" onclick="generate()">Сгенерировать</button>
     </div>
 
     <!-- АККОРДЕОН: дополнительные настройки -->
@@ -324,6 +336,7 @@ select{width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:5px;fon
       </div>
 
     </div>
+    </div><!-- /phase2 -->
   </aside>
 
   <!-- MAIN -->
@@ -540,6 +553,7 @@ async function generate(){
     const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,style:tpl,slideCount:cnt,tone})});
     const data=await res.json();if(!res.ok)throw new Error(data.error||'Ошибка сервера');
     stopProg();slides=data.slides;layouts=makePlan(slides.length);
+    showPhase2();
     if(data.photo_keyword){document.getElementById('pq').value=data.photo_keyword;await srchP(data.photo_keyword);if(pSt.mode!=='none'){const ft=document.querySelector('.pt');if(ft)ft.click();}}
     renderGrid();document.getElementById('btn-dl').disabled=false;
     document.getElementById('slides-lbl').textContent=`Предпросмотр · ${slides.length} слайдов`;
@@ -600,6 +614,21 @@ async function dlZip(){
   for(let i=0;i<ra.children.length;i++){btn.innerHTML=`<div class="spin"></div> ${i+1}/${ra.children.length}`;const canvas=await html2canvas(ra.children[i],{scale:1,useCORS:true,allowTaint:true,backgroundColor:null,width:1080,height:1350,logging:false});const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));zip.file(`slide-${String(i+1).padStart(2,'0')}.png`,blob);}
   const zb=await zip.generateAsync({type:'blob'});const a=document.createElement('a');a.href=URL.createObjectURL(zb);a.download='carousel.zip';a.click();
   ra.innerHTML='';btn.disabled=false;btn.innerHTML=`<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg> Скачать ZIP`;
+}
+function showPhase2(){
+  document.getElementById('phase1').style.display='none';
+  document.getElementById('phase2').style.display='block';
+}
+function resetToPhase1(){
+  document.getElementById('phase1').style.display='block';
+  document.getElementById('phase2').style.display='none';
+  document.getElementById('txt').value='';
+  document.getElementById('gen-err').style.display='none';
+  slides=[];layouts=[];
+  document.getElementById('sgrid').style.display='none';
+  document.getElementById('ehint').style.display='flex';
+  document.getElementById('btn-dl').disabled=true;
+  document.getElementById('slides-lbl').textContent='Предпросмотр';
 }
 renderTplGrid();applyTC('noir');
 </script>
