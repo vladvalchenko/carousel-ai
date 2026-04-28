@@ -11,10 +11,10 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#2d3748;font-size:13px;}
 
-.app{display:grid;grid-template-columns:260px 1fr;width:705px;min-height:600px;background:#fff;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden;}
+.app{display:grid;grid-template-columns:224px 1fr;width:705px;min-height:600px;background:#fff;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden;}
 
 /* SIDEBAR */
-.sb{border-right:1px solid #e2e8f0;display:flex;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;max-height:700px;}
+.sb{border-right:1px solid #e2e8f0;display:flex;flex-direction:column;background:#fff;overflow-y:auto;max-height:700px;}
 ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:2px;}
 .sec{padding:11px 13px;border-bottom:1px solid #f0f2f5;}
 .sec-lbl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#a0aec0;margin-bottom:7px;display:block;}
@@ -51,6 +51,12 @@ textarea::placeholder{color:#a0aec0;}
 .pck{position:absolute;top:2px;right:2px;width:12px;height:12px;background:#3182ce;border-radius:50%;display:none;align-items:center;justify-content:center;}
 .pt.on .pck{display:flex;}
 .pcr{font-size:9px;color:#a0aec0;margin-top:3px;}
+.attr-box{display:none;margin-top:8px;background:#f7fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;}
+.attr-label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#a0aec0;margin-bottom:4px;display:block;}
+.attr-text{font-size:11px;color:#2d3748;line-height:1.4;margin-bottom:6px;}
+.attr-copy{width:100%;padding:5px;background:#fff;border:1px solid #e2e8f0;border-radius:5px;font-size:10px;color:#718096;cursor:pointer;transition:all .12s;}
+.attr-copy:hover{border-color:#a0aec0;color:#2d3748;}
+.attr-copy.copied{border-color:#48bb78;color:#48bb78;}
 .p-more{width:100%;margin-top:4px;padding:5px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;color:#a0aec0;font-size:10px;cursor:pointer;transition:all .12s;}
 .p-more:hover{border-color:#a0aec0;color:#718096;}
 
@@ -145,9 +151,6 @@ select{width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:5px;fon
 .mclose:hover{background:rgba(255,255,255,.25);}
 .mcnt{font-size:10px;color:rgba(255,255,255,.45);font-family:'Unbounded',sans-serif;}
 #render-area{position:fixed;left:-9999px;top:0;pointer-events:none;}
-.btn-new-gen{width:100%;padding:9px;background:#fff;color:#2d3748;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:0;}
-.btn-new-gen:hover{background:#f7fafc;border-color:#a0aec0;}
-.phase{transition:opacity .15s;}
 </style>
 </head>
 <body>
@@ -157,50 +160,29 @@ select{width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:5px;fon
   <!-- SIDEBAR -->
   <aside class="sb">
 
-    <!-- ФАЗА 1 -->
-    <div id="phase1">
-      <div class="sec">
-        <span class="sec-lbl">Текст</span>
-        <textarea id="txt" placeholder="Вставьте текст: анонс, статью, описание продукта..."></textarea>
-        <div id="gen-err"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
-          <span style="font-size:11px;color:#718096;">Количество слайдов</span>
-          <div class="cnt-row">
-            <button class="cnt-b" onclick="chCnt(-1)">−</button>
-            <div class="cnt-n" id="cnt">5</div>
-            <button class="cnt-b" onclick="chCnt(1)">+</button>
-          </div>
-        </div>
-      </div>
-      <div class="sec">
-        <span class="sec-lbl">Тональность</span>
-        <div class="tone-grid" id="tone-seg">
-          <div class="tb on" data-v="expert" onclick="setSeg('tone-seg',this,'tone')">Экспертный</div>
-          <div class="tb" data-v="friendly" onclick="setSeg('tone-seg',this,'tone')">Дружелюбный</div>
-          <div class="tb" data-v="provocative" onclick="setSeg('tone-seg',this,'tone')">Провокационный</div>
-          <div class="tb" data-v="minimal" onclick="setSeg('tone-seg',this,'tone')">Минималистичный</div>
-        </div>
-      </div>
-      <div class="sec">
-        <button class="btn-gen" id="btn-gen" onclick="generate()">Сгенерировать</button>
+    <div class="sec">
+      <span class="sec-lbl">Текст</span>
+      <textarea id="txt" placeholder="Вставьте текст: анонс, статью, описание продукта..."></textarea>
+      <div id="gen-err"></div>
+    </div>
+
+    <div class="sec">
+      <span class="sec-lbl">Тональность</span>
+      <div class="tone-grid" id="tone-seg">
+        <div class="tb on" data-v="expert" onclick="setSeg('tone-seg',this,'tone')">Экспертный</div>
+        <div class="tb" data-v="friendly" onclick="setSeg('tone-seg',this,'tone')">Дружелюбный</div>
+        <div class="tb" data-v="provocative" onclick="setSeg('tone-seg',this,'tone')">Провокационный</div>
+        <div class="tb" data-v="minimal" onclick="setSeg('tone-seg',this,'tone')">Минималистичный</div>
       </div>
     </div>
 
-    <!-- ФАЗА 2 -->
-    <div id="phase2" style="display:none;">
-      <div class="sec">
-        <button class="btn-new-gen" onclick="resetToPhase1()">
-          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-          Новая генерация
-        </button>
-      </div>
-      <div class="sec">
-        <span class="sec-lbl">Шаблон</span>
-        <div class="tpl-grid" id="tpl-grid"></div>
-      </div>
+    <div class="sec">
+      <span class="sec-lbl">Шаблон</span>
+      <div class="tpl-grid" id="tpl-grid"></div>
+    </div>
 
-      <div class="sec">
-        <span class="sec-lbl">Фото</span>
+    <div class="sec">
+      <span class="sec-lbl">Фото</span>
       <div class="pmb-row">
         <div class="pmb on" data-mode="none" onclick="setPM(this)">Без фото</div>
         <div class="pmb" data-mode="bg" onclick="setPM(this)">Фон</div>
@@ -214,6 +196,11 @@ select{width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:5px;fon
         <div class="pgrid" id="pgrid"></div>
         <button class="p-more" onclick="srchP()">Другие фото ↻</button>
         <div class="pcr" id="pcr"></div>
+        <div class="attr-box" id="attr-box">
+          <span class="attr-label">Подпись для поста</span>
+          <div class="attr-text" id="attr-text"></div>
+          <button class="attr-copy" id="attr-copy" onclick="copyAttr()">Копировать</button>
+        </div>
         <div id="bg-opts" style="display:none;margin-top:5px;">
           <div class="sl-row"><span class="sl-lbl">Затемнение</span><span class="sl-v" id="dim-v">50%</span></div>
           <input type="range" id="dim-r" min="0" max="90" value="50" oninput="uDim()">
@@ -232,6 +219,10 @@ select{width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:5px;fon
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="sec">
+      <button class="btn-gen" id="btn-gen" onclick="generate()">Сгенерировать</button>
     </div>
 
     <!-- АККОРДЕОН: дополнительные настройки -->
@@ -301,7 +292,14 @@ select{width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:5px;fon
           <span class="tgl-lbl">Нумерация</span>
           <label class="tgl"><input type="checkbox" id="show-num" checked onchange="uCtrl()"><div class="tgl-t"></div><div class="tgl-d"></div></label>
         </div>
-
+        <div class="tgl-row">
+          <span class="tgl-lbl">Количество слайдов</span>
+          <div class="cnt-row">
+            <button class="cnt-b" onclick="chCnt(-1)">−</button>
+            <div class="cnt-n" id="cnt">5</div>
+            <button class="cnt-b" onclick="chCnt(1)">+</button>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -336,7 +334,6 @@ select{width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:5px;fon
       </div>
 
     </div>
-    </div><!-- /phase2 -->
   </aside>
 
   <!-- MAIN -->
@@ -518,7 +515,7 @@ function chCnt(d){cnt=Math.max(3,Math.min(8,cnt+d));document.getElementById('cnt
 function setPM(el){
   document.querySelectorAll('.pmb').forEach(b=>b.classList.remove('on'));el.classList.add('on');
   pSt.mode=el.dataset.mode;
-  document.getElementById('photo-wrap').style.display=pSt.mode!=='none'?'block':'none';
+  document.getElementById('photo-wrap').style.display=pSt.mode!=='none'?'block':'none';if(pSt.mode==='none'){document.getElementById('attr-box').style.display='none';}
   document.getElementById('bg-opts').style.display=pSt.mode==='bg'?'block':'none';
   document.getElementById('cnt-opts').style.display=pSt.mode==='content'?'block':'none';
   if(slides.length)renderGrid();
@@ -532,7 +529,23 @@ async function srchP(forceQ){
   try{const r=await fetch(`/photo?query=${encodeURIComponent(q)}&page=${page}`);const d=await r.json();
     if(!d.photos?.length){g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:6px;font-size:10px;color:#a0aec0;">Ничего не найдено</div>`;return;}
     g.innerHTML='';
-    d.photos.forEach(ph=>{const el=document.createElement('div');el.className='pt';el.innerHTML=`<img src="${ph.thumb}" loading="lazy"><div class="pck"><svg width="6" height="6" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg></div>`;el.onclick=()=>{document.querySelectorAll('.pt').forEach(x=>x.classList.remove('on'));el.classList.add('on');pSt.url=ph.url;const pcr=document.getElementById('pcr');pcr.innerHTML=`<a href="${ph.author_url}" target="_blank" style="color:#a0aec0;text-decoration:none;">${ph.author} / Unsplash</a>`;if(ph.download_location)fetch(`/photo/download?downloadLocation=${encodeURIComponent(ph.download_location)}`).catch(()=>{});if(slides.length)renderGrid();};g.appendChild(el);});
+    d.photos.forEach(ph=>{const el=document.createElement('div');el.className='pt';el.innerHTML=`<img src="${ph.thumb}" loading="lazy"><div class="pck"><svg width="6" height="6" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg></div>`;el.onclick=()=>{
+  document.querySelectorAll('.pt').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  pSt.url=ph.url;
+  pSt.authorName=ph.author;
+  pSt.authorUrl=ph.author_url||(ph.author_url||'https://unsplash.com?utm_source=carousel_ai&utm_medium=referral');
+  document.getElementById('pcr').textContent=`${ph.author} / Unsplash`;
+  // Показываем attribution блок
+  const attrText=`📷 Photo by ${ph.author} on Unsplash (unsplash.com)`;
+  document.getElementById('attr-text').textContent=attrText;
+  document.getElementById('attr-box').style.display='block';
+  document.getElementById('attr-copy').textContent='Копировать';
+  document.getElementById('attr-copy').classList.remove('copied');
+  // Trigger download
+  if(ph.download_location)fetch(`/photo/download?downloadLocation=${encodeURIComponent(ph.download_location)}`).catch(()=>{});
+  if(slides.length)renderGrid();
+};g.appendChild(el);});
   }catch{g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:6px;font-size:10px;color:#a0aec0;">Ошибка</div>`;}
 }
 function setLoading(on){const btn=document.getElementById('btn-gen');btn.disabled=on;btn.innerHTML=on?'<div class="spin"></div> Генерирую...':'Сгенерировать';}
@@ -553,7 +566,6 @@ async function generate(){
     const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,style:tpl,slideCount:cnt,tone})});
     const data=await res.json();if(!res.ok)throw new Error(data.error||'Ошибка сервера');
     stopProg();slides=data.slides;layouts=makePlan(slides.length);
-    showPhase2();
     if(data.photo_keyword){document.getElementById('pq').value=data.photo_keyword;await srchP(data.photo_keyword);if(pSt.mode!=='none'){const ft=document.querySelector('.pt');if(ft)ft.click();}}
     renderGrid();document.getElementById('btn-dl').disabled=false;
     document.getElementById('slides-lbl').textContent=`Предпросмотр · ${slides.length} слайдов`;
@@ -615,20 +627,22 @@ async function dlZip(){
   const zb=await zip.generateAsync({type:'blob'});const a=document.createElement('a');a.href=URL.createObjectURL(zb);a.download='carousel.zip';a.click();
   ra.innerHTML='';btn.disabled=false;btn.innerHTML=`<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg> Скачать ZIP`;
 }
-function showPhase2(){
-  document.getElementById('phase1').style.display='none';
-  document.getElementById('phase2').style.display='block';
-}
-function resetToPhase1(){
-  document.getElementById('phase1').style.display='block';
-  document.getElementById('phase2').style.display='none';
-  document.getElementById('txt').value='';
-  document.getElementById('gen-err').style.display='none';
-  slides=[];layouts=[];
-  document.getElementById('sgrid').style.display='none';
-  document.getElementById('ehint').style.display='flex';
-  document.getElementById('btn-dl').disabled=true;
-  document.getElementById('slides-lbl').textContent='Предпросмотр';
+function copyAttr(){
+  const text=document.getElementById('attr-text').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('attr-copy');
+    btn.textContent='Скопировано ✓';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Копировать';btn.classList.remove('copied');},2000);
+  }).catch(()=>{
+    // fallback
+    const ta=document.createElement('textarea');
+    ta.value=text;document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    const btn=document.getElementById('attr-copy');
+    btn.textContent='Скопировано ✓';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Копировать';btn.classList.remove('copied');},2000);
+  });
 }
 renderTplGrid();applyTC('noir');
 </script>
