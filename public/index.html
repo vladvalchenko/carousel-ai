@@ -51,6 +51,12 @@ textarea::placeholder{color:#a0aec0;}
 .pck{position:absolute;top:2px;right:2px;width:12px;height:12px;background:#3182ce;border-radius:50%;display:none;align-items:center;justify-content:center;}
 .pt.on .pck{display:flex;}
 .pcr{font-size:9px;color:#a0aec0;margin-top:3px;}
+.attr-box{display:none;margin-top:8px;background:#f7fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;}
+.attr-label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#a0aec0;margin-bottom:4px;display:block;}
+.attr-text{font-size:11px;color:#2d3748;line-height:1.4;margin-bottom:6px;}
+.attr-copy{width:100%;padding:5px;background:#fff;border:1px solid #e2e8f0;border-radius:5px;font-size:10px;color:#718096;cursor:pointer;transition:all .12s;}
+.attr-copy:hover{border-color:#a0aec0;color:#2d3748;}
+.attr-copy.copied{border-color:#48bb78;color:#48bb78;}
 .p-more{width:100%;margin-top:4px;padding:5px;border:1px solid #e2e8f0;border-radius:5px;background:#fff;color:#a0aec0;font-size:10px;cursor:pointer;transition:all .12s;}
 .p-more:hover{border-color:#a0aec0;color:#718096;}
 
@@ -214,6 +220,11 @@ select{width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:5px;fon
         <div class="pgrid" id="pgrid"></div>
         <button class="p-more" onclick="srchP()">Другие фото ↻</button>
         <div class="pcr" id="pcr"></div>
+        <div class="attr-box" id="attr-box">
+          <span class="attr-label">Подпись для поста</span>
+          <div class="attr-text" id="attr-text"></div>
+          <button class="attr-copy" id="attr-copy" onclick="copyAttr()">Копировать</button>
+        </div>
         <div id="bg-opts" style="display:none;margin-top:5px;">
           <div class="sl-row"><span class="sl-lbl">Затемнение</span><span class="sl-v" id="dim-v">50%</span></div>
           <input type="range" id="dim-r" min="0" max="90" value="50" oninput="uDim()">
@@ -518,7 +529,7 @@ function chCnt(d){cnt=Math.max(3,Math.min(8,cnt+d));document.getElementById('cnt
 function setPM(el){
   document.querySelectorAll('.pmb').forEach(b=>b.classList.remove('on'));el.classList.add('on');
   pSt.mode=el.dataset.mode;
-  document.getElementById('photo-wrap').style.display=pSt.mode!=='none'?'block':'none';
+  document.getElementById('photo-wrap').style.display=pSt.mode!=='none'?'block':'none';if(pSt.mode==='none'){document.getElementById('attr-box').style.display='none';}
   document.getElementById('bg-opts').style.display=pSt.mode==='bg'?'block':'none';
   document.getElementById('cnt-opts').style.display=pSt.mode==='content'?'block':'none';
   if(slides.length)renderGrid();
@@ -532,7 +543,7 @@ async function srchP(forceQ){
   try{const r=await fetch(`/photo?query=${encodeURIComponent(q)}&page=${page}`);const d=await r.json();
     if(!d.photos?.length){g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:6px;font-size:10px;color:#a0aec0;">Ничего не найдено</div>`;return;}
     g.innerHTML='';
-    d.photos.forEach(ph=>{const el=document.createElement('div');el.className='pt';el.innerHTML=`<img src="${ph.thumb}" loading="lazy"><div class="pck"><svg width="6" height="6" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg></div>`;el.onclick=()=>{document.querySelectorAll('.pt').forEach(x=>x.classList.remove('on'));el.classList.add('on');pSt.url=ph.url;const pcr=document.getElementById('pcr');pcr.innerHTML=`<a href="${ph.author_url}" target="_blank" style="color:#a0aec0;text-decoration:none;">${ph.author} / Unsplash</a>`;if(ph.download_location)fetch(`/photo/download?downloadLocation=${encodeURIComponent(ph.download_location)}`).catch(()=>{});if(slides.length)renderGrid();};g.appendChild(el);});
+    d.photos.forEach(ph=>{const el=document.createElement('div');el.className='pt';el.innerHTML=`<img src="${ph.thumb}" loading="lazy"><div class="pck"><svg width="6" height="6" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" fill="none"/></svg></div>`;el.onclick=()=>{document.querySelectorAll('.pt').forEach(x=>x.classList.remove('on'));el.classList.add('on');pSt.url=ph.url;const pcr=document.getElementById('pcr');pcr.innerHTML=`<a href="${ph.author_url||'https://unsplash.com?utm_source=carousel_ai&utm_medium=referral'}" target="_blank" style="color:#a0aec0;text-decoration:none;">${ph.author} / Unsplash</a>`;document.getElementById('attr-text').textContent=`📷 Photo by ${ph.author} on Unsplash (unsplash.com)`;document.getElementById('attr-box').style.display='block';document.getElementById('attr-copy').textContent='Копировать';document.getElementById('attr-copy').classList.remove('copied');if(ph.download_location)fetch(`/photo/download?downloadLocation=${encodeURIComponent(ph.download_location)}`).catch(()=>{});if(slides.length)renderGrid();};g.appendChild(el);});
   }catch{g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:6px;font-size:10px;color:#a0aec0;">Ошибка</div>`;}
 }
 function setLoading(on){const btn=document.getElementById('btn-gen');btn.disabled=on;btn.innerHTML=on?'<div class="spin"></div> Генерирую...':'Сгенерировать';}
@@ -630,6 +641,7 @@ function resetToPhase1(){
   document.getElementById('btn-dl').disabled=true;
   document.getElementById('slides-lbl').textContent='Предпросмотр';
 }
+function copyAttr(){const text=document.getElementById('attr-text').textContent;const btn=document.getElementById('attr-copy');if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>{btn.textContent='Скопировано ✓';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Копировать';btn.classList.remove('copied');},2000);});}else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);btn.textContent='Скопировано ✓';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Копировать';btn.classList.remove('copied');},2000);}}
 renderTplGrid();applyTC('noir');
 </script>
 </body>
